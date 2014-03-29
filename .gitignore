@@ -154,3 +154,11 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+# OpenCover report
+opencover/
+
+# Nuget Packages
+packages/
+*.nupkg
+/NDbfReader/key.snk
