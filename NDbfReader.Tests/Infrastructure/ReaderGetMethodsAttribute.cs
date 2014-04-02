@@ -11,11 +11,11 @@ namespace NDbfReader.Tests.Infrastructure
     /// For parameter of type <see cref="System.String"/> the method name is provided. For parameter of type <see cref="System.Type"/> the type of parameter argument is provided.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    internal sealed class DbfReaderGetMethodsAttribute : DataAttribute
+    internal sealed class ReaderGetMethodsAttribute : DataAttribute
     {
         private readonly string[] _excludedMethods;
 
-        public DbfReaderGetMethodsAttribute(params string[] exclude)
+        public ReaderGetMethodsAttribute(params string[] exclude)
         {
             _excludedMethods = exclude;
         }

@@ -8,7 +8,7 @@ namespace NDbfReader
     /// Represents a <see cref="DateTime"/> column.
     /// </summary>
     [DebuggerDisplay("DateTime {Name}")]
-    public class DateTimeColumn : DbfColumn<DateTime?>
+    public class DateTimeColumn : Column<DateTime?>
     {
         /// <summary>
         /// Initializes a new instance with the specified name and offset.

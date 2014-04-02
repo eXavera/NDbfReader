@@ -8,7 +8,7 @@ namespace NDbfReader
     /// Represents a <see cref="String"/> column.
     /// </summary>
     [DebuggerDisplay("Int32 {Name}")]
-    public class StringColumn : DbfColumn<string>
+    public class StringColumn : Column<string>
     {
         /// <summary>
         /// Initializes a new instance with the specified name and offset.

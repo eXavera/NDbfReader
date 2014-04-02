@@ -9,7 +9,7 @@ namespace NDbfReader
     /// Represents a <see cref="Boolean"/> column.
     /// </summary>
     [DebuggerDisplay("Boolean {Name}")]
-    public class BooleanColumn : DbfColumn<bool?>
+    public class BooleanColumn : Column<bool?>
     {
         /// <summary>
         /// Initializes a new instance with the specified name and offset.

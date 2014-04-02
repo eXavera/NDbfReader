@@ -48,7 +48,7 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [DbfReaderGetMethods]
+        [ReaderGetMethods]
         public void GetMethod_DisposedTable_ThrowsObjectDisposedException(string methodName, Type parameterType)
         {
             PublicInterfaceInteraction_DisposedTable_ThrowsObjectDisposedException(
@@ -56,7 +56,7 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [DbfReaderGetMethods(exclude: "GetValue")]
+        [ReaderGetMethods(exclude: "GetValue")]
         public void GetMethod_MismatchedColumnInstance_ThrowsArgumentOutOfRangeExeptionException(string methodName)
         {
             // Arrange
@@ -75,7 +75,7 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [DbfReaderGetMethods(exclude: "GetValue")]
+        [ReaderGetMethods(exclude: "GetValue")]
         public void GetMethod_MismatchedColumnName_ThrowsArgumentOutOfRangeExeptionException(string methodName)
         {
             // Arrange
@@ -94,7 +94,7 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [DbfReaderGetMethods]
+        [ReaderGetMethods]
         public void GetMethod_ColumnInstanceFromDifferentTable_ThrowsArgumentOutOfRangeExeptionException(string methodName)
         {
             // Arrange
@@ -116,21 +116,21 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [DbfReaderGetMethods]
+        [ReaderGetMethods]
         public void GetMethod_NullColumnInstance_ThrowsArgumentNullExeptionException(string methodName)
         {
             GetMethod_NullParameter_ThrowsArgumentNullExeptionException(methodName, typeof(IColumn), "column");
         }
 
         [Theory]
-        [DbfReaderGetMethods]
+        [ReaderGetMethods]
         public void GetMethod_NullColumnName_ThrowsArgumentNullExeptionException(string methodName)
         {
             GetMethod_NullParameter_ThrowsArgumentNullExeptionException(methodName, typeof(string), "columnName");
         }
 
         [Theory]
-        [DbfReaderGetMethods]
+        [ReaderGetMethods]
         public void GetMethod_NonExistingColumnName_ThrowsArgumentOutOfRangeException(string methodName)
         {
             var nonExistingColumnName = "FOO";
@@ -204,7 +204,7 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [DbfReaderGetMethods]
+        [ReaderGetMethods]
         public void GetMethod_ReadMethodNeverCalled_ThrowsInvalidOperationException(string methodName, Type parameterType)
         {
             // Arrange
@@ -219,7 +219,7 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [DbfReaderGetMethods]
+        [ReaderGetMethods]
         public void GetMethod_ReadMethodReturnedFalse_ThrowsInvalidOperationException(string methodName, Type parameterType)
         {
             // Arrange

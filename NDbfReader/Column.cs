@@ -4,7 +4,7 @@ using System.Text;
 namespace NDbfReader
 {
     /// <summary>
-    /// The base class of all column types. Intended for internal usage. To define a custom column type, derive from the generic subclass <see cref="DbfColumn&lt;T&gt;"/>.
+    /// The base class of all column types. Intended for internal usage. To define a custom column type, derive from the generic subclass <see cref="Column&lt;T&gt;"/>.
     /// </summary>
     public abstract class Column : IColumn
     {
@@ -91,7 +91,7 @@ namespace NDbfReader
     /// The base class for all column types.
     /// </summary>
     /// <typeparam name="T">The type of the column value.</typeparam>
-    public abstract class DbfColumn<T> : Column
+    public abstract class Column<T> : Column
     {
         /// <summary>
         /// Initializes a new instance with the specified name, offset and size.
@@ -101,7 +101,7 @@ namespace NDbfReader
         /// <param name="size">The column size in bytes.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 1.</exception>
-        protected DbfColumn(string name, int offset, int size)
+        protected Column(string name, int offset, int size)
             : base(name, offset, size)
         {
         }

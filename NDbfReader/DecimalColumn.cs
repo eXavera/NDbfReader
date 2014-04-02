@@ -10,7 +10,7 @@ namespace NDbfReader
     /// Represents a <see cref="Decimal"/> column.
     /// </summary>
     [DebuggerDisplay("Decimal {Name}")]
-    public class DecimalColumn : DbfColumn<decimal?>
+    public class DecimalColumn : Column<decimal?>
     {
         /// <summary>
         /// Initializes a new instance with the specified name and offset.

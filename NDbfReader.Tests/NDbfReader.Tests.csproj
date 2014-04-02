@@ -64,7 +64,7 @@
     <Compile Include="AdditionalReaderTests.cs" />
     <Compile Include="HeaderLoaderTests.cs" />
     <Compile Include="StreamExtensionsTests.cs" />
-    <Compile Include="Infrastructure\DbfReaderGetMethodsAttribute.cs" />
+    <Compile Include="Infrastructure\ReaderGetMethodsAttribute.cs" />
     <Compile Include="ReaderTests.cs" />
     <Compile Include="TableTests.cs" />
     <Compile Include="Infrastructure\DelegatedEqualityComparer.cs" />

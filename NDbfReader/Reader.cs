@@ -406,7 +406,7 @@ namespace NDbfReader
 
             ValidateReaderState();
 
-            var typedColumn = FindColumnByName(columnName) as DbfColumn<T>;
+            var typedColumn = FindColumnByName(columnName) as Column<T>;
             if (typedColumn == null)
             {
                 throw new ArgumentOutOfRangeException("columnName", "The column's type does not match the method's return type.");
@@ -447,7 +447,7 @@ namespace NDbfReader
                 throw new ArgumentOutOfRangeException("column", "The column's type does not match the method's return type.");
             }
 
-            var typedColumn = (DbfColumn<T>)column;
+            var typedColumn = (Column<T>)column;
             var valueBytes = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
             return typedColumn.LoadValue(valueBytes, _encoding);
         }
