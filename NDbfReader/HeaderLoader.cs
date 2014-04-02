@@ -183,7 +183,7 @@ namespace NDbfReader
             return LoadColumn(reader, typeByte, name, columnOffset);
         }
 
-        private string ReadColumnName(BinaryReader reader)
+        private static string ReadColumnName(BinaryReader reader)
         {
             var firstByte = reader.ReadByte();
             if (firstByte == FILE_DESCRIPTOR_TERMINATOR)
