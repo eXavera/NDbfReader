@@ -71,7 +71,7 @@ namespace NDbfReader
             }
             if (!stream.CanRead)
             {
-                throw new ArgumentException("The stream does not allow reading (CanRead property returns false).", "stream");
+                throw ExceptionFactory.CreateArgumentException("stream", "The stream does not allow reading (CanRead property returns false).");
             }
             if(headerLoader == null)
             {
