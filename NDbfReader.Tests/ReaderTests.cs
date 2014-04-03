@@ -16,20 +16,11 @@ namespace NDbfReader.Tests
     {
         private const string EXPECTED_NO_ROWS_EXCEPTION_MESSAGE = "No row is loaded. Call Read method first and check whether it returns true.";
 
-        private static readonly Dictionary<string, List<object>> BasicSampleDataContent = new Dictionary<string, List<object>>()
-        {
-            { "TEXT", new List<object>() {"text 1 text", "text 2 text", null} },
-            { "NUMERIC", new List<object>() {123.123m, 456.456m, null} },
-            { "LOGICAL", new List<object>() {true, false, false} },
-            { "DATE", new List<object>() { new DateTime(2014, 2, 20), new DateTime(1998, 8, 15), null} },
-            { "LONG", new List<object>() {  123456, -6544321, 0} },
-        };
-
         [Fact]
         public void Table_OpenedReader_ReturnsReferenceToTheParentTable()
         {
             // Arrange
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
 
@@ -60,7 +51,7 @@ namespace NDbfReader.Tests
         public void GetMethod_MismatchedColumnInstance_ThrowsArgumentOutOfRangeExeptionException(string methodName)
         {
             // Arrange
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
                 reader.Read();
@@ -79,7 +70,7 @@ namespace NDbfReader.Tests
         public void GetMethod_MismatchedColumnName_ThrowsArgumentOutOfRangeExeptionException(string methodName)
         {
             // Arrange
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
                 reader.Read();
@@ -98,8 +89,8 @@ namespace NDbfReader.Tests
         public void GetMethod_ColumnInstanceFromDifferentTable_ThrowsArgumentOutOfRangeExeptionException(string methodName)
         {
             // Arrange
-            using (var differentTable = GetTableFromEmeddedBasicSample())
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var differentTable = Samples.OpenBasicTable())
+            using (var table = Samples.OpenBasicTable())
             {
                 var differentColumn = differentTable.Columns.First();
 
@@ -136,7 +127,7 @@ namespace NDbfReader.Tests
             var nonExistingColumnName = "FOO";
 
             // Arrange
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
                 reader.Read();
@@ -152,7 +143,7 @@ namespace NDbfReader.Tests
         public void TextEncoding_ReaderOpenedWithUnspecifiedEncoding_ReturnsTheASCIIEncoding()
         {
             // Arrange
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 // Act
                 var reader = table.OpenReader();
@@ -168,7 +159,7 @@ namespace NDbfReader.Tests
             // Arrange
             var utf8Encoding = Encoding.UTF8;
 
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 // Act
                 var reader = table.OpenReader(utf8Encoding);
@@ -208,7 +199,7 @@ namespace NDbfReader.Tests
         public void GetMethod_ReadMethodNeverCalled_ThrowsInvalidOperationException(string methodName, Type parameterType)
         {
             // Arrange
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
 
@@ -223,7 +214,7 @@ namespace NDbfReader.Tests
         public void GetMethod_ReadMethodReturnedFalse_ThrowsInvalidOperationException(string methodName, Type parameterType)
         {
             // Arrange
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
 
@@ -252,9 +243,9 @@ namespace NDbfReader.Tests
         {
             // Arrange
             var actualValues = new List<object>();
-            var expectedValues = BasicSampleDataContent[columnName];
+            var expectedValues = Samples.BasicTableContent[columnName];
 
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
 
@@ -284,9 +275,9 @@ namespace NDbfReader.Tests
         {
             // Arrange
             var actualValues = new List<object>();
-            var expectedValues = BasicSampleDataContent[columnName];
+            var expectedValues = Samples.BasicTableContent[columnName];
 
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
                 var column = table.Columns.Single(c => c.Name == columnName);
@@ -377,7 +368,7 @@ namespace NDbfReader.Tests
         public void GetMethod_PreviousColumnInstanceOnSeekableStream_ReturnsCorrectValue()
         {
             // Arrange
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
 
@@ -391,7 +382,7 @@ namespace NDbfReader.Tests
                 var actualText = reader.GetString(textColumn);
 
                 // Assert
-                var expectedText = BasicSampleDataContent["TEXT"].First();
+                var expectedText = Samples.BasicTableContent["TEXT"].First();
                 Assert.Equal(expectedText, actualText);
             }
         }
@@ -400,7 +391,7 @@ namespace NDbfReader.Tests
         public void GetMethod_PreviousColumnNameOnSeekableStream_ReturnsCorrectValue()
         {
             // Arrange
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
 
@@ -411,7 +402,7 @@ namespace NDbfReader.Tests
                 var actualText = reader.GetString("TEXT");
 
                 // Assert
-                var expectedText = BasicSampleDataContent["TEXT"].First();
+                var expectedText = Samples.BasicTableContent["TEXT"].First();
                 Assert.Equal(expectedText, actualText);
             }
         }
@@ -448,7 +439,7 @@ namespace NDbfReader.Tests
         private void GetMethod_NullParameter_ThrowsArgumentNullExeptionException(string methodName, Type paramaterType, string parameterName)
         {
             // Arrange
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
                 reader.Read();
@@ -464,7 +455,7 @@ namespace NDbfReader.Tests
         private void GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(Func<Reader, object> getCall)
         {
             // Arrange
-            using (var table = GetTableFromEmeddedBasicSample())
+            using (var table = Samples.OpenBasicTable())
             {
                 var reader = table.OpenReader();
 
@@ -482,7 +473,7 @@ namespace NDbfReader.Tests
         private void PublicInterfaceInteraction_DisposedTable_ThrowsObjectDisposedException(Func<Reader, object> action)
         {
             // Arrange
-            var table = GetTableFromEmeddedBasicSample();
+            var table = Samples.OpenBasicTable();
             var reader = table.OpenReader();
             table.Dispose();
 
@@ -539,11 +530,6 @@ namespace NDbfReader.Tests
             {
                 throw e.InnerException;
             }
-        }
-
-        private static Table GetTableFromEmeddedBasicSample()
-        {
-            return Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.BASIC));
         }
     }
 }

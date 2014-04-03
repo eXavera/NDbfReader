@@ -58,7 +58,7 @@ namespace NDbfReader.Tests
             var headerLoader = Substitute.ForPartsOf<HeaderLoader>();
 
             // Act
-            using (var table = Table.Open(GetStreamOfEmbeddedBasicSample(), headerLoader)) { };
+            using (var table = Table.Open(Samples.GetBasicTableStream(), headerLoader)) { };
 
             // Assert
             headerLoader.Received().Load(Arg.Any<BinaryReader>());
@@ -74,7 +74,7 @@ namespace NDbfReader.Tests
         public void OpenReader_AnotherReaderIsAlreadyOpened_ThrowsInvalidOperationException()
         {
             // Arrange
-            var table = OpenBasicSampleTable();
+            var table = Samples.OpenBasicTable();
             table.OpenReader();
 
             // Act & Assert
@@ -86,7 +86,7 @@ namespace NDbfReader.Tests
         public void OpenReader_NullEncoding_ThrowsArgumentNullException()
         {
             // Arrange
-            using (var table = OpenBasicSampleTable())
+            using (var table = Samples.OpenBasicTable())
             {
                 // Act & Assert
                 var exception = Assert.Throws<ArgumentNullException>(() => table.OpenReader(null));
@@ -116,7 +116,7 @@ namespace NDbfReader.Tests
         public void Dispose_LoadedFromStream_DisposesTheStream()
         {
             // Arrange
-            var streamSpy = Spy.OnStream(GetStreamOfEmbeddedBasicSample());
+            var streamSpy = Spy.OnStream(Samples.GetBasicTableStream());
             var table = Table.Open(streamSpy);
 
             // Act
@@ -130,7 +130,7 @@ namespace NDbfReader.Tests
         public void Dispose_DisposedInstance_DoesNotDisposeTheBaseStream()
         {
             // Arrange
-            var streamSpy = Spy.OnStream(GetStreamOfEmbeddedBasicSample());
+            var streamSpy = Spy.OnStream(Samples.GetBasicTableStream());
             var table = Table.Open(streamSpy);
 
             // Act
@@ -146,7 +146,7 @@ namespace NDbfReader.Tests
             // Act
             ReadOnlyCollection<IColumn> actualColumns = null;
 
-            using (var table = OpenBasicSampleTable())
+            using (var table = Samples.OpenBasicTable())
                 actualColumns = table.Columns;
 
             // Assert
@@ -156,22 +156,12 @@ namespace NDbfReader.Tests
         private void PublicInterfaceInteraction_DisposedInstance_ThrowsObjectDisposedException(Func<Table, object> action)
         {
             // Arrange
-            var table = OpenBasicSampleTable();
+            var table = Samples.OpenBasicTable();
             table.Dispose();
 
             // Act & Assert
             var exception = Assert.Throws<ObjectDisposedException>(() => action(table));
             Assert.Equal(typeof(Table).FullName, exception.ObjectName);
-        }
-
-        private static Stream GetStreamOfEmbeddedBasicSample()
-        {
-            return EmbeddedSamples.GetStream(EmbeddedSamples.BASIC);
-        }
-
-        private static Table OpenBasicSampleTable()
-        {
-            return Table.Open(GetStreamOfEmbeddedBasicSample());
         }
     }
 }
