@@ -14,7 +14,7 @@ namespace NDbfReader.Tests
 {
     public sealed class ReaderTests
     {
-        private const string EXPECTED_NO_ROWS_EXCEPTION_MESSAGE = "No row loaded. Call Read method first and check whether it returns true.";
+        private const string EXPECTED_NO_ROWS_EXCEPTION_MESSAGE = "No row is loaded. Call Read method first and check whether it returns true.";
 
         private static readonly Dictionary<string, List<object>> BasicSampleDataContent = new Dictionary<string, List<object>>()
         {
