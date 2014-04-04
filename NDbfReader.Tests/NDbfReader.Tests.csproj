@@ -67,6 +67,9 @@
     <Compile Include="StreamExtensionsTests.cs" />
     <Compile Include="Infrastructure\ReaderGetMethodsAttribute.cs" />
     <Compile Include="ReaderTests.cs" />
+    <Compile Include="TableExtensionsTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="TableTests.cs" />
     <Compile Include="Infrastructure\DelegatedEqualityComparer.cs" />
     <Compile Include="EmbeddedSamples.cs" />
