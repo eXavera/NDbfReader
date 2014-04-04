@@ -17,24 +17,20 @@ using (var table = Table.Open("D:\\foo.dbf"))
    }
 }
 ```
-A table can be opened even from a non-seekable (forward-only) stream:
+An entire table can be loaded into a `DataTable`:
+```
+using (var table = Table.Open("D:\\foo.dbf"))
+   return table.AsDataTable();
+```
+Non-seekable (forward-only) streams are also supported:
 ```csharp
 [HttpPost]
 public ActionResult Upload(HttpPostedFileBase file)
 {
    using (var table = Table.Open(file.InputStream))
-   {
-      //..
-   }
+   //..
 }
 ```
-Supports the following dBASE column types:
-
-- Character as `String`
-- Date as `DateTime`
-- Long as `Int32`
-- Logical as `Boolean`
-- Numeric, Float as `Decimal`
 
 ## NuGet
 
