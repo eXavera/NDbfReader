@@ -7,7 +7,7 @@ namespace NDbfReader
     /// <summary>
     /// Represents a <see cref="String"/> column.
     /// </summary>
-    [DebuggerDisplay("Int32 {Name}")]
+    [DebuggerDisplay("String {Name}")]
     public class StringColumn : Column<string>
     {
         /// <summary>
