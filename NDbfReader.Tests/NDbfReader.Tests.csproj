@@ -87,6 +87,7 @@
     <EmbeddedResource Include="Samples\CzechEncoding.dbf" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Samples\BigCzechData.dbf" />
+    <EmbeddedResource Include="Samples\ZeroSizeColumn.dbf" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

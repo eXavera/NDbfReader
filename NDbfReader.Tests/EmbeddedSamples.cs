@@ -9,6 +9,7 @@ namespace NDbfReader.Tests
         public const string UNSUPPORTED_TYPES = "UnsupportedTypes.dbf";
         public const string CZECH_ENCODING = "CzechEncoding.dbf";
         public const string BIG_CZECH_DATA = "BigCzechData.dbf";
+        public const string ZERO_SIZE_COLUMN = "ZeroSizeColumn.dbf";
 
         public static Stream GetStream(string fileName)
         {

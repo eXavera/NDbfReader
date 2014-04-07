@@ -19,7 +19,7 @@ namespace NDbfReader
         /// <param name="offset">The column offset in a row in bytes.</param>
         /// <param name="size">The column size in bytes.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 1.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0.</exception>
         protected internal Column(string name, int offset, int size)
         {
             if (string.IsNullOrEmpty(name))
@@ -30,7 +30,7 @@ namespace NDbfReader
             {
                 throw new ArgumentOutOfRangeException("offset");
             }
-            if (size < 1)
+            if (size < 0)
             {
                 throw new ArgumentOutOfRangeException("size");
             }
@@ -100,7 +100,7 @@ namespace NDbfReader
         /// <param name="offset">The column offset in a row in bytes.</param>
         /// <param name="size">The column size in bytes.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 1.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0.</exception>
         protected Column(string name, int offset, int size)
             : base(name, offset, size)
         {

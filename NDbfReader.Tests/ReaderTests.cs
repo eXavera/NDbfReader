@@ -16,6 +16,8 @@ namespace NDbfReader.Tests
     {
         private const string EXPECTED_NO_ROWS_EXCEPTION_MESSAGE = "No row is loaded. Call Read method first and check whether it returns true.";
 
+        private const string ZERO_SIZE_COLUMN_NAME = "KRAJID";
+
         [Fact]
         public void Table_OpenedReader_ReturnsReferenceToTheParentTable()
         {
@@ -419,6 +421,47 @@ namespace NDbfReader.Tests
             GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(reader => reader.GetDate("DATE"));
         }
 
+        [Fact]
+        public void GetDecimal_ZeroSizeColumnName_ReturnsNull()
+        {
+            GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetDecimal(ZERO_SIZE_COLUMN_NAME));
+        }
+
+        [Fact]
+        public void GetValue_ZeroSizeColumnName_ReturnsNull()
+        {
+            GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetValue(ZERO_SIZE_COLUMN_NAME));
+        }
+
+        [Fact]
+        public void GetDecimal_ZeroSizeColumnInstance_ReturnsNull()
+        {
+            GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetDecimal(GetZeroSizeColumn(reader.Table)));
+        }
+
+        [Fact]
+        public void GetValue_ZeroSizeColumnInstance_ReturnsNull()
+        {
+            GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetValue(GetZeroSizeColumn(reader.Table)));
+        }
+
+        private void GetMethod_ZeroSizeColumn_ReturnsNull(Func<Reader, object> getter)
+        {
+            // Arrange
+            using (var table = Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.ZERO_SIZE_COLUMN)))
+            {
+                var reader = table.OpenReader(Encoding.GetEncoding(1250));
+                reader.Read();
+
+                var expectedValues = new[] { null, "ABCD"};
+
+                // Act
+                var actualValues = new[] { getter(reader), reader.GetString("CSU_KRAJ") };
+
+                // Assert
+                actualValues.ShouldAllBeEquivalentTo(expectedValues);
+            }
+        }
 
         private static IColumn GetMismatchedColumnInstance(Reader reader, string methodName)
         {
@@ -530,6 +573,11 @@ namespace NDbfReader.Tests
             {
                 throw e.InnerException;
             }
+        }
+
+        private static IColumn GetZeroSizeColumn(Table table)
+        {
+            return table.Columns.Single(c => c.Name == ZERO_SIZE_COLUMN_NAME);
         }
     }
 }
