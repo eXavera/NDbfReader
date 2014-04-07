@@ -12,6 +12,6 @@
     <tags>dbf dBASE</tags>
     <projectUrl>https://github.com/eXavera/NDbfReader</projectUrl>
     <licenseUrl>https://github.com/eXavera/NDbfReader/blob/master/LICENSE.md</licenseUrl>
-    <releaseNotes>Added posibility to load a DBF table into a DataTable.</releaseNotes>
+    <releaseNotes>Added support for zero sized decimal and string columns.</releaseNotes>
   </metadata>
 </package>
