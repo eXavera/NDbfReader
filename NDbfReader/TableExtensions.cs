@@ -26,7 +26,6 @@ namespace NDbfReader
 
             var dataTable = CreateDataTable(table);
             FillData(table, dataTable, table.OpenReader());
-
             return dataTable;
         }
 
@@ -51,7 +50,6 @@ namespace NDbfReader
 
             var dataTable = CreateDataTable(table);
             FillData(table, dataTable, table.OpenReader(encoding));
-
             return dataTable;
         }
 

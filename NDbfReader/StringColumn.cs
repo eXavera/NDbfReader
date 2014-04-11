@@ -32,7 +32,6 @@ namespace NDbfReader
         protected override string DoLoad(byte[] buffer, Encoding encoding)
         {
             var value = encoding.GetString(buffer, 0, buffer.Length).TrimEnd('\0', ' ');
-
             return string.IsNullOrWhiteSpace(value) ? null : value;
         }
     }

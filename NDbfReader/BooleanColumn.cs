@@ -32,7 +32,6 @@ namespace NDbfReader
         protected override bool? DoLoad(byte[] buffer, Encoding encoding)
         {
             var charValue = Char.ToUpper((char)buffer[0], CultureInfo.InvariantCulture);
-
             switch (charValue)
             {
                 case 'T':

@@ -12,6 +12,8 @@ namespace NDbfReader
     [DebuggerDisplay("Decimal {Name}")]
     public class DecimalColumn : Column<decimal?>
     {
+        private static readonly NumberFormatInfo DecimalNumberFormat = new NumberFormatInfo() { NumberDecimalSeparator = "." };
+
         /// <summary>
         /// Initializes a new instance with the specified name and offset.
         /// </summary>
@@ -40,12 +42,11 @@ namespace NDbfReader
             }
 
             var lastChar = stringValue.Last();
-            if (lastChar != ' ' && lastChar != '?')
+            if (lastChar == ' ' || lastChar == '?')
             {
-                return decimal.Parse(stringValue, NumberStyles.Float | NumberStyles.AllowLeadingWhite, new NumberFormatInfo() { NumberDecimalSeparator = "." });
+                return null;
             }
-
-            return null;
+            return decimal.Parse(stringValue, NumberStyles.Float | NumberStyles.AllowLeadingWhite, DecimalNumberFormat);
         }
     }
 }

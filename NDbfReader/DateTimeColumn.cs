@@ -31,12 +31,10 @@ namespace NDbfReader
         protected override DateTime? DoLoad(byte[] buffer, Encoding encoding)
         {
             var stringValue = encoding.GetString(buffer, 0, buffer.Length);
-
             if (string.IsNullOrWhiteSpace(stringValue))
             {
                 return null;
             }
-
             return DateTime.ParseExact(stringValue, "yyyyMMdd", null);
         }
     }

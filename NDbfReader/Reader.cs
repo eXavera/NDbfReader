@@ -101,7 +101,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public virtual string GetString(string columnName)
         {
-            return GetTypedValue<string>(columnName);
+            return GetValue<string>(columnName);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public virtual string GetString(IColumn column)
         {
-            return GetTypedValue<string>(column);
+            return GetValue<string>(column);
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public virtual decimal? GetDecimal(string columnName)
         {
-            return GetTypedValue<decimal?>(columnName);
+            return GetValue<decimal?>(columnName);
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public virtual decimal? GetDecimal(IColumn column)
         {
-            return GetTypedValue<decimal?>(column);
+            return GetValue<decimal?>(column);
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public virtual DateTime? GetDate(string columnName)
         {
-            return GetTypedValue<DateTime?>(columnName);
+            return GetValue<DateTime?>(columnName);
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public virtual DateTime? GetDate(IColumn column)
         {
-            return GetTypedValue<DateTime?>(column);
+            return GetValue<DateTime?>(column);
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public virtual bool? GetBoolean(string columnName)
         {
-            return GetTypedValue<bool?>(columnName);
+            return GetValue<bool?>(columnName);
         }
 
 
@@ -256,7 +256,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public virtual bool? GetBoolean(IColumn column)
         {
-            return GetTypedValue<bool?>(column);
+            return GetValue<bool?>(column);
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public virtual int GetInt32(string columnName)
         {
-            return GetTypedValue<int>(columnName);
+            return GetValue<int>(columnName);
         }
 
         /// <summary>
@@ -300,7 +300,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public virtual int GetInt32(IColumn column)
         {
-            return GetTypedValue<int>(column);
+            return GetValue<int>(column);
         }
 
         /// <summary>
@@ -324,12 +324,11 @@ namespace NDbfReader
             {
                 throw new ArgumentNullException("columnName");
             }
-
             ValidateReaderState();
 
             var column = (Column)FindColumnByName(columnName);
-
-            return column.LoadValueAsObject(LoadColumnBytes(column.Offset, column.Size), _encoding);
+            var rawValue = LoadColumnBytes(column.Offset, column.Size);
+            return column.LoadValueAsObject(rawValue, _encoding);
         }
 
         /// <summary>
@@ -353,13 +352,12 @@ namespace NDbfReader
             {
                 throw new ArgumentNullException("column");
             }
-
             ValidateReaderState();
             CheckColumnBelongsToParentTable(column);
 
             var columnBase = (Column)column;
-
-            return columnBase.LoadValueAsObject(LoadColumnBytes(columnBase.Offset, columnBase.Size), _encoding);
+            var rawValue = LoadColumnBytes(columnBase.Offset, columnBase.Size);
+            return columnBase.LoadValueAsObject(rawValue, _encoding);
         }
 
         /// <summary>
@@ -397,13 +395,12 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        protected T GetTypedValue<T>(string columnName)
+        protected T GetValue<T>(string columnName)
         {
             if (columnName == null)
             {
                 throw new ArgumentNullException("columnName");
             }
-
             ValidateReaderState();
 
             var typedColumn = FindColumnByName(columnName) as Column<T>;
@@ -411,9 +408,8 @@ namespace NDbfReader
             {
                 throw new ArgumentOutOfRangeException("columnName", "The column's type does not match the method's return type.");
             }
-
-            var valueBytes = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
-            return typedColumn.LoadValue(valueBytes, _encoding);
+            var rawValue = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
+            return typedColumn.LoadValue(rawValue, _encoding);
         }
 
         /// <summary>
@@ -432,24 +428,22 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        protected T GetTypedValue<T>(IColumn column)
+        protected T GetValue<T>(IColumn column)
         {
             if (column == null)
             {
                 throw new ArgumentNullException("column");
             }
-
             ValidateReaderState();
             CheckColumnBelongsToParentTable(column);
-
             if (column.Type != typeof(T))
             {
                 throw new ArgumentOutOfRangeException("column", "The column's type does not match the method's return type.");
             }
 
             var typedColumn = (Column<T>)column;
-            var valueBytes = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
-            return typedColumn.LoadValue(valueBytes, _encoding);
+            var rawValue = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
+            return typedColumn.LoadValue(rawValue, _encoding);
         }
 
         private BinaryReader BinaryReader
@@ -476,7 +470,6 @@ namespace NDbfReader
             }
 
             MoveToTheEndOfCurrentRow();
-
             if (SkipDeletedRows() == SkipDeletedRowsResult.EndOfFile)
             {
                 return false;
@@ -502,14 +495,12 @@ namespace NDbfReader
             do
             {
                 var nextByte = BinaryReader.ReadByte();
-
                 if (nextByte == END_OF_FILE)
                 {
                     return SkipDeletedRowsResult.EndOfFile;
                 }
 
                 isRowDeleted = (nextByte == DELETED_ROW_FLAG);
-
                 if (isRowDeleted)
                 {
                     BinaryReader.BaseStream.SeekForward(Header.RowSize - 1);
@@ -525,7 +516,6 @@ namespace NDbfReader
         private byte[] LoadColumnBytes(int offset, int size)
         {
             var seek = offset - _currentRowOffset;
-
             if (seek < 0)
             {
                 if (BinaryReader.BaseStream.CanSeek)
@@ -572,7 +562,6 @@ namespace NDbfReader
             {
                 throw ExceptionFactory.CreateArgumentOutOfRangeException("columnName", "Column {0} not found.", columnName);
             }
-
             return column;
         }
 

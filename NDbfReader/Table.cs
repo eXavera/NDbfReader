@@ -80,7 +80,6 @@ namespace NDbfReader
 
             var binaryReader = new BinaryReader(stream);
             var header = headerLoader.Load(binaryReader);
-
             return new Table(header, binaryReader);
         }
 
@@ -144,9 +143,7 @@ namespace NDbfReader
             {
                 throw new ArgumentNullException("encoding");
             }
-
             ThrowIfDisposed();
-
             if (_isReaderOpened)
             {
                 throw new InvalidOperationException("The table can open only one reader.");
@@ -173,10 +170,12 @@ namespace NDbfReader
         /// </summary>
         public void Dispose()
         {
-            if (_disposed) return;
+            if (_disposed)
+            {
+                return;
+            }
 
             Disposing();
-
             _disposed = true;
         }
 
