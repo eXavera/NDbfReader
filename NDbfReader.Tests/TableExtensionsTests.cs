@@ -2,6 +2,7 @@
 using NSubstitute;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace NDbfReader.Tests
 {
     public sealed class TableExtensionsTests
     {
+        private const string NOTHING = "NOTHING";
+
         [Fact]
         public void AsDataTable_ReturnsDataTableWithSchemaThatMatchesDbfTableColumns()
         {
@@ -55,11 +58,22 @@ namespace NDbfReader.Tests
         [Fact]
         public void AsDataTable_NoParameters_OpensReaderWithASCIIEncoding()
         {
+            AsDataTable_OpensReaderWithASCIIEncoding(table => table.AsDataTable());
+        }
+
+        [Fact]
+        public void AsDataTable_ColumnNames_OpensReaderWithASCIIEncoding()
+        {
+            AsDataTable_OpensReaderWithASCIIEncoding(table => table.AsDataTable("LOGICAL"));
+        }
+
+        private void AsDataTable_OpensReaderWithASCIIEncoding(Action<Table> action)
+        {
             // Arrange
             using (var table = GetMockedBasicSampleTable())
             {
                 // Act
-                table.AsDataTable();
+                action(table);
 
                 // Assert
                 table.Received().OpenReader(Encoding.ASCII);
@@ -67,7 +81,18 @@ namespace NDbfReader.Tests
         }
 
         [Fact]
+        public void AsDataTable_CustomEncodingAndColumnNames_OpensReaderWithTheEncoding()
+        {
+            AsDataTable_OpensReaderWithTheEncoding((table, encoding) => table.AsDataTable(encoding, "LOGICAL"));
+        }
+
+        [Fact]
         public void AsDataTable_CustomEncoding_OpensReaderWithTheEncoding()
+        {
+            AsDataTable_OpensReaderWithTheEncoding((table, encoding) => table.AsDataTable(encoding));
+        }
+
+        private void AsDataTable_OpensReaderWithTheEncoding(Action<Table, Encoding> action)
         {
             // Arrange
             using (var table = GetMockedBasicSampleTable())
@@ -75,10 +100,41 @@ namespace NDbfReader.Tests
                 var encoding = Encoding.UTF8;
 
                 // Act
-                table.AsDataTable(encoding);
+                action(table, encoding);
 
                 // Assert
                 table.Received().OpenReader(encoding);
+            }
+        }
+
+        [Fact]
+        public void AsDataTable_ColumnNames_ReturnsDataTableOnlyWithTheColumnNames()
+        {
+            // Arrange
+            using (var table = Table.Open(Samples.GetBasicTableStream()))
+            {
+                // Act
+                var actualColumns = table.AsDataTable("DATE", "LOGICAL").Columns.Cast<DataColumn>().Select(c => c.ColumnName);
+
+                // Assert
+                actualColumns.ShouldAllBeEquivalentTo(new[] { "DATE", "LOGICAL" });
+            }
+        }
+
+        [Fact]
+        public void AsDataTable_InvalidColumnName_ThrowsArgumentOutOfRangeException()
+        {
+            // Arrange
+            using (var table = Table.Open(Samples.GetBasicTableStream()))
+            {
+                var invalidColumnName = "DATEE";
+
+                // Act
+                var exception = Assert.Throws<ArgumentOutOfRangeException>(() => table.AsDataTable(invalidColumnName));
+
+                // Assert
+                Assert.Equal("columnNames", exception.ParamName);
+                Assert.Equal(invalidColumnName, exception.ActualValue);
             }
         }
 
@@ -92,7 +148,9 @@ namespace NDbfReader.Tests
 
         private static Table GetMockedBasicSampleTable()
         {
-            return Substitute.ForPartsOf<MockableTable>(new Header(new List<IColumn>(), 0, 0), new BinaryReader(Samples.GetBasicTableStream()));
+            return Substitute.ForPartsOf<MockableTable>(
+                new Header(new List<IColumn>() { new BooleanColumn("LOGICAL", 0) }, 0, 0),
+                new BinaryReader(Samples.GetBasicTableStream()));
         }
 
         public class MockableTable : Table
