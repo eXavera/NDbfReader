@@ -194,7 +194,6 @@ namespace NDbfReader
             var nameBytesBuffer = new byte[11];
             nameBytesBuffer[0] = firstByte;
             reader.Read(nameBytesBuffer, 1, 10);
-
             return Encoding.ASCII.GetString(nameBytesBuffer).TrimEnd('\0', ' ');
         }
     }

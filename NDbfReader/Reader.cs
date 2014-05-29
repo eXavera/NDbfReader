@@ -468,15 +468,12 @@ namespace NDbfReader
             {
                 return false;
             }
-
             MoveToTheEndOfCurrentRow();
             if (SkipDeletedRows() == SkipDeletedRowsResult.EndOfFile)
             {
                 return false;
             }
-
             _currentRowOffset = 0;
-
             return true;
         }
 
@@ -491,7 +488,6 @@ namespace NDbfReader
         private SkipDeletedRowsResult SkipDeletedRows()
         {
             var isRowDeleted = false;
-
             do
             {
                 var nextByte = BinaryReader.ReadByte();
@@ -531,9 +527,7 @@ namespace NDbfReader
             {
                 BinaryReader.BaseStream.SeekForward(seek);
             }
-
             _currentRowOffset += (seek + size);
-
             return BinaryReader.ReadBytes(size);
         }
 
