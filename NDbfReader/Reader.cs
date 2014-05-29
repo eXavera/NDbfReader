@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,8 @@ namespace NDbfReader
         private const byte DELETED_ROW_FLAG = (byte)'*';
 
         private readonly Table _table;
+        private readonly Dictionary<string, IColumn> _columnsCache;
+
         private Encoding _encoding;
         private bool _rowLoaded;
         private int _loadedRowCount = 0;
@@ -38,6 +41,12 @@ namespace NDbfReader
 
             _table = table;
             _encoding = encoding;
+
+            _columnsCache = new Dictionary<string, IColumn>(table.Columns.Count);
+            foreach (var column in table.Columns)
+            {
+                _columnsCache.Add(column.Name, column);
+            }
         }
 
         /// <summary>
@@ -551,12 +560,11 @@ namespace NDbfReader
 
         private IColumn FindColumnByName(string columnName)
         {
-            var column = Header.Columns.FirstOrDefault(c => c.Name == columnName);
-            if (column == null)
+            if (!_columnsCache.ContainsKey(columnName))
             {
                 throw ExceptionFactory.CreateArgumentOutOfRangeException("columnName", "Column {0} not found.", columnName);
             }
-            return column;
+            return _columnsCache[columnName];
         }
 
         private enum SkipDeletedRowsResult
