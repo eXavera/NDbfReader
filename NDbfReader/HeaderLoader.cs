@@ -40,13 +40,14 @@ namespace NDbfReader
 
             /*
            * 0    = signature
-           * 1-3  = date of last update
            */
             var position = 0;
-            SkipHeaderBytes(reader, position, 1 + 3);
-            position += 1 + 3;
+            SkipHeaderBytes(reader, position, 1);
+            position += 1;
 
-            var rowCout = reader.ReadInt32();
+            var lastModified = LoadLastModifiedDate(reader);
+
+            var rowCount = reader.ReadInt32();
             position += 4;
 
             /*
@@ -69,7 +70,7 @@ namespace NDbfReader
              */
             SkipHeaderBytes(reader, position, 20);
 
-            return LoadColumns(reader, rowCout, rowSize);
+            return LoadColumns(reader, lastModified, rowCount, rowSize);
         }
 
         /// <summary>
@@ -146,16 +147,17 @@ namespace NDbfReader
         /// <summary>
         /// Creates a header instance.
         /// </summary>
-        /// <param name="columns">The loaded columns.</param>
+        /// <param name="lastModified">The date the table was last modified.</param>
+        /// <param name="rowCount">The number of rows.</param>
         /// <param name="rowSize">The size of a row in bytes.</param>
-        /// <param name="rowsCount">The number of rows.</param>
+        /// <param name="columns">The loaded columns.</param>
         /// <returns>A header instance.</returns>
-        protected virtual Header CreateHeader(IList<IColumn> columns, short rowSize, int rowsCount)
+        protected virtual Header CreateHeader(DateTime lastModified, int rowCount, short rowSize, IList<IColumn> columns)
         {
-            return new Header(columns, rowSize, rowsCount);
+            return new Header(lastModified, rowCount, rowSize, columns);
         }
 
-        private Header LoadColumns(BinaryReader reader, int rowCout, short rowSize)
+        private Header LoadColumns(BinaryReader reader, DateTime lastModified, int rowCount, short rowSize)
         {
             var columns = new List<IColumn>();
             Column newColumn = null;
@@ -167,7 +169,7 @@ namespace NDbfReader
                 columnOffset += newColumn.Size;
             }
 
-            return CreateHeader(columns, rowSize, rowCout);
+            return CreateHeader(lastModified, rowCount, rowSize, columns);
         }
 
         private Column LoadNextColumn(BinaryReader reader, int columnOffset)
@@ -181,6 +183,16 @@ namespace NDbfReader
             var typeByte = reader.ReadByte();
 
             return LoadColumn(reader, typeByte, name, columnOffset);
+        }
+
+        private static DateTime LoadLastModifiedDate(BinaryReader reader)
+        {
+            // expected format YYMMDD
+            var bytes = reader.ReadBytes(3);
+            var year = bytes[0];
+            var month = bytes[1];
+            var day = bytes[2];
+            return new DateTime((year > DateTime.Now.Year % 1000 ? 1900 : 2000) + year, month, day);
         }
 
         private static string ReadColumnName(BinaryReader reader)

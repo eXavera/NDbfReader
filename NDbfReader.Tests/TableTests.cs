@@ -141,6 +141,20 @@ namespace NDbfReader.Tests
             streamSpy.Received(requiredNumberOfCalls: 1).Dispose();
         }
 
+        [Fact]
+        public void LastModified_ReturnsDateOfLastModification()
+        {
+            // Arrange
+            using (var table = Samples.OpenBasicTable())
+            {
+                // Act
+                var lastModified = table.LastModified;
+
+                // Assert
+                Assert.Equal(new DateTime(2014, 2, 20), lastModified);
+            }
+        }
+
         private void Columns_LoadedFile_ReturnsColumnsProperties<T>(Func<IColumn, T> propertySelector, params T[] expectedValues)
         {
             // Act

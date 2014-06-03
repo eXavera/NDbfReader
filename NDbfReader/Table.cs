@@ -119,6 +119,19 @@ namespace NDbfReader
         }
 
         /// <summary>
+        /// Gets a date the table was last modified.
+        /// </summary>
+        public DateTime LastModified
+        {
+            get
+            {
+                ThrowIfDisposed();
+
+                return _header.LastModified;
+            }
+        }
+
+        /// <summary>
         /// Opens a reader of the table with the default <c>ASCII</c> encoding. Only one reader per table can be opened.
         /// </summary>
         /// <returns>A reader of the table.</returns>
