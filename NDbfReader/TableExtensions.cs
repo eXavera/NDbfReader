@@ -46,6 +46,30 @@ namespace NDbfReader
             return AsDataTable(table, Encoding.ASCII, columnNames);
         }
 
+         /// <summary>
+        /// Loads the DBF table into a <see cref="DataTable"/>.
+        /// </summary>
+        /// <param name="table">The DBF table to load.</param>
+        /// <param name="encoding">The encoding that is used to load the rows content.</param>
+        /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
+        /// <exception cref="InvalidOperationException">Another reader of the DBF table is opened.</exception>
+        /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
+        public static DataTable AsDataTable(this Table table, Encoding encoding)
+        {
+            if (table == null)
+            {
+                throw new ArgumentNullException("table");
+            }
+            if (encoding == null)
+            {
+                throw new ArgumentNullException("encoding");
+            }
+
+            var dataTable = CreateDataTable(table.Columns);
+            FillData(table.Columns, dataTable, table.OpenReader(encoding));
+            return dataTable;
+        }
+
         /// <summary>
         /// Loads the DBF table into a <see cref="DataTable"/>.
         /// </summary>

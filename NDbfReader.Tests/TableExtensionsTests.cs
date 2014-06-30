@@ -138,6 +138,34 @@ namespace NDbfReader.Tests
             }
         }
 
+        [Fact]
+        public void AsDataTable_CustomEncodingAndNoColumnNames_ReturnsDataTableWithAllColumns()
+        {
+            // Arrange
+            using (var table = Table.Open(Samples.GetBasicTableStream()))
+            {
+                // Act
+                var dataTable = table.AsDataTable(Encoding.ASCII);
+
+                // Assert
+                Assert.Equal(5, dataTable.Columns.Count);
+            }
+        }
+
+        [Fact]
+        public void AsDataTable_NoParameters_ReturnsDataTableWithAllColumns()
+        {
+            // Arrange
+            using (var table = Table.Open(Samples.GetBasicTableStream()))
+            {
+                // Act
+                var dataTable = table.AsDataTable();
+
+                // Assert
+                Assert.Equal(5, dataTable.Columns.Count);
+            }
+        }
+
         private static IEnumerable<object> ReplaceNullWithDBNull(IEnumerable<object> items)
         {
             foreach (var item in items)
