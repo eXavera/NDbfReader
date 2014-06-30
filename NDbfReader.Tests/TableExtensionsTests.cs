@@ -139,6 +139,32 @@ namespace NDbfReader.Tests
         }
 
         [Fact]
+        public void AsDataTable_DefaultEncodingAndEmptyColumnNamesList_ThrowsArgumentException()
+        {
+            AsDataTable_EmptyColumnNamesList_ThrowsArgumentException((table, columns) => table.AsDataTable(columns));
+        }
+
+        [Fact]
+        public void AsDataTable_CustomEncodingAndEmptyColumnNamesList_ThrowsArgumentException()
+        {
+            AsDataTable_EmptyColumnNamesList_ThrowsArgumentException((table, columns) => table.AsDataTable(Encoding.ASCII, columns));
+        }
+
+        private void AsDataTable_EmptyColumnNamesList_ThrowsArgumentException(Action<Table, string[]> action)
+        {
+            // Arrange
+            using (var table = Table.Open(Samples.GetBasicTableStream()))
+            {
+                // Act
+                var exception = Assert.Throws<ArgumentException>(() => action(table, new string[] {}));
+
+                // Assert
+                Assert.Equal("columnNames", exception.ParamName);
+                exception.Message.Should().StartWith("No column names specified. Specify at least one column.");
+            }
+        }
+
+        [Fact]
         public void AsDataTable_CustomEncodingAndNoColumnNames_ReturnsDataTableWithAllColumns()
         {
             // Arrange

@@ -90,6 +90,10 @@ namespace NDbfReader
             {
                 throw new ArgumentNullException("encoding");
             }
+            if(columnNames.Length == 0)
+            {
+                throw new ArgumentException("No column names specified. Specify at least one column.", "columnNames");
+            }
 
             var selectedColumns = new List<IColumn>(columnNames.Length);
             foreach (var columnName in columnNames)
