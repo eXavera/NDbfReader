@@ -91,7 +91,6 @@
     <Compile Include="Infrastructure\DelegatedEqualityComparer.cs" />
     <Compile Include="EmbeddedSamples.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Infrastructure\EquivalencyAssertionOptionsExtensions.cs" />
     <Compile Include="Infrastructure\Spy.cs" />
     <Compile Include="Infrastructure\StreamDecorator.cs" />
     <Compile Include="TableTestsBase.cs" />
