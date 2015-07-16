@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Xunit.Extensions;
+using Xunit.Sdk;
 
 namespace NDbfReader.Tests.Infrastructure
 {
@@ -20,7 +20,7 @@ namespace NDbfReader.Tests.Infrastructure
             _excludedMethods = exclude;
         }
 
-        public override IEnumerable<object[]> GetData(MethodInfo methodUnderTest, Type[] parameterTypes)
+        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
         {
             var readerType = typeof(Reader);
 
@@ -29,6 +29,7 @@ namespace NDbfReader.Tests.Infrastructure
                 .Where(method => !_excludedMethods.Contains(method.Name))
                 .Where(method => method.GetParameters().Length == 1);
 
+            var parameterTypes = testMethod.GetParameters().Select(p => p.ParameterType).ToList();
             if (!parameterTypes.Contains(typeof(Type)))
             {
                 //if the method under test doesn't have a Type parameter, assume it expects only method names

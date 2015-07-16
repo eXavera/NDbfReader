@@ -3,4 +3,4 @@
 CALL .\build.cmd
 IF %ERRORLEVEL% GTR 0 EXIT /b
 
-.\packages\xunit.runners.1.9.2\tools\xunit.console.clr4.exe .\NDbfReader.Tests\bin\Debug\NDbfReader.Tests.dll
+.\packages\xunit.runner.console.2.0.0\tools\xunit.console.exe .\NDbfReader.Tests\bin\Debug\NDbfReader.Tests.dll
