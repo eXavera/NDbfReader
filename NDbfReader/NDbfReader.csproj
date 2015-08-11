@@ -73,7 +73,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NDbfReader.nuspec" />
-    <None Include="tempKey.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -83,7 +82,7 @@
         copy /y "$(SolutionDir)..\eXavera.snk" "$(ProjectDir)key.snk"
     ) else (
         echo "using temporary key"
-        copy /y "$(ProjectDir)tempKey.snk" "$(ProjectDir)key.snk"
+        copy /y "$(SolutionDir)tempKey.snk" "$(ProjectDir)key.snk"
     )
 )</PreBuildEvent>
   </PropertyGroup>
