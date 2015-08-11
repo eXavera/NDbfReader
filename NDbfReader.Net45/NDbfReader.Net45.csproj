@@ -1,17 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C98D4551-7C67-477B-9188-5B4B41CB378A}</ProjectGuid>
+    <ProjectGuid>{437155B3-AAD5-40B0-BBF3-FC8E79402790}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NDbfReader</RootNamespace>
     <AssemblyName>NDbfReader</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,9 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
     <DocumentationFile>bin\Debug\NDbfReader.XML</DocumentationFile>
-    <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,7 +29,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NDbfReader.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -53,30 +49,61 @@
     <Compile Include="..\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="BooleanColumn.cs" />
-    <Compile Include="DateTimeColumn.cs" />
-    <Compile Include="Column.cs" />
-    <Compile Include="Reader.cs" />
-    <Compile Include="Table.cs" />
-    <Compile Include="DecimalColumn.cs" />
-    <Compile Include="HeaderLoader.cs" />
-    <Compile Include="ExceptionFactory.cs" />
-    <Compile Include="Header.cs" />
-    <Compile Include="IColumn.cs" />
-    <Compile Include="Int32Column.cs" />
-    <Compile Include="IParentTable.cs" />
-    <Compile Include="NativeColumnType.cs" />
+    <Compile Include="..\NDbfReader\BooleanColumn.cs">
+      <Link>BooleanColumn.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\Column.cs">
+      <Link>Column.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\DateTimeColumn.cs">
+      <Link>DateTimeColumn.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\DecimalColumn.cs">
+      <Link>DecimalColumn.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\ExceptionFactory.cs">
+      <Link>ExceptionFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\Header.cs">
+      <Link>Header.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\HeaderLoader.cs">
+      <Link>HeaderLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\IColumn.cs">
+      <Link>IColumn.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\Int32Column.cs">
+      <Link>Int32Column.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\IParentTable.cs">
+      <Link>IParentTable.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\NativeColumnType.cs">
+      <Link>NativeColumnType.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\Reader.cs">
+      <Link>Reader.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\StreamExtensions.cs">
+      <Link>StreamExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\StringColumn.cs">
+      <Link>StringColumn.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\Table.cs">
+      <Link>Table.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\TableExtensions.cs">
+      <Link>TableExtensions.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StreamExtensions.cs" />
-    <Compile Include="StringColumn.cs" />
-    <Compile Include="TableExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="NDbfReader.nuspec" />
     <None Include="tempKey.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
+   <PropertyGroup>
     <PreBuildEvent>if not exist "$(ProjectDir)key.snk" (
     if exist "$(SolutionDir)..\eXavera.snk" (
         echo "using original key"

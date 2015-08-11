@@ -162,3 +162,4 @@ opencover/
 packages/
 *.nupkg
 /NDbfReader/key.snk
+/NDbfReader.Net45/key.snk
