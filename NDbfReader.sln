@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		tempKey.snk = tempKey.snk
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader.NetCore", "NDbfReader.NetCore\NDbfReader.NetCore.csproj", "{8A4BA48E-D806-4FA4-BB3E-D26160798974}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{437155B3-AAD5-40B0-BBF3-FC8E79402790}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{437155B3-AAD5-40B0-BBF3-FC8E79402790}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{437155B3-AAD5-40B0-BBF3-FC8E79402790}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A4BA48E-D806-4FA4-BB3E-D26160798974}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A4BA48E-D806-4FA4-BB3E-D26160798974}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A4BA48E-D806-4FA4-BB3E-D26160798974}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A4BA48E-D806-4FA4-BB3E-D26160798974}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

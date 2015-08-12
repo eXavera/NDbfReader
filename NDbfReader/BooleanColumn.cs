@@ -31,7 +31,7 @@ namespace NDbfReader
         /// <returns>A column value.</returns>
         protected override bool? DoLoad(byte[] buffer, Encoding encoding)
         {
-            var charValue = Char.ToUpper((char)buffer[0], CultureInfo.InvariantCulture);
+            var charValue = Char.ToUpper((char)buffer[0]);
             switch (charValue)
             {
                 case 'T':
