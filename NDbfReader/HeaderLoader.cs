@@ -41,13 +41,13 @@ namespace NDbfReader
             /*
            * 0    = signature
            */
-            var position = 0;
+            int position = 0;
             SkipHeaderBytes(reader, position, 1);
             position += 1;
 
-            var lastModified = LoadLastModifiedDate(reader);
+            DateTime lastModified = LoadLastModifiedDate(reader);
 
-            var rowCount = reader.ReadInt32();
+            int rowCount = reader.ReadInt32();
             position += 4;
 
             /*
@@ -56,7 +56,7 @@ namespace NDbfReader
             SkipHeaderBytes(reader, position, 2);
             position += 2;
 
-            var rowSize = reader.ReadInt16();
+            short rowSize = reader.ReadInt16();
             position += 2;
 
             /*
@@ -113,7 +113,7 @@ namespace NDbfReader
             //11-14 reserved
             reader.BaseStream.SeekForward(4);
 
-            var size = reader.ReadByte();
+            byte size = reader.ReadByte();
 
             /*
              * 16       = decimal count
@@ -174,13 +174,13 @@ namespace NDbfReader
 
         private Column LoadNextColumn(BinaryReader reader, int columnOffset)
         {
-            var name = ReadColumnName(reader);
+            string name = ReadColumnName(reader);
             if(name == null)
             {
                 return null;
             }
 
-            var typeByte = reader.ReadByte();
+            byte typeByte = reader.ReadByte();
 
             return LoadColumn(reader, typeByte, name, columnOffset);
         }
@@ -188,16 +188,16 @@ namespace NDbfReader
         private static DateTime LoadLastModifiedDate(BinaryReader reader)
         {
             // expected format YYMMDD
-            var bytes = reader.ReadBytes(3);
-            var year = bytes[0];
-            var month = bytes[1];
-            var day = bytes[2];
+            byte[] bytes = reader.ReadBytes(3);
+            byte year = bytes[0];
+            byte month = bytes[1];
+            byte day = bytes[2];
             return new DateTime((year > DateTime.Now.Year % 1000 ? 1900 : 2000) + year, month, day);
         }
 
         private static string ReadColumnName(BinaryReader reader)
         {
-            var firstByte = reader.ReadByte();
+            byte firstByte = reader.ReadByte();
             if (firstByte == FILE_DESCRIPTOR_TERMINATOR)
             {
                 return null;

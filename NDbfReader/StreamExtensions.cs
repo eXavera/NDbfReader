@@ -50,13 +50,13 @@ namespace NDbfReader
             }
             else
             {
-                var bufferSize = Math.Min(MAX_BUFFER_SIZE, offset);
+                int bufferSize = Math.Min(MAX_BUFFER_SIZE, offset);
                 var buffer = new byte[bufferSize];
-                var bytesToRead = offset;
+                int bytesToRead = offset;
 
                 while (bytesToRead > 0)
                 {
-                    var readBytes = stream.Read(buffer, 0, bytesToRead > bufferSize ? bufferSize : bytesToRead);
+                    int readBytes = stream.Read(buffer, 0, bytesToRead > bufferSize ? bufferSize : bytesToRead);
                     if (readBytes == 0)
                     {
                         break;

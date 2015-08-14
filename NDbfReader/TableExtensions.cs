@@ -27,7 +27,7 @@ namespace NDbfReader
                 throw new ArgumentNullException("table");
             }
 
-            var dataTable = CreateDataTable(table.Columns);
+            DataTable dataTable = CreateDataTable(table.Columns);
             FillData(table.Columns, dataTable, table.OpenReader());
             return dataTable;
         }
@@ -65,7 +65,7 @@ namespace NDbfReader
                 throw new ArgumentNullException("encoding");
             }
 
-            var dataTable = CreateDataTable(table.Columns);
+            DataTable dataTable = CreateDataTable(table.Columns);
             FillData(table.Columns, dataTable, table.OpenReader(encoding));
             return dataTable;
         }
@@ -96,9 +96,9 @@ namespace NDbfReader
             }
 
             var selectedColumns = new List<IColumn>(columnNames.Length);
-            foreach (var columnName in columnNames)
+            foreach (string columnName in columnNames)
             {
-                var column = table.Columns.FirstOrDefault(c => c.Name == columnName);
+                IColumn column = table.Columns.FirstOrDefault(c => c.Name == columnName);
                 if(column == null)
                 {
                     throw new ArgumentOutOfRangeException("columnNames", columnName, "The table does not have a column with this name.");
@@ -106,7 +106,7 @@ namespace NDbfReader
                 selectedColumns.Add(column);
             }
 
-            var dataTable = CreateDataTable(selectedColumns);
+            DataTable dataTable = CreateDataTable(selectedColumns);
             FillData(selectedColumns, dataTable, table.OpenReader(encoding));
             return dataTable;
         }
@@ -118,9 +118,9 @@ namespace NDbfReader
                 Locale = CultureInfo.CurrentCulture
             };
 
-            foreach (var column in columns)
+            foreach (IColumn column in columns)
             {
-                var columnType = Nullable.GetUnderlyingType(column.Type) ?? column.Type;
+                Type columnType = Nullable.GetUnderlyingType(column.Type) ?? column.Type;
                 dataTable.Columns.Add(column.Name, columnType);
             }
 
@@ -131,8 +131,8 @@ namespace NDbfReader
         {
             while (reader.Read())
             {
-                var row = dataTable.NewRow();
-                foreach (var column in columns)
+                DataRow row = dataTable.NewRow();
+                foreach (IColumn column in columns)
                 {
                     row[column.Name] = reader.GetValue(column) ?? DBNull.Value;
                 }

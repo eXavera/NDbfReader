@@ -35,13 +35,13 @@ namespace NDbfReader
         /// <returns>A column value.</returns>
         protected override decimal? DoLoad(byte[] buffer, Encoding encoding)
         {
-            var stringValue = encoding.GetString(buffer, 0, buffer.Length);
+            string stringValue = encoding.GetString(buffer, 0, buffer.Length);
             if(stringValue.Length == 0)
             {
                 return null;
             }
 
-            var lastChar = stringValue.Last();
+            char lastChar = stringValue.Last();
             if (lastChar == ' ' || lastChar == '?')
             {
                 return null;

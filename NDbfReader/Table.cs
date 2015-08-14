@@ -79,7 +79,7 @@ namespace NDbfReader
             }
 
             var binaryReader = new BinaryReader(stream);
-            var header = headerLoader.Load(binaryReader);
+            Header header = headerLoader.Load(binaryReader);
             return new Table(header, binaryReader);
         }
 

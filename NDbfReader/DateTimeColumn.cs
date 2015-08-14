@@ -30,7 +30,7 @@ namespace NDbfReader
         /// <returns>A column value.</returns>
         protected override DateTime? DoLoad(byte[] buffer, Encoding encoding)
         {
-            var stringValue = encoding.GetString(buffer, 0, buffer.Length);
+            string stringValue = encoding.GetString(buffer, 0, buffer.Length);
             if (string.IsNullOrWhiteSpace(stringValue))
             {
                 return null;

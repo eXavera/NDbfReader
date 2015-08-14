@@ -42,7 +42,7 @@ namespace NDbfReader
             _encoding = encoding;
 
             _columnsCache = new Dictionary<string, IColumn>(table.Columns.Count);
-            foreach (var column in table.Columns)
+            foreach (IColumn column in table.Columns)
             {
                 _columnsCache.Add(column.Name, column);
             }
@@ -335,7 +335,7 @@ namespace NDbfReader
             ValidateReaderState();
 
             var column = (Column)FindColumnByName(columnName);
-            var rawValue = LoadColumnBytes(column.Offset, column.Size);
+            byte[] rawValue = LoadColumnBytes(column.Offset, column.Size);
             return column.LoadValueAsObject(rawValue, _encoding);
         }
 
@@ -364,7 +364,7 @@ namespace NDbfReader
             CheckColumnBelongsToParentTable(column);
 
             var columnBase = (Column)column;
-            var rawValue = LoadColumnBytes(columnBase.Offset, columnBase.Size);
+            byte[] rawValue = LoadColumnBytes(columnBase.Offset, columnBase.Size);
             return columnBase.LoadValueAsObject(rawValue, _encoding);
         }
 
@@ -416,7 +416,7 @@ namespace NDbfReader
             {
                 throw new ArgumentOutOfRangeException("columnName", "The column's type does not match the method's return type.");
             }
-            var rawValue = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
+            byte[] rawValue = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
             return typedColumn.LoadValue(rawValue, _encoding);
         }
 
@@ -450,7 +450,7 @@ namespace NDbfReader
             }
 
             var typedColumn = (Column<T>)column;
-            var rawValue = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
+            byte[] rawValue = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
             return typedColumn.LoadValue(rawValue, _encoding);
         }
 
@@ -519,7 +519,7 @@ namespace NDbfReader
 
         private byte[] LoadColumnBytes(int offset, int size)
         {
-            var seek = offset - _currentRowOffset;
+            int seek = offset - _currentRowOffset;
             if (seek < 0)
             {
                 if (BinaryReader.BaseStream.CanSeek)
