@@ -17,6 +17,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B34DCA4-4FB0-4E87-B9AE-2C1B55278509}"
 	ProjectSection(SolutionItems) = preProject
 		AssemblyInfo.cs = AssemblyInfo.cs
+		NDbfReader.nuspec = NDbfReader.nuspec
 		tempKey.snk = tempKey.snk
 	EndProjectSection
 EndProject

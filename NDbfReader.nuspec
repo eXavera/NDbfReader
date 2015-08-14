@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>NDbfReader</id>
+    <title>NDbfReader</title>
+    <version>1.1.2.0</version>
+    <authors>Stanislav Fajfr</authors>
+    <owners>Stanislav Fajfr</owners>
+    <licenseUrl>https://github.com/eXavera/NDbfReader/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/eXavera/NDbfReader</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Simple reader of DBF file for .NET</description>
+    <releaseNotes>https://github.com/eXavera/NDbfReader/releases</releaseNotes>
+    <copyright>Copyright © 2014 Stanislav Fajfr</copyright>
+    <tags>dbf dBASE</tags>
+    <dependencies>
+      <group targetFramework="net40"></group>
+      <group targetFramework="net45"></group>
+      <group targetFramework="dotnet"></group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="NDbfReader\bin\Release\NDbfReader.dll" target="lib\net40" />
+    <file src="NDbfReader\bin\Release\NDbfReader.xml" target="lib\net40" />
+    <file src="NDbfReader.Net45\bin\Release\NDbfReader.dll" target="lib\net45" />
+    <file src="NDbfReader.Net45\bin\Release\NDbfReader.xml" target="lib\net45" />
+    <file src="NDbfReader.NetCore\bin\Release\NDbfReader.dll" target="lib\dotnet" />
+    <file src="NDbfReader.NetCore\bin\Release\NDbfReader.xml" target="lib\dotnet" />
+  </files>
+</package>

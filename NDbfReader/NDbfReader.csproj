@@ -71,9 +71,6 @@
     <Compile Include="StringColumn.cs" />
     <Compile Include="TableExtensions.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="NDbfReader.nuspec" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>if not exist "$(ProjectDir)key.snk" (
