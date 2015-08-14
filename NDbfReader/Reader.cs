@@ -466,7 +466,7 @@ namespace NDbfReader
         {
             get
             {
-                return (IParentTable)_table;
+                return _table;
             }
         }
 
