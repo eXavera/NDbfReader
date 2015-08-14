@@ -5,7 +5,7 @@ using System.Text;
 namespace NDbfReader
 {
     /// <summary>
-    /// Represents a <see cref="String"/> column.
+    /// Represents a <see cref="string"/> column.
     /// </summary>
     [DebuggerDisplay("String {Name}")]
     public class StringColumn : Column<string>

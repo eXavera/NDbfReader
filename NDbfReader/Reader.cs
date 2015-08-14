@@ -91,15 +91,15 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets a <see cref="String"/> value of the specified column of the current row.
+        /// Gets a <see cref="string"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="columnName">The column name.</param>
-        /// <returns>A <see cref="String"/> value.</returns>
+        /// <returns>A <see cref="string"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
         /// No column with this name was found.<br />
         /// -- or --<br />
-        /// The column has different type then <see cref="String"/>.
+        /// The column has different type then <see cref="string"/>.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
@@ -113,13 +113,13 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets a <see cref="String"/> value of the specified column of the current row.
+        /// Gets a <see cref="string"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="column">The column.</param>
-        /// <returns>A <see cref="String"/> value.</returns>
+        /// <returns>A <see cref="string"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
-        /// The column has different type then <see cref="String"/>.<br />
+        /// The column has different type then <see cref="string"/>.<br />
         /// -- or --<br />
         /// The column is from different table instance.
         /// </exception>
@@ -135,15 +135,15 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets a <see cref="Decimal"/> value of the specified column of the current row.
+        /// Gets a <see cref="decimal"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="columnName">The column name.</param>
-        /// <returns>A <see cref="Decimal"/> value.</returns>
+        /// <returns>A <see cref="decimal"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
         /// No column with this name was found.<br />
         /// -- or --<br />
-        /// The column has different type then <see cref="Decimal"/>.
+        /// The column has different type then <see cref="decimal"/>.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
@@ -157,13 +157,13 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets a <see cref="Decimal"/> value of the specified column of the current row.
+        /// Gets a <see cref="decimal"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="column">The column.</param>
-        /// <returns>A <see cref="Decimal"/> value.</returns>
+        /// <returns>A <see cref="decimal"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
-        /// The column has different type then <see cref="Decimal"/>.<br />
+        /// The column has different type then <see cref="decimal"/>.<br />
         /// -- or --<br />
         /// The column is from different table instance.
         /// </exception>
@@ -223,15 +223,15 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets a <see cref="Boolean"/> value of the specified column of the current row.
+        /// Gets a <see cref="bool"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="columnName">The column name.</param>
-        /// <returns>A <see cref="Boolean"/> value.</returns>
+        /// <returns>A <see cref="bool"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
         /// No column with this name was found.<br />
         /// -- or --<br />
-        /// The column has different type then <see cref="Boolean"/>.
+        /// The column has different type then <see cref="bool"/>.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
@@ -246,13 +246,13 @@ namespace NDbfReader
 
 
         /// <summary>
-        /// Gets a <see cref="Boolean"/> value of the specified column of the current row.
+        /// Gets a <see cref="bool"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="column">The column.</param>
-        /// <returns>A <see cref="Boolean"/> value.</returns>
+        /// <returns>A <see cref="bool"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
-        /// The column has different type then <see cref="Boolean"/>.<br />
+        /// The column has different type then <see cref="bool"/>.<br />
         /// -- or --<br />
         /// The column is from different table instance.
         /// </exception>
@@ -268,15 +268,15 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets a <see cref="Int32"/> value of the specified column of the current row.
+        /// Gets a <see cref="int"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="columnName">The column name.</param>
-        /// <returns>A <see cref="Int32"/> value.</returns>
+        /// <returns>A <see cref="int"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
         /// No column with this name was found.<br />
         /// -- or --<br />
-        /// The column has different type then <see cref="Int32"/>.
+        /// The column has different type then <see cref="int"/>.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
@@ -290,13 +290,13 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets a <see cref="Int32"/> value of the specified column of the current row.
+        /// Gets a <see cref="int"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="column">The column.</param>
-        /// <returns>A <see cref="Int32"/> value.</returns>
+        /// <returns>A <see cref="int"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
-        /// The column has different type then <see cref="Int32"/>.<br />
+        /// The column has different type then <see cref="int"/>.<br />
         /// -- or --<br />
         /// The column is from different table instance.
         /// </exception>

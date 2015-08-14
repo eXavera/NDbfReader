@@ -5,7 +5,7 @@ using System.Text;
 namespace NDbfReader
 {
     /// <summary>
-    /// Represents a <see cref="Int32"/> column.
+    /// Represents a <see cref="int"/> column.
     /// </summary>
     [DebuggerDisplay("Int32 {Name}")]
     public class Int32Column : Column<int>

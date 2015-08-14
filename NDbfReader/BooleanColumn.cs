@@ -5,7 +5,7 @@ using System.Text;
 namespace NDbfReader
 {
     /// <summary>
-    /// Represents a <see cref="Boolean"/> column.
+    /// Represents a <see cref="bool"/> column.
     /// </summary>
     [DebuggerDisplay("Boolean {Name}")]
     public class BooleanColumn : Column<bool?>
@@ -30,7 +30,7 @@ namespace NDbfReader
         /// <returns>A column value.</returns>
         protected override bool? DoLoad(byte[] buffer, Encoding encoding)
         {
-            var charValue = Char.ToUpper((char)buffer[0]);
+            var charValue = char.ToUpper((char)buffer[0]);
             switch (charValue)
             {
                 case 'T':

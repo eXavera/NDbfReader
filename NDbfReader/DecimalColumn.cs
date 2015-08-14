@@ -7,7 +7,7 @@ using System.Text;
 namespace NDbfReader
 {
     /// <summary>
-    /// Represents a <see cref="Decimal"/> column.
+    /// Represents a <see cref="decimal"/> column.
     /// </summary>
     [DebuggerDisplay("Decimal {Name}")]
     public class DecimalColumn : Column<decimal?>
