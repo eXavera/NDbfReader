@@ -79,7 +79,7 @@ namespace NDbfReader.Tests
             var headerLoader = Substitute.ForPartsOf<HeaderLoader>();
 
             // Act
-            using (var table = Table.Open(Samples.GetBasicTableStream(), headerLoader)) { };
+            using (var table = Table.Open(Samples.GetBasicTableStream(), headerLoader)) { }
 
             // Assert
             headerLoader.Received().Load(Arg.Any<BinaryReader>());
