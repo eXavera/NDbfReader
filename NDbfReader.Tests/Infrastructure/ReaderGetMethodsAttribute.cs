@@ -8,7 +8,7 @@ namespace NDbfReader.Tests.Infrastructure
 {
     /// <summary>
     /// Provides GetXX method names and argument types for a data theory.
-    /// For parameter of type <see cref="System.String"/> the method name is provided. For parameter of type <see cref="System.Type"/> the type of parameter argument is provided.
+    /// For parameter of type <see cref="string"/> the method name is provided. For parameter of type <see cref="Type"/> the type of parameter argument is provided.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     internal sealed class ReaderGetMethodsAttribute : DataAttribute
