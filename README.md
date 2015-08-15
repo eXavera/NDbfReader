@@ -40,7 +40,7 @@ Install-Package NDbfReader
 
 ## Source
 
-Clone the repository and run `build.cmd`. Opening the solution requires at least Visual Studio Community 2013.
+Clone the repository and run `build.cmd`. At least `Visual Studio Community 2015` is required.
 
 ## Tests
 
