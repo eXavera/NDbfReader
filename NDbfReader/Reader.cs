@@ -565,7 +565,7 @@ namespace NDbfReader
 
             if (!_rowLoaded)
             {
-                throw new InvalidOperationException("No row is loaded. Call Read method first and check whether it returns true.");
+                throw new InvalidOperationException($"No row is loaded. Call {nameof(Read)} method first and check whether it returns true.");
             }
         }
     }
