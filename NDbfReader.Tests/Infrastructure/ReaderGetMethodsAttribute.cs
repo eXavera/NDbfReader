@@ -43,7 +43,7 @@ namespace NDbfReader.Tests.Infrastructure
                     if (parameterType == typeof(string)) return method.Name;
                     if (parameterType == typeof(Type)) return method.GetParameters().First().ParameterType;
 
-                    throw new InvalidOperationException(string.Format("Unexpected parameter of type {0}. Only method name and parameter type parameters area supported.", parameterType.FullName));
+                    throw new InvalidOperationException($"Unexpected parameter of type {parameterType.FullName}. Only method name and parameter type parameters area supported.");
                 })
                 .ToArray();
             });
