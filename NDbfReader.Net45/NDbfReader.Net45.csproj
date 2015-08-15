@@ -62,9 +62,6 @@
     <Compile Include="..\NDbfReader\DecimalColumn.cs">
       <Link>DecimalColumn.cs</Link>
     </Compile>
-    <Compile Include="..\NDbfReader\ExceptionFactory.cs">
-      <Link>ExceptionFactory.cs</Link>
-    </Compile>
     <Compile Include="..\NDbfReader\Header.cs">
       <Link>Header.cs</Link>
     </Compile>

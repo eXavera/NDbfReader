@@ -60,7 +60,6 @@
     <Compile Include="Table.cs" />
     <Compile Include="DecimalColumn.cs" />
     <Compile Include="HeaderLoader.cs" />
-    <Compile Include="ExceptionFactory.cs" />
     <Compile Include="Header.cs" />
     <Compile Include="IColumn.cs" />
     <Compile Include="Int32Column.cs" />

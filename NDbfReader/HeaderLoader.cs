@@ -147,7 +147,7 @@ namespace NDbfReader
                     return new DecimalColumn(name, columnOffset, size);
 
                 default:
-                    throw ExceptionFactory.CreateNotSupportedException("The {0} column's type is not supported.", name);
+                    throw new NotSupportedException($"The {name} column's type is not supported.");
             }
         }
 

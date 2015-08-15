@@ -477,7 +477,7 @@ namespace NDbfReader
         {
             if (!_columnsCache.ContainsKey(columnName))
             {
-                throw ExceptionFactory.CreateArgumentOutOfRangeException("columnName", "Column {0} not found.", columnName);
+                throw new ArgumentOutOfRangeException("columnName", $"Column {columnName} not found.");
             }
             return _columnsCache[columnName];
         }
