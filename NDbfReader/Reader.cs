@@ -29,11 +29,11 @@ namespace NDbfReader
         {
             if (table == null)
             {
-                throw new ArgumentNullException("table");
+                throw new ArgumentNullException(nameof(table));
             }
             if (encoding == null)
             {
-                throw new ArgumentNullException("encoding");
+                throw new ArgumentNullException(nameof(encoding));
             }
 
             _table = table;
@@ -346,7 +346,7 @@ namespace NDbfReader
         {
             if (columnName == null)
             {
-                throw new ArgumentNullException("columnName");
+                throw new ArgumentNullException(nameof(columnName));
             }
             ValidateReaderState();
 
@@ -374,7 +374,7 @@ namespace NDbfReader
         {
             if (column == null)
             {
-                throw new ArgumentNullException("column");
+                throw new ArgumentNullException(nameof(column));
             }
             ValidateReaderState();
             CheckColumnBelongsToParentTable(column);
@@ -418,14 +418,14 @@ namespace NDbfReader
         {
             if (columnName == null)
             {
-                throw new ArgumentNullException("columnName");
+                throw new ArgumentNullException(nameof(columnName));
             }
             ValidateReaderState();
 
             var typedColumn = FindColumnByName(columnName) as Column<T>;
             if (typedColumn == null)
             {
-                throw new ArgumentOutOfRangeException("columnName", "The column's type does not match the method's return type.");
+                throw new ArgumentOutOfRangeException(nameof(columnName), "The column's type does not match the method's return type.");
             }
             byte[] rawValue = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
             return typedColumn.LoadValue(rawValue, _encoding);
@@ -451,13 +451,13 @@ namespace NDbfReader
         {
             if (column == null)
             {
-                throw new ArgumentNullException("column");
+                throw new ArgumentNullException(nameof(column));
             }
             ValidateReaderState();
             CheckColumnBelongsToParentTable(column);
             if (column.Type != typeof(T))
             {
-                throw new ArgumentOutOfRangeException("column", "The column's type does not match the method's return type.");
+                throw new ArgumentOutOfRangeException(nameof(column), "The column's type does not match the method's return type.");
             }
 
             var typedColumn = (Column<T>)column;
@@ -477,7 +477,7 @@ namespace NDbfReader
         {
             if (!_columnsCache.ContainsKey(columnName))
             {
-                throw new ArgumentOutOfRangeException("columnName", $"Column {columnName} not found.");
+                throw new ArgumentOutOfRangeException(nameof(columnName), $"Column {columnName} not found.");
             }
             return _columnsCache[columnName];
         }
@@ -486,7 +486,7 @@ namespace NDbfReader
         {
             if (!_table.Columns.Contains(column))
             {
-                throw new ArgumentOutOfRangeException("column", "The column instance doesn't belong to this table.");
+                throw new ArgumentOutOfRangeException(nameof(column), "The column instance doesn't belong to this table.");
             }
         }
 

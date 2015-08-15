@@ -27,15 +27,15 @@ namespace NDbfReader
         {
             if (rowCount < 0)
             {
-                throw new ArgumentOutOfRangeException("rowCount");
+                throw new ArgumentOutOfRangeException(nameof(rowCount));
             }
             if (rowSize < 0)
             {
-                throw new ArgumentOutOfRangeException("rowSize");
+                throw new ArgumentOutOfRangeException(nameof(rowSize));
             }
             if (columns == null)
             {
-                throw new ArgumentNullException("columns");
+                throw new ArgumentNullException(nameof(columns));
             }
 
             _lastModified = lastModified;

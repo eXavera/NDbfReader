@@ -122,7 +122,7 @@ namespace NDbfReader.Tests
             //Act & Assert
             var exception = Assert.Throws<ArgumentException>(() => Table.Open(unreadableStream));
             exception.ParamName.Should().BeEquivalentTo("stream");
-            exception.Message.Should().StartWithEquivalent("The stream does not allow reading (CanRead property returns false).");
+            exception.Message.Should().StartWithEquivalent($"The stream does not allow reading ({nameof(unreadableStream.CanRead)} property returns false).");
         }
 
         [Fact]

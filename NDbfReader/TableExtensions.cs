@@ -24,7 +24,7 @@ namespace NDbfReader
         {
             if (table == null)
             {
-                throw new ArgumentNullException("table");
+                throw new ArgumentNullException(nameof(table));
             }
 
             DataTable dataTable = CreateDataTable(table.Columns);
@@ -58,11 +58,11 @@ namespace NDbfReader
         {
             if (table == null)
             {
-                throw new ArgumentNullException("table");
+                throw new ArgumentNullException(nameof(table));
             }
             if (encoding == null)
             {
-                throw new ArgumentNullException("encoding");
+                throw new ArgumentNullException(nameof(encoding));
             }
 
             DataTable dataTable = CreateDataTable(table.Columns);
@@ -84,15 +84,15 @@ namespace NDbfReader
         {
             if (table == null)
             {
-                throw new ArgumentNullException("table");
+                throw new ArgumentNullException(nameof(table));
             }
             if (encoding == null)
             {
-                throw new ArgumentNullException("encoding");
+                throw new ArgumentNullException(nameof(encoding));
             }
             if (columnNames.Length == 0)
             {
-                throw new ArgumentException("No column names specified. Specify at least one column.", "columnNames");
+                throw new ArgumentException("No column names specified. Specify at least one column.", nameof(columnNames));
             }
 
             var selectedColumns = new List<IColumn>(columnNames.Length);
@@ -101,7 +101,7 @@ namespace NDbfReader
                 IColumn column = table.Columns.FirstOrDefault(c => c.Name == columnName);
                 if (column == null)
                 {
-                    throw new ArgumentOutOfRangeException("columnNames", columnName, "The table does not have a column with this name.");
+                    throw new ArgumentOutOfRangeException(nameof(columnNames), columnName, "The table does not have a column with this name.");
                 }
                 selectedColumns.Add(column);
             }

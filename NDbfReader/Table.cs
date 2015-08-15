@@ -33,11 +33,11 @@ namespace NDbfReader
         {
             if (header == null)
             {
-                throw new ArgumentNullException("header");
+                throw new ArgumentNullException(nameof(header));
             }
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
 
             _reader = reader;
@@ -92,7 +92,7 @@ namespace NDbfReader
         {
             if (string.IsNullOrEmpty(path))
             {
-                throw new ArgumentNullException("path");
+                throw new ArgumentNullException(nameof(path));
             }
 
             return Open(File.OpenRead(path));
@@ -124,15 +124,15 @@ namespace NDbfReader
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             if (!stream.CanRead)
             {
-                throw new ArgumentException("stream", $"The stream does not allow reading ({nameof(stream.CanRead)} property returns false).");
+                throw new ArgumentException($"The stream does not allow reading ({nameof(stream.CanRead)} property returns false).", nameof(stream));
             }
             if (headerLoader == null)
             {
-                throw new ArgumentNullException("headerLoader");
+                throw new ArgumentNullException(nameof(headerLoader));
             }
 
             var binaryReader = new BinaryReader(stream);
@@ -182,7 +182,7 @@ namespace NDbfReader
         {
             if (encoding == null)
             {
-                throw new ArgumentNullException("encoding");
+                throw new ArgumentNullException(nameof(encoding));
             }
             ThrowIfDisposed();
             if (_isReaderOpened)

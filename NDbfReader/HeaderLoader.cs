@@ -35,7 +35,7 @@ namespace NDbfReader
         {
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
 
             /*
@@ -101,15 +101,15 @@ namespace NDbfReader
         {
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
             if (string.IsNullOrEmpty(name))
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (columnOffset < 0)
             {
-                throw new ArgumentOutOfRangeException("columnOffset");
+                throw new ArgumentOutOfRangeException(nameof(columnOffset));
             }
 
             //11-14 reserved
