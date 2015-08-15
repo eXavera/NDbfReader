@@ -53,6 +53,9 @@
     <Compile Include="..\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\GlobalSuppressions.cs">
+      <Link>GlobalSuppressions.cs</Link>
+    </Compile>
     <Compile Include="BooleanColumn.cs" />
     <Compile Include="DateTimeColumn.cs" />
     <Compile Include="Column.cs" />

@@ -50,6 +50,9 @@
     <Compile Include="..\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\GlobalSuppressions.cs">
+      <Link>GlobalSuppressions.cs</Link>
+    </Compile>
     <Compile Include="..\NDbfReader\BooleanColumn.cs">
       <Link>BooleanColumn.cs</Link>
     </Compile>
