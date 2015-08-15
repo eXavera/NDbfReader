@@ -78,6 +78,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GlobalSuppressions.cs">
+      <Link>GlobalSuppressions.cs</Link>
+    </Compile>
     <Compile Include="AdditionalReaderTests.cs" />
     <Compile Include="HeaderLoaderTests.cs" />
     <Compile Include="Samples.cs" />
