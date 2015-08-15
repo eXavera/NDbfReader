@@ -9,7 +9,7 @@ namespace NDbfReader.Tests.Infrastructure
 
         public DelegatedEqualityComparer(Func<T, object> discriminatorSelector)
         {
-            if (discriminatorSelector == null) throw new ArgumentNullException("discriminatorSelector");
+            if (discriminatorSelector == null) throw new ArgumentNullException(nameof(discriminatorSelector));
 
             _discriminatorSelector = discriminatorSelector;
         }

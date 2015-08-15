@@ -9,7 +9,7 @@ namespace NDbfReader.Tests.Infrastructure
 
         public StreamDecorator(Stream inner)
         {
-            if (inner == null) throw new ArgumentNullException("inner");
+            if (inner == null) throw new ArgumentNullException(nameof(inner));
 
             _inner = inner;
         }

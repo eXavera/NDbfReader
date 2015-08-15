@@ -446,7 +446,7 @@ namespace NDbfReader.Tests
         private static object ExecuteGetMethod(Reader reader, string methodName, Type parameterType, object parameter = null)
         {
             var methodInfo = typeof(Reader).GetMethod(methodName, new[] { parameterType });
-            if (methodInfo == null) throw new ArgumentOutOfRangeException("methodName", "Method " + methodName + " not found.");
+            if (methodInfo == null) throw new ArgumentOutOfRangeException(nameof(methodName), "Method " + methodName + " not found.");
 
             try
             {
@@ -487,7 +487,7 @@ namespace NDbfReader.Tests
                 return firstColumn;
             }
 
-            throw new ArgumentOutOfRangeException("type");
+            throw new ArgumentOutOfRangeException(nameof(type));
         }
 
         private static IColumn GetZeroSizeColumn(Table table)
