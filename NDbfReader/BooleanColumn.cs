@@ -36,9 +36,11 @@ namespace NDbfReader
                 case 'T':
                 case 'Y':
                     return true;
+
                 case 'F':
                 case 'N':
                     return false;
+
                 default:
                     return null;
             }

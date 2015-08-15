@@ -10,16 +10,14 @@ namespace NDbfReader
     /// </summary>
     public class Reader
     {
-        private const byte END_OF_FILE = 0x1A;
         private const byte DELETED_ROW_FLAG = (byte)'*';
-
-        private readonly Table _table;
+        private const byte END_OF_FILE = 0x1A;
         private readonly Dictionary<string, IColumn> _columnsCache;
-
-        private Encoding _encoding;
-        private bool _rowLoaded;
-        private int _loadedRowCount = 0;
+        private readonly Table _table;
         private int _currentRowOffset = -1;
+        private Encoding _encoding;
+        private int _loadedRowCount = 0;
+        private bool _rowLoaded;
 
         /// <summary>
         /// Initializes a new instance from the specified table and encoding.
@@ -48,18 +46,10 @@ namespace NDbfReader
             }
         }
 
-        /// <summary>
-        /// Gets the parent table.
-        /// </summary>
-        /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public Table Table
+        private enum SkipDeletedRowsResult
         {
-            get
-            {
-                ThrowIfDisposed();
-
-                return _table;
-            }
+            OK,
+            EndOfFile
         }
 
         /// <summary>
@@ -77,29 +67,56 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Moves the reader to the next row.
+        /// Gets the parent table.
         /// </summary>
-        /// <returns><c>true</c> if there are more rows; otherwise <c>false</c>.</returns>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public bool Read()
+        public Table Table
         {
-            ThrowIfDisposed();
+            get
+            {
+                ThrowIfDisposed();
 
-            _rowLoaded = ReadNextRow();
-
-            return _rowLoaded;
+                return _table;
+            }
         }
 
         /// <summary>
-        /// Gets a <see cref="string"/> value of the specified column of the current row.
+        /// Gets the header of the parent table.
+        /// </summary>
+        protected Header Header
+        {
+            get
+            {
+                return ParentTable.Header;
+            }
+        }
+
+        private BinaryReader BinaryReader
+        {
+            get
+            {
+                return ParentTable.BinaryReader;
+            }
+        }
+
+        private IParentTable ParentTable
+        {
+            get
+            {
+                return _table;
+            }
+        }
+
+        /// <summary>
+        /// Gets a <see cref="bool"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="columnName">The column name.</param>
-        /// <returns>A <see cref="string"/> value.</returns>
+        /// <returns>A <see cref="bool"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
         /// No column with this name was found.<br />
         /// -- or --<br />
-        /// The column has different type then <see cref="string"/>.
+        /// The column has different type then <see cref="bool"/>.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
@@ -107,19 +124,19 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual string GetString(string columnName)
+        public virtual bool? GetBoolean(string columnName)
         {
-            return GetValue<string>(columnName);
+            return GetValue<bool?>(columnName);
         }
 
         /// <summary>
-        /// Gets a <see cref="string"/> value of the specified column of the current row.
+        /// Gets a <see cref="bool"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="column">The column.</param>
-        /// <returns>A <see cref="string"/> value.</returns>
+        /// <returns>A <see cref="bool"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
-        /// The column has different type then <see cref="string"/>.<br />
+        /// The column has different type then <see cref="bool"/>.<br />
         /// -- or --<br />
         /// The column is from different table instance.
         /// </exception>
@@ -129,53 +146,9 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual string GetString(IColumn column)
+        public virtual bool? GetBoolean(IColumn column)
         {
-            return GetValue<string>(column);
-        }
-
-        /// <summary>
-        /// Gets a <see cref="decimal"/> value of the specified column of the current row.
-        /// </summary>
-        /// <param name="columnName">The column name.</param>
-        /// <returns>A <see cref="decimal"/> value.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c> or empty.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// No column with this name was found.<br />
-        /// -- or --<br />
-        /// The column has different type then <see cref="decimal"/>.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
-        /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual decimal? GetDecimal(string columnName)
-        {
-            return GetValue<decimal?>(columnName);
-        }
-
-        /// <summary>
-        /// Gets a <see cref="decimal"/> value of the specified column of the current row.
-        /// </summary>
-        /// <param name="column">The column.</param>
-        /// <returns>A <see cref="decimal"/> value.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// The column has different type then <see cref="decimal"/>.<br />
-        /// -- or --<br />
-        /// The column is from different table instance.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
-        /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual decimal? GetDecimal(IColumn column)
-        {
-            return GetValue<decimal?>(column);
+            return GetValue<bool?>(column);
         }
 
         /// <summary>
@@ -223,15 +196,15 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets a <see cref="bool"/> value of the specified column of the current row.
+        /// Gets a <see cref="decimal"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="columnName">The column name.</param>
-        /// <returns>A <see cref="bool"/> value.</returns>
+        /// <returns>A <see cref="decimal"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
         /// No column with this name was found.<br />
         /// -- or --<br />
-        /// The column has different type then <see cref="bool"/>.
+        /// The column has different type then <see cref="decimal"/>.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
@@ -239,20 +212,19 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual bool? GetBoolean(string columnName)
+        public virtual decimal? GetDecimal(string columnName)
         {
-            return GetValue<bool?>(columnName);
+            return GetValue<decimal?>(columnName);
         }
 
-
         /// <summary>
-        /// Gets a <see cref="bool"/> value of the specified column of the current row.
+        /// Gets a <see cref="decimal"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="column">The column.</param>
-        /// <returns>A <see cref="bool"/> value.</returns>
+        /// <returns>A <see cref="decimal"/> value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
-        /// The column has different type then <see cref="bool"/>.<br />
+        /// The column has different type then <see cref="decimal"/>.<br />
         /// -- or --<br />
         /// The column is from different table instance.
         /// </exception>
@@ -262,9 +234,9 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual bool? GetBoolean(IColumn column)
+        public virtual decimal? GetDecimal(IColumn column)
         {
-            return GetValue<bool?>(column);
+            return GetValue<decimal?>(column);
         }
 
         /// <summary>
@@ -309,6 +281,50 @@ namespace NDbfReader
         public virtual int GetInt32(IColumn column)
         {
             return GetValue<int>(column);
+        }
+
+        /// <summary>
+        /// Gets a <see cref="string"/> value of the specified column of the current row.
+        /// </summary>
+        /// <param name="columnName">The column name.</param>
+        /// <returns>A <see cref="string"/> value.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// No column with this name was found.<br />
+        /// -- or --<br />
+        /// The column has different type then <see cref="string"/>.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
+        /// -- or --<br />
+        /// The underlying stream is non-seekable and columns are read out of order.
+        /// </exception>
+        /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
+        public virtual string GetString(string columnName)
+        {
+            return GetValue<string>(columnName);
+        }
+
+        /// <summary>
+        /// Gets a <see cref="string"/> value of the specified column of the current row.
+        /// </summary>
+        /// <param name="column">The column.</param>
+        /// <returns>A <see cref="string"/> value.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The column has different type then <see cref="string"/>.<br />
+        /// -- or --<br />
+        /// The column is from different table instance.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
+        /// -- or --<br />
+        /// The underlying stream is non-seekable and columns are read out of order.
+        /// </exception>
+        /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
+        public virtual string GetString(IColumn column)
+        {
+            return GetValue<string>(column);
         }
 
         /// <summary>
@@ -369,22 +385,17 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Throws <see cref="ObjectDisposedException"/> if the parent table is disposed.
+        /// Moves the reader to the next row.
         /// </summary>
-        protected void ThrowIfDisposed()
+        /// <returns><c>true</c> if there are more rows; otherwise <c>false</c>.</returns>
+        /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
+        public bool Read()
         {
-            ParentTable.ThrowIfDisposed();
-        }
+            ThrowIfDisposed();
 
-        /// <summary>
-        /// Gets the header of the parent table.
-        /// </summary>
-        protected Header Header
-        {
-            get
-            {
-                return ParentTable.Header;
-            }
+            _rowLoaded = ReadNextRow();
+
+            return _rowLoaded;
         }
 
         /// <summary>
@@ -454,19 +465,58 @@ namespace NDbfReader
             return typedColumn.LoadValue(rawValue, _encoding);
         }
 
-        private BinaryReader BinaryReader
+        /// <summary>
+        /// Throws <see cref="ObjectDisposedException"/> if the parent table is disposed.
+        /// </summary>
+        protected void ThrowIfDisposed()
         {
-            get
+            ParentTable.ThrowIfDisposed();
+        }
+
+        private IColumn FindColumnByName(string columnName)
+        {
+            if (!_columnsCache.ContainsKey(columnName))
             {
-                return ParentTable.BinaryReader;
+                throw ExceptionFactory.CreateArgumentOutOfRangeException("columnName", "Column {0} not found.", columnName);
+            }
+            return _columnsCache[columnName];
+        }
+
+        private void CheckColumnBelongsToParentTable(IColumn column)
+        {
+            if (!_table.Columns.Contains(column))
+            {
+                throw new ArgumentOutOfRangeException("column", "The column instance doesn't belong to this table.");
             }
         }
 
-        private IParentTable ParentTable
+        private byte[] LoadColumnBytes(int offset, int size)
         {
-            get
+            int seek = offset - _currentRowOffset;
+            if (seek < 0)
             {
-                return _table;
+                if (BinaryReader.BaseStream.CanSeek)
+                {
+                    BinaryReader.BaseStream.Seek(seek, SeekOrigin.Current);
+                }
+                else
+                {
+                    throw new InvalidOperationException("The underlying non-seekable stream does not allow reading the columns out of order.");
+                }
+            }
+            else if (seek > 0)
+            {
+                BinaryReader.BaseStream.SeekForward(seek);
+            }
+            _currentRowOffset += (seek + size);
+            return BinaryReader.ReadBytes(size);
+        }
+
+        private void MoveToTheEndOfCurrentRow()
+        {
+            if (_currentRowOffset >= 0)
+            {
+                BinaryReader.BaseStream.SeekForward(Header.RowSize - _currentRowOffset - 1);
             }
         }
 
@@ -483,14 +533,6 @@ namespace NDbfReader
             }
             _currentRowOffset = 0;
             return true;
-        }
-
-        private void MoveToTheEndOfCurrentRow()
-        {
-            if (_currentRowOffset >= 0)
-            {
-                BinaryReader.BaseStream.SeekForward(Header.RowSize - _currentRowOffset - 1);
-            }
         }
 
         private SkipDeletedRowsResult SkipDeletedRows()
@@ -517,28 +559,6 @@ namespace NDbfReader
             return SkipDeletedRowsResult.OK;
         }
 
-        private byte[] LoadColumnBytes(int offset, int size)
-        {
-            int seek = offset - _currentRowOffset;
-            if (seek < 0)
-            {
-                if (BinaryReader.BaseStream.CanSeek)
-                {
-                    BinaryReader.BaseStream.Seek(seek, SeekOrigin.Current);
-                }
-                else
-                {
-                    throw new InvalidOperationException("The underlying non-seekable stream does not allow reading the columns out of order.");
-                }
-            }
-            else if (seek > 0)
-            {
-                BinaryReader.BaseStream.SeekForward(seek);
-            }
-            _currentRowOffset += (seek + size);
-            return BinaryReader.ReadBytes(size);
-        }
-
         private void ValidateReaderState()
         {
             ThrowIfDisposed();
@@ -547,29 +567,6 @@ namespace NDbfReader
             {
                 throw new InvalidOperationException("No row is loaded. Call Read method first and check whether it returns true.");
             }
-        }
-
-        private void CheckColumnBelongsToParentTable(IColumn column)
-        {
-            if (!_table.Columns.Contains(column))
-            {
-                throw new ArgumentOutOfRangeException("column", "The column instance doesn't belong to this table.");
-            }
-        }
-
-        private IColumn FindColumnByName(string columnName)
-        {
-            if (!_columnsCache.ContainsKey(columnName))
-            {
-                throw ExceptionFactory.CreateArgumentOutOfRangeException("columnName", "Column {0} not found.", columnName);
-            }
-            return _columnsCache[columnName];
-        }
-
-        private enum SkipDeletedRowsResult
-        {
-            OK,
-            EndOfFile
         }
     }
 }

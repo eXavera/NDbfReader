@@ -18,11 +18,68 @@ namespace NDbfReader
     /// </example>
     public class Table : IParentTable, IDisposable
     {
-        private readonly BinaryReader _reader;
         private readonly Header _header;
-
-        private bool _isReaderOpened;
+        private readonly BinaryReader _reader;
         private bool _disposed;
+        private bool _isReaderOpened;
+
+        /// <summary>
+        /// Initializes a new instance from the specified header and binary reader.
+        /// </summary>
+        /// <param name="header">The dBASE header.</param>
+        /// <param name="reader">The binary reader positioned at the firsh byte of the first row.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="header"/> is <c>null</c> or <paramref name="reader"/> is <c>null</c>.</exception>
+        protected Table(Header header, BinaryReader reader)
+        {
+            if (header == null)
+            {
+                throw new ArgumentNullException("header");
+            }
+            if (reader == null)
+            {
+                throw new ArgumentNullException("reader");
+            }
+
+            _reader = reader;
+            _header = header;
+        }
+
+        /// <summary>
+        /// Gets a list of all columns in the table.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">The table is disposed.</exception>
+        public ReadOnlyCollection<IColumn> Columns
+        {
+            get
+            {
+                ThrowIfDisposed();
+
+                return _header.Columns;
+            }
+        }
+
+        BinaryReader IParentTable.BinaryReader
+        {
+            get { return _reader; }
+        }
+
+        /// <summary>
+        /// Gets a date the table was last modified.
+        /// </summary>
+        public DateTime LastModified
+        {
+            get
+            {
+                ThrowIfDisposed();
+
+                return _header.LastModified;
+            }
+        }
+
+        Header IParentTable.Header
+        {
+            get { return Header; }
+        }
 
         /// <summary>
         /// Opens a table from the specified file.
@@ -33,7 +90,7 @@ namespace NDbfReader
         /// <exception cref="NotSupportedException">The dBASE table constains one or more columns of unsupported type.</exception>
         public static Table Open(string path)
         {
-            if(string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
                 throw new ArgumentNullException("path");
             }
@@ -73,7 +130,7 @@ namespace NDbfReader
             {
                 throw ExceptionFactory.CreateArgumentException("stream", "The stream does not allow reading (CanRead property returns false).");
             }
-            if(headerLoader == null)
+            if (headerLoader == null)
             {
                 throw new ArgumentNullException("headerLoader");
             }
@@ -84,51 +141,22 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Initializes a new instance from the specified header and binary reader.
+        /// Closes the underlying stream.
         /// </summary>
-        /// <param name="header">The dBASE header.</param>
-        /// <param name="reader">The binary reader positioned at the firsh byte of the first row.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="header"/> is <c>null</c> or <paramref name="reader"/> is <c>null</c>.</exception>
-        protected Table(Header header, BinaryReader reader)
+        public void Dispose()
         {
-            if (header == null)
+            if (_disposed)
             {
-                throw new ArgumentNullException("header");
-            }
-            if (reader == null)
-            {
-                throw new ArgumentNullException("reader");
+                return;
             }
 
-            _reader = reader;
-            _header = header;
+            Disposing();
+            _disposed = true;
         }
 
-        /// <summary>
-        /// Gets a list of all columns in the table.
-        /// </summary>
-        /// <exception cref="ObjectDisposedException">The table is disposed.</exception>
-        public ReadOnlyCollection<IColumn> Columns
+        void IParentTable.ThrowIfDisposed()
         {
-            get
-            {
-                ThrowIfDisposed();
-
-                return _header.Columns;
-            }
-        }
-
-        /// <summary>
-        /// Gets a date the table was last modified.
-        /// </summary>
-        public DateTime LastModified
-        {
-            get
-            {
-                ThrowIfDisposed();
-
-                return _header.LastModified;
-            }
+            ThrowIfDisposed();
         }
 
         /// <summary>
@@ -179,20 +207,6 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Closes the underlying stream.
-        /// </summary>
-        public void Dispose()
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            Disposing();
-            _disposed = true;
-        }
-
-        /// <summary>
         /// Releases the underlying stream.
         /// <remarks>
         /// The method is called only when the <see cref="Dispose"/> method is called for the first time.
@@ -224,21 +238,6 @@ namespace NDbfReader
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
-        }
-
-        Header IParentTable.Header
-        {
-            get { return Header; }
-        }
-
-        BinaryReader IParentTable.BinaryReader
-        {
-            get { return _reader; }
-        }
-
-        void IParentTable.ThrowIfDisposed()
-        {
-            ThrowIfDisposed();
         }
     }
 }

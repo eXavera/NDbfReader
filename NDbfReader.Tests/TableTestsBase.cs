@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace NDbfReader.Tests
+﻿namespace NDbfReader.Tests
 {
     public abstract class TableTestsBase
     {

@@ -9,10 +9,10 @@ namespace NDbfReader
     /// </summary>
     public class Header
     {
+        private readonly ReadOnlyCollection<IColumn> _columns;
         private readonly DateTime _lastModified;
         private readonly int _rowCount;
         private readonly int _rowSize;
-        private readonly ReadOnlyCollection<IColumn> _columns;
 
         /// <summary>
         /// Initializes a new instance with the specified rows size, rows count and columns.
@@ -45,6 +45,14 @@ namespace NDbfReader
         }
 
         /// <summary>
+        /// Gets the columns.
+        /// </summary>
+        public ReadOnlyCollection<IColumn> Columns
+        {
+            get { return _columns; }
+        }
+
+        /// <summary>
         /// Gets a date the table was last modified.
         /// </summary>
         public DateTime LastModified
@@ -67,20 +75,11 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets the size of a row in bytes. 
+        /// Gets the size of a row in bytes.
         /// </summary>
         public int RowSize
         {
             get { return _rowSize; }
         }
-
-        /// <summary>
-        /// Gets the columns.
-        /// </summary>
-        public ReadOnlyCollection<IColumn> Columns
-        {
-            get { return _columns; }
-        }
-
     }
 }

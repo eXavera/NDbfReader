@@ -15,14 +15,14 @@ namespace NDbfReader.Tests
             { "LONG", new List<object>() {  123456, -6544321, 0} },
         };
 
-        public static Table OpenBasicTable()
-        {
-            return Table.Open(GetBasicTableStream());
-        }
-
         public static Stream GetBasicTableStream()
         {
             return EmbeddedSamples.GetStream(EmbeddedSamples.BASIC);
+        }
+
+        public static Table OpenBasicTable()
+        {
+            return Table.Open(GetBasicTableStream());
         }
     }
 }

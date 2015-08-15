@@ -9,8 +9,8 @@ namespace NDbfReader
     public abstract class Column : IColumn
     {
         private readonly string _name;
-        private readonly int _size;
         private readonly int _offset;
+        private readonly int _size;
 
         /// <summary>
         /// Initializes a new instance with the specified name, offset and size.

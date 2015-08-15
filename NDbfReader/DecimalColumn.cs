@@ -36,7 +36,7 @@ namespace NDbfReader
         protected override decimal? DoLoad(byte[] buffer, Encoding encoding)
         {
             string stringValue = encoding.GetString(buffer, 0, buffer.Length);
-            if(stringValue.Length == 0)
+            if (stringValue.Length == 0)
             {
                 return null;
             }

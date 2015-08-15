@@ -8,8 +8,8 @@ namespace NDbfReader
     /// </summary>
     public static class StreamExtensions
     {
-        private const int READ_BY_SINGLE_BYTE_OFFSET_SIZE_THRESHOLD = 3;
         private const int MAX_BUFFER_SIZE = 255;
+        private const int READ_BY_SINGLE_BYTE_OFFSET_SIZE_THRESHOLD = 3;
 
         /// <summary>
         /// Moves the position forward within the specified stream. Supports also non seekable streams.
@@ -20,11 +20,11 @@ namespace NDbfReader
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is negative.</exception>
         public static void SeekForward(this Stream stream, int offset)
         {
-            if(stream == null)
+            if (stream == null)
             {
                 throw new ArgumentNullException("stream");
             }
-            if(offset < 0)
+            if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException("offset");
             }

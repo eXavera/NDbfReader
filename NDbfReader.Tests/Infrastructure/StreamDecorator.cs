@@ -29,11 +29,6 @@ namespace NDbfReader.Tests.Infrastructure
             get { return _inner.CanWrite; }
         }
 
-        public override void Flush()
-        {
-            _inner.Flush();
-        }
-
         public override long Length
         {
             get { return _inner.Length; }
@@ -49,6 +44,11 @@ namespace NDbfReader.Tests.Infrastructure
             {
                 _inner.Position = value;
             }
+        }
+
+        public override void Flush()
+        {
+            _inner.Flush();
         }
 
         public override int Read(byte[] buffer, int offset, int count)

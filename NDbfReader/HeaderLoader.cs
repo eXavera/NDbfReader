@@ -33,7 +33,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentNullException"><paramref name="reader"/> is <c>null</c>.</exception>
         public virtual Header Load(BinaryReader reader)
         {
-            if(reader == null)
+            if (reader == null)
             {
                 throw new ArgumentNullException("reader");
             }
@@ -74,18 +74,20 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Skips the specified number of header bytes.
+        /// Creates a header instance.
         /// </summary>
-        /// <param name="reader">The reader instance.</param>
-        /// <param name="offset">The current offset (in bytes) from the begining of the table header.</param>
-        /// <param name="count">The number of bytes to skip.</param>
-        protected virtual void SkipHeaderBytes(BinaryReader reader, int offset, int count)
+        /// <param name="lastModified">The date the table was last modified.</param>
+        /// <param name="rowCount">The number of rows.</param>
+        /// <param name="rowSize">The size of a row in bytes.</param>
+        /// <param name="columns">The loaded columns.</param>
+        /// <returns>A header instance.</returns>
+        protected virtual Header CreateHeader(DateTime lastModified, int rowCount, short rowSize, IList<IColumn> columns)
         {
-            reader.BaseStream.SeekForward(count);
+            return new Header(lastModified, rowCount, rowSize, columns);
         }
 
         /// <summary>
-        /// Loads a column from the specified properties. 
+        /// Loads a column from the specified properties.
         /// </summary>
         /// <param name="reader">The reader instance.</param>
         /// <param name="type">A byte that represents the column type.</param>
@@ -97,15 +99,15 @@ namespace NDbfReader
         /// <exception cref="NotSupportedException">value of <paramref name="type"/> parameter is not supported.</exception>
         protected virtual Column LoadColumn(BinaryReader reader, byte type, string name, int columnOffset)
         {
-            if(reader == null)
+            if (reader == null)
             {
                 throw new ArgumentNullException("reader");
             }
-            if(string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentNullException("name");
             }
-            if(columnOffset < 0)
+            if (columnOffset < 0)
             {
                 throw new ArgumentOutOfRangeException("columnOffset");
             }
@@ -130,59 +132,34 @@ namespace NDbfReader
             {
                 case NativeColumnType.Char:
                     return new StringColumn(name, columnOffset, size);
+
                 case NativeColumnType.Date:
                     return new DateTimeColumn(name, columnOffset);
+
                 case NativeColumnType.Long:
                     return new Int32Column(name, columnOffset);
+
                 case NativeColumnType.Logical:
                     return new BooleanColumn(name, columnOffset);
+
                 case NativeColumnType.Numeric:
                 case NativeColumnType.Float:
                     return new DecimalColumn(name, columnOffset, size);
+
                 default:
                     throw ExceptionFactory.CreateNotSupportedException("The {0} column's type is not supported.", name);
             }
         }
 
         /// <summary>
-        /// Creates a header instance.
+        /// Skips the specified number of header bytes.
         /// </summary>
-        /// <param name="lastModified">The date the table was last modified.</param>
-        /// <param name="rowCount">The number of rows.</param>
-        /// <param name="rowSize">The size of a row in bytes.</param>
-        /// <param name="columns">The loaded columns.</param>
-        /// <returns>A header instance.</returns>
-        protected virtual Header CreateHeader(DateTime lastModified, int rowCount, short rowSize, IList<IColumn> columns)
+        /// <param name="reader">The reader instance.</param>
+        /// <param name="offset">The current offset (in bytes) from the begining of the table header.</param>
+        /// <param name="count">The number of bytes to skip.</param>
+        protected virtual void SkipHeaderBytes(BinaryReader reader, int offset, int count)
         {
-            return new Header(lastModified, rowCount, rowSize, columns);
-        }
-
-        private Header LoadColumns(BinaryReader reader, DateTime lastModified, int rowCount, short rowSize)
-        {
-            var columns = new List<IColumn>();
-            Column newColumn = null;
-            int columnOffset = 0;
-
-            while ((newColumn = LoadNextColumn(reader, columnOffset)) != null)
-            {
-                columns.Add(newColumn);
-                columnOffset += newColumn.Size;
-            }
-
-            return CreateHeader(lastModified, rowCount, rowSize, columns);
-        }
-
-        private Column LoadNextColumn(BinaryReader reader, int columnOffset)
-        {
-            string name = ReadColumnName(reader);
-            if(name == null)
-            {
-                return null;
-            }
-
-            byte typeByte = reader.ReadByte();
-
-            return LoadColumn(reader, typeByte, name, columnOffset);
+            reader.BaseStream.SeekForward(count);
         }
 
         private static DateTime LoadLastModifiedDate(BinaryReader reader)
@@ -207,6 +184,34 @@ namespace NDbfReader
             nameBytesBuffer[0] = firstByte;
             reader.Read(nameBytesBuffer, 1, 10);
             return Encoding.ASCII.GetString(nameBytesBuffer).TrimEnd('\0', ' ');
+        }
+
+        private Header LoadColumns(BinaryReader reader, DateTime lastModified, int rowCount, short rowSize)
+        {
+            var columns = new List<IColumn>();
+            Column newColumn = null;
+            int columnOffset = 0;
+
+            while ((newColumn = LoadNextColumn(reader, columnOffset)) != null)
+            {
+                columns.Add(newColumn);
+                columnOffset += newColumn.Size;
+            }
+
+            return CreateHeader(lastModified, rowCount, rowSize, columns);
+        }
+
+        private Column LoadNextColumn(BinaryReader reader, int columnOffset)
+        {
+            string name = ReadColumnName(reader);
+            if (name == null)
+            {
+                return null;
+            }
+
+            byte typeByte = reader.ReadByte();
+
+            return LoadColumn(reader, typeByte, name, columnOffset);
         }
     }
 }

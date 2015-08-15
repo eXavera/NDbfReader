@@ -22,7 +22,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
         public static DataTable AsDataTable(this Table table)
         {
-            if(table == null)
+            if (table == null)
             {
                 throw new ArgumentNullException("table");
             }
@@ -46,7 +46,7 @@ namespace NDbfReader
             return AsDataTable(table, Encoding.ASCII, columnNames);
         }
 
-         /// <summary>
+        /// <summary>
         /// Loads the DBF table into a <see cref="DataTable"/>.
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
@@ -90,7 +90,7 @@ namespace NDbfReader
             {
                 throw new ArgumentNullException("encoding");
             }
-            if(columnNames.Length == 0)
+            if (columnNames.Length == 0)
             {
                 throw new ArgumentException("No column names specified. Specify at least one column.", "columnNames");
             }
@@ -99,7 +99,7 @@ namespace NDbfReader
             foreach (string columnName in columnNames)
             {
                 IColumn column = table.Columns.FirstOrDefault(c => c.Name == columnName);
-                if(column == null)
+                if (column == null)
                 {
                     throw new ArgumentOutOfRangeException("columnNames", columnName, "The table does not have a column with this name.");
                 }
