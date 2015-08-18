@@ -133,7 +133,7 @@ namespace NDbfReader
             }
             if (buffer.Length < Size)
             {
-                throw new ArgumentException("buffer", $"The buffer must have at least {Size} bytes.");
+                throw new ArgumentException($"The buffer must have at least {Size} bytes.", nameof(buffer));
             }
             if (encoding == null)
             {
