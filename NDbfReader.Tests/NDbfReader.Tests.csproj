@@ -96,7 +96,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Infrastructure\Spy.cs" />
     <Compile Include="Infrastructure\StreamDecorator.cs" />
-    <Compile Include="TableTestsBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Samples\SupportedTypes.dbf" />
