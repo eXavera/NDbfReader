@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace NDbfReader
@@ -10,98 +11,63 @@ namespace NDbfReader
     /// </summary>
     public class HeaderLoader
     {
+        private const int COLUMN_DESCRIPTOR_SIZE = 32;
+        private const int COLUMN_NAME_LENGTH = 11;
+        private const int COLUMN_NAME_OFFSET = 0;
+        private const int COLUMN_SIZE_OFFSET = 16;
+        private const int COLUMN_TYPE_OFFSET = 11;
+        private const int DAY_OFFSET = 3;
         private const byte FILE_DESCRIPTOR_TERMINATOR = 0x0D;
-
+        private const int HEADER_SIZE = 32;
+        private const int MONTH_OFFSET = 2;
+        private const int ROW_COUNT_OFFSET = 4;
+        private const int ROW_SIZE_OFFSET = 10;
+        private const int YEAR_OFFSET = 1;
         private static readonly HeaderLoader _default = new HeaderLoader();
 
         /// <summary>
         /// Gets the default loader.
         /// </summary>
-        public static HeaderLoader Default
-        {
-            get
-            {
-                return _default;
-            }
-        }
+        public static HeaderLoader Default => _default;
 
         /// <summary>
         /// Loads a header from the specified binary reader.
         /// </summary>
-        /// <param name="reader">The binary reader positioned on the first byte of a dBASE table.</param>
+        /// <param name="stream">The input stream on the first byte of a dBASE table.</param>
         /// <returns>A header loaded from the specified reader.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="reader"/> is <c>null</c>.</exception>
-        public virtual Header Load(BinaryReader reader)
+        /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
+        public virtual Header Load(Stream stream)
         {
-            if (reader == null)
+            if (stream == null)
             {
-                throw new ArgumentNullException(nameof(reader));
+                throw new ArgumentNullException(nameof(stream));
             }
 
-            /*
-           * 0    = signature
-           */
-            int position = 0;
-            SkipHeaderBytes(reader, position, 1);
-            position += 1;
+            // optimization: be one byte ahead when loading columns => so we have only one I/O read per column
+            var buffer = new byte[HEADER_SIZE + 1];
+            stream.Read(buffer, 0, buffer.Length);
 
-            DateTime lastModified = LoadLastModifiedDate(reader);
+            BasicProperties properties = ParseBasicProperties(buffer);
 
-            int rowCount = reader.ReadInt32();
-            position += 4;
-
-            /*
-            * 8-9  = header size
-            */
-            SkipHeaderBytes(reader, position, 2);
-            position += 2;
-
-            short rowSize = reader.ReadInt16();
-            position += 2;
-
-            /*
-             * 12-13  = reserved
-             * 14     = Flag indicating incomplete dBASE IV transaction.
-             * 15     = dBASE IV encryption flag
-             * 16-27  = Reserved for multi-user processing.
-             * 28     = Production MDX flag; 0x01 if a production .MDX file exists for this table; 0x00 if no .MDX file exists.
-             * 29     = Language driver ID.
-             * 30-31  = Reserved; filled with zeros
-             */
-            SkipHeaderBytes(reader, position, 20);
-
-            return LoadColumns(reader, lastModified, rowCount, rowSize);
+            return LoadColumns(stream, properties, buffer.Last());
         }
 
         /// <summary>
-        /// Creates a header instance.
+        /// Creates a column based on the specified properties.
         /// </summary>
-        /// <param name="lastModified">The date the table was last modified.</param>
-        /// <param name="rowCount">The number of rows.</param>
-        /// <param name="rowSize">The size of a row in bytes.</param>
-        /// <param name="columns">The loaded columns.</param>
-        /// <returns>A header instance.</returns>
-        protected virtual Header CreateHeader(DateTime lastModified, int rowCount, short rowSize, IList<IColumn> columns)
-        {
-            return new Header(lastModified, rowCount, rowSize, columns);
-        }
-
-        /// <summary>
-        /// Loads a column from the specified properties.
-        /// </summary>
-        /// <param name="reader">The reader instance.</param>
-        /// <param name="type">A byte that represents the column type.</param>
+        /// <param name="size">The column size in bytes.</param>
+        /// <param name="type">The column type.</param>
         /// <param name="name">The column name.</param>
         /// <param name="columnOffset">The column offset (in bytes) in a row.</param>
         /// <returns>A column instance.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="reader"/> or <paramref name="name"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="columnOffset"/> is &lt; 0.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> or <paramref name="columnOffset"/> is &lt; 0.</exception>
         /// <exception cref="NotSupportedException">value of <paramref name="type"/> parameter is not supported.</exception>
-        protected virtual Column LoadColumn(BinaryReader reader, byte type, string name, int columnOffset)
+        protected virtual Column CreateColumn(byte size, byte type, string name, int columnOffset)
         {
-            if (reader == null)
+            if (size < 0)
             {
-                throw new ArgumentNullException(nameof(reader));
+                throw new ArgumentOutOfRangeException(nameof(size));
             }
             if (string.IsNullOrEmpty(name))
             {
@@ -111,22 +77,6 @@ namespace NDbfReader
             {
                 throw new ArgumentOutOfRangeException(nameof(columnOffset));
             }
-
-            //11-14 reserved
-            reader.BaseStream.SeekForward(4);
-
-            byte size = reader.ReadByte();
-
-            /*
-             * 16       = decimal count
-             * 17-18    = reserved
-             * 19       = work area ID
-             * 20-21    = reserved
-             * 22       = set fields flag
-             * 23-29    = reserved
-             * 30       = index file flag
-             */
-            reader.BaseStream.SeekForward(15);
 
             switch (type)
             {
@@ -147,71 +97,110 @@ namespace NDbfReader
                     return new DecimalColumn(name, columnOffset, size);
 
                 default:
-                    throw new NotSupportedException($"The {name} column's type is not supported.");
+                    throw new NotSupportedException($"The {name} column's type 0x{type:X} is not supported.");
             }
         }
 
         /// <summary>
-        /// Skips the specified number of header bytes.
+        /// Creates a header instance.
         /// </summary>
-        /// <param name="reader">The reader instance.</param>
-        /// <param name="offset">The current offset (in bytes) from the begining of the table header.</param>
-        /// <param name="count">The number of bytes to skip.</param>
-        protected virtual void SkipHeaderBytes(BinaryReader reader, int offset, int count)
+        /// <param name="properties">The header properties.</param>
+        /// <param name="columns">The loaded columns.</param>
+        /// <returns>A header instance.</returns>
+        protected virtual Header CreateHeader(BasicProperties properties, IList<IColumn> columns)
         {
-            reader.BaseStream.SeekForward(count);
+            return new Header(properties.LastModified, properties.RowCount, properties.RowSize, columns);
         }
 
-        private static DateTime LoadLastModifiedDate(BinaryReader reader)
+        /// <summary>
+        /// Parsers basic header properties from the specified buffer.
+        /// </summary>
+        /// <param name="buffer">The header buffer.</param>
+        /// <returns>A <see cref="BasicProperties"/> instance.</returns>
+        protected virtual BasicProperties ParseBasicProperties(byte[] buffer)
         {
-            // expected format YYMMDD
-            byte[] bytes = reader.ReadBytes(3);
-            byte year = bytes[0];
-            byte month = bytes[1];
-            byte day = bytes[2];
+            DateTime lastModified = ParseLastModifiedDate(buffer);
+            int rowCount = BitConverter.ToInt32(buffer, ROW_COUNT_OFFSET);
+            short rowSize = BitConverter.ToInt16(buffer, ROW_SIZE_OFFSET);
+
+            return new BasicProperties(lastModified, rowCount, rowSize);
+        }
+
+        private static DateTime ParseLastModifiedDate(byte[] buffer)
+        {
+            byte year = buffer[YEAR_OFFSET];
+            byte month = buffer[MONTH_OFFSET];
+            byte day = buffer[DAY_OFFSET];
+
             return new DateTime((year > DateTime.Now.Year % 1000 ? 1900 : 2000) + year, month, day);
         }
 
-        private static string ReadColumnName(BinaryReader reader)
-        {
-            byte firstByte = reader.ReadByte();
-            if (firstByte == FILE_DESCRIPTOR_TERMINATOR)
-            {
-                return null;
-            }
-
-            var nameBytesBuffer = new byte[11];
-            nameBytesBuffer[0] = firstByte;
-            reader.Read(nameBytesBuffer, 1, 10);
-            return Encoding.ASCII.GetString(nameBytesBuffer).TrimEnd('\0', ' ');
-        }
-
-        private Header LoadColumns(BinaryReader reader, DateTime lastModified, int rowCount, short rowSize)
+        private Header LoadColumns(Stream stream, BasicProperties properties, byte firstColumnByte)
         {
             var columns = new List<IColumn>();
-            Column newColumn = null;
             int columnOffset = 0;
 
-            while ((newColumn = LoadNextColumn(reader, columnOffset)) != null)
+            // optimization: be one byte ahead when loading columns => so we have only one I/O read per column
+            var columnBytes = new byte[COLUMN_DESCRIPTOR_SIZE + 1];
+            columnBytes[0] = firstColumnByte;
+
+            while (columnBytes[0] != FILE_DESCRIPTOR_TERMINATOR)
             {
+                // read first byte of next column
+                stream.Read(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE);
+
+                Column newColumn = ParseColumn(columnBytes, columnOffset);
                 columns.Add(newColumn);
                 columnOffset += newColumn.Size;
+
+                // move the first byte of next column where it should be
+                columnBytes[0] = columnBytes.Last();
             }
 
-            return CreateHeader(lastModified, rowCount, rowSize, columns);
+            return CreateHeader(properties, columns);
         }
 
-        private Column LoadNextColumn(BinaryReader reader, int columnOffset)
+        private Column ParseColumn(byte[] buffer, int columnOffset)
         {
-            string name = ReadColumnName(reader);
-            if (name == null)
+            string name = Encoding.ASCII.GetString(buffer, COLUMN_NAME_OFFSET, COLUMN_NAME_LENGTH).TrimEnd('\0', ' ');
+            byte type = buffer[COLUMN_TYPE_OFFSET];
+            byte size = buffer[COLUMN_SIZE_OFFSET];
+
+            return CreateColumn(size, type, name, columnOffset);
+        }
+
+        /// <summary>
+        /// Represents basic properties of dBASE header. Only for internal usage.
+        /// </summary>
+        public class BasicProperties
+        {
+            /// <summary>
+            /// Initializes a new instance.
+            /// </summary>
+            /// <param name="lastModified">The date a table was last modified.</param>
+            /// <param name="rowCount">The number of rows in a table.</param>
+            /// <param name="rowSize">The size of a row in bytes.</param>
+            public BasicProperties(DateTime lastModified, int rowCount, short rowSize)
             {
-                return null;
+                LastModified = lastModified;
+                RowCount = rowCount;
+                RowSize = rowSize;
             }
 
-            byte typeByte = reader.ReadByte();
+            /// <summary>
+            /// Gets a date the table was last modified.
+            /// </summary>
+            public DateTime LastModified { get; }
 
-            return LoadColumn(reader, typeByte, name, columnOffset);
+            /// <summary>
+            /// Gets the number of rows in the table, including deleted ones.
+            /// </summary>
+            public int RowCount { get; }
+
+            /// <summary>
+            /// Gets the size of a row in bytes.
+            /// </summary>
+            public short RowSize { get; }
         }
     }
 }

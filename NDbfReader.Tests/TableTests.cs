@@ -82,7 +82,7 @@ namespace NDbfReader.Tests
             using (var table = Table.Open(Samples.GetBasicTableStream(), headerLoader)) { }
 
             // Assert
-            headerLoader.Received().Load(Arg.Any<BinaryReader>());
+            headerLoader.Received().Load(Arg.Any<Stream>());
         }
 
         [Fact]
@@ -109,7 +109,7 @@ namespace NDbfReader.Tests
         {
             // Act && Assert
             var exception = Assert.Throws<NotSupportedException>(() => Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.UNSUPPORTED_TYPES)));
-            Assert.Equal("The TIMESTAMP column's type is not supported.", exception.Message);
+            Assert.Equal("The TIMESTAMP column's type 0x54 is not supported.", exception.Message);
         }
 
         [Fact]

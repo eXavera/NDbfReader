@@ -135,9 +135,8 @@ namespace NDbfReader
                 throw new ArgumentNullException(nameof(headerLoader));
             }
 
-            var binaryReader = new BinaryReader(stream);
-            Header header = headerLoader.Load(binaryReader);
-            return new Table(header, binaryReader);
+            Header header = headerLoader.Load(stream);
+            return new Table(header, new BinaryReader(stream));
         }
 
         /// <summary>
