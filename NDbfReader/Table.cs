@@ -63,6 +63,11 @@ namespace NDbfReader
             get { return _reader; }
         }
 
+        Header IParentTable.Header
+        {
+            get { return Header; }
+        }
+
         /// <summary>
         /// Gets a date the table was last modified.
         /// </summary>
@@ -76,9 +81,15 @@ namespace NDbfReader
             }
         }
 
-        Header IParentTable.Header
+        /// <summary>
+        /// Gets a dBASE header.
+        /// </summary>
+        protected Header Header
         {
-            get { return Header; }
+            get
+            {
+                return _header;
+            }
         }
 
         /// <summary>
@@ -215,17 +226,6 @@ namespace NDbfReader
         protected virtual void Disposing()
         {
             _reader.Dispose();
-        }
-
-        /// <summary>
-        /// Gets a dBASE header.
-        /// </summary>
-        protected Header Header
-        {
-            get
-            {
-                return _header;
-            }
         }
 
         /// <summary>
