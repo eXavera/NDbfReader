@@ -8,10 +8,6 @@ namespace NDbfReader
     /// </summary>
     public abstract class Column : IColumn
     {
-        private readonly string _name;
-        private readonly int _offset;
-        private readonly int _size;
-
         /// <summary>
         /// Initializes a new instance with the specified name, offset and size.
         /// </summary>
@@ -35,43 +31,25 @@ namespace NDbfReader
                 throw new ArgumentOutOfRangeException(nameof(size));
             }
 
-            _name = name;
-            _offset = offset;
-            _size = size;
+            Name = name;
+            Offset = offset;
+            Size = size;
         }
 
         /// <summary>
         /// Gets the column name.
         /// </summary>
-        public string Name
-        {
-            get
-            {
-                return _name;
-            }
-        }
+        public string Name { get; }
 
         /// <summary>
         /// Gets the column offset in a row in bytes.
         /// </summary>
-        public int Offset
-        {
-            get
-            {
-                return _offset;
-            }
-        }
+        public int Offset { get; }
 
         /// <summary>
         /// Gets the column size in bytes.
         /// </summary>
-        public int Size
-        {
-            get
-            {
-                return _size;
-            }
-        }
+        public int Size { get; }
 
         /// <summary>
         /// Gets the <c>CLR</c> type of a column value.
@@ -109,13 +87,7 @@ namespace NDbfReader
         /// <summary>
         /// Gets the <c>CLR</c> type of column value.
         /// </summary>
-        public override Type Type
-        {
-            get
-            {
-                return typeof(T);
-            }
-        }
+        public override Type Type => typeof(T);
 
         /// <summary>
         /// Loads a value from the specified buffer.
