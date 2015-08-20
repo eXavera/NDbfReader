@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace NDbfReader
 {
@@ -147,6 +148,67 @@ namespace NDbfReader
             }
 
             Header header = headerLoader.Load(stream);
+            return new Table(header, new BinaryReader(stream));
+        }
+
+        /// <summary>
+        /// Opens a table from the specified file.
+        /// </summary>
+        /// <param name="path">The file to be opened.</param>
+        /// <returns>A table instance.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="NotSupportedException">The dBASE table constains one or more columns of unsupported type.</exception>
+        public static Task<Table> OpenAsync(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            const int DEFAULT_BUFFER = 4096;
+            var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DEFAULT_BUFFER, useAsync: true);
+
+            return OpenAsync(stream);
+        }
+
+        /// <summary>
+        /// Opens a table from the specified stream.
+        /// </summary>
+        /// <param name="stream">The stream of dBASE table to open. The stream is closed when the returned table instance is disposed.</param>
+        /// <returns>A table instance.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="stream"/> does not allow reading.</exception>
+        /// <exception cref="NotSupportedException">The dBASE table constains one or more columns of unsupported type.</exception>
+        public static Task<Table> OpenAsync(Stream stream)
+        {
+            return OpenAsync(stream, HeaderLoader.Default);
+        }
+
+        /// <summary>
+        /// Opens a table from the specified stream with the specified header loader.
+        /// </summary>
+        /// <param name="stream">The stream of dBASE table to open. The stream is closed when the returned table instance is disposed.</param>
+        /// <param name="headerLoader">The header loader.</param>
+        /// <returns>A table instance.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c> or <paramref name="headerLoader"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="stream"/> does not allow reading.</exception>
+        /// <exception cref="NotSupportedException">The dBASE table constains one or more columns of unsupported type.</exception>
+        public static async Task<Table> OpenAsync(Stream stream, HeaderLoader headerLoader)
+        {
+            if (stream == null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+            if (!stream.CanRead)
+            {
+                throw new ArgumentException($"The stream does not allow reading ({nameof(stream.CanRead)} property returns false).", nameof(stream));
+            }
+            if (headerLoader == null)
+            {
+                throw new ArgumentNullException(nameof(headerLoader));
+            }
+
+            Header header = await headerLoader.LoadAsync(stream).ConfigureAwait(false);
             return new Table(header, new BinaryReader(stream));
         }
 

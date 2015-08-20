@@ -5,36 +5,41 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NDbfReader.Tests
 {
     public sealed class TableTests
     {
-        [Fact]
-        public void Columns_DisposedInstance_ThrowsObjectDisposedException()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task Columns_DisposedInstance_ThrowsObjectDisposedException(bool useAsync)
         {
-            PublicInterfaceInteraction_DisposedInstance_ThrowsObjectDisposedException(table => table.Columns);
+            return PublicInterfaceInteraction_DisposedInstance_ThrowsObjectDisposedException(useAsync, table => table.Columns);
         }
 
-        [Fact]
-        public void Columns_ReturnsColumnsNames()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task Columns_ReturnsColumnsNames(bool useAsync)
         {
-            Columns_LoadedFile_ReturnsColumnsProperties(column => column.Name, "TEXT", "NUMERIC", "DATE", "LONG", "LOGICAL");
+            return Columns_LoadedFile_ReturnsColumnsProperties(useAsync, column => column.Name, "TEXT", "NUMERIC", "DATE", "LONG", "LOGICAL");
         }
 
-        [Fact]
-        public void Columns_ReturnsColumnsTypes()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task Columns_ReturnsColumnsTypes(bool useAsync)
         {
-            Columns_LoadedFile_ReturnsColumnsProperties(column => column.Type, typeof(string), typeof(decimal?), typeof(DateTime?), typeof(int), typeof(bool?));
+            return Columns_LoadedFile_ReturnsColumnsProperties(useAsync, column => column.Type, typeof(string), typeof(decimal?), typeof(DateTime?), typeof(int), typeof(bool?));
         }
 
-        [Fact]
-        public void Dispose_DisposedInstance_DoesNotDisposeTheBaseStream()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task Dispose_DisposedInstance_DoesNotDisposeTheBaseStream(bool useAsync)
         {
             // Arrange
             var streamSpy = Spy.OnStream(Samples.GetBasicTableStream());
-            var table = Table.Open(streamSpy);
+            var table = await this.Exec(() => Table.Open(streamSpy), useAsync);
 
             // Act
             table.Dispose();
@@ -44,12 +49,13 @@ namespace NDbfReader.Tests
             streamSpy.Received(requiredNumberOfCalls: 1).Dispose();
         }
 
-        [Fact]
-        public void Dispose_LoadedFromStream_DisposesTheStream()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task Dispose_LoadedFromStream_DisposesTheStream(bool useAsync)
         {
             // Arrange
             var streamSpy = Spy.OnStream(Samples.GetBasicTableStream());
-            var table = Table.Open(streamSpy);
+            var table = await this.Exec(() => Table.Open(streamSpy), useAsync);
 
             // Act
             table.Dispose();
@@ -58,11 +64,12 @@ namespace NDbfReader.Tests
             streamSpy.Received().Dispose();
         }
 
-        [Fact]
-        public void LastModified_ReturnsDateOfLastModification()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task LastModified_ReturnsDateOfLastModification(bool useAsync)
         {
             // Arrange
-            using (var table = Samples.OpenBasicTable())
+            using (Table table = await OpenBasicTable(useAsync))
             {
                 // Act
                 var lastModified = table.LastModified;
@@ -85,51 +92,75 @@ namespace NDbfReader.Tests
             headerLoader.Received().Load(Arg.Any<Stream>());
         }
 
-        [Fact]
-        public void Open_DisposedStream_ThrowsArgumentException()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task Open_DisposedStream_ThrowsArgumentException(bool useAsync)
         {
             // Arrange
             var disposedStream = new MemoryStream();
             disposedStream.Dispose();
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Table.Open(disposedStream));
+            return Assert.ThrowsAsync<ArgumentException>(() => this.Exec(() => Table.Open(disposedStream), useAsync));
         }
 
-        [Fact]
-        public void Open_NullStream_ThrowsArgumentNullException()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task Open_NullStream_ThrowsArgumentNullException(bool useAsync)
         {
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => Table.Open(stream: null));
+            Stream stream = null;
+
+            var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => this.Exec(() => Table.Open(stream), useAsync));
+
             Assert.Equal("stream", exception.ParamName);
         }
 
-        [Fact]
-        public void Open_TableWithUnsupportedColumn_ThrowsNotSupportedException()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task Open_TableWithUnsupportedColumn_ThrowsNotSupportedException(bool useAsync)
         {
-            // Act && Assert
-            var exception = Assert.Throws<NotSupportedException>(() => Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.UNSUPPORTED_TYPES)));
+            Stream stream = EmbeddedSamples.GetStream(EmbeddedSamples.UNSUPPORTED_TYPES);
+
+            var exception = await Assert.ThrowsAsync<NotSupportedException>(
+                () => this.Exec(() => Table.Open(stream), useAsync));
+
             Assert.Equal("The TIMESTAMP column's type 0x54 is not supported.", exception.Message);
         }
 
-        [Fact]
-        public void Open_UnreadableStream_ThrowsArgumentException()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task Open_UnreadableStream_ThrowsArgumentException(bool useAsync)
         {
-            //Arrange
             var unreadableStream = Substitute.For<Stream>();
             unreadableStream.CanRead.Returns(false);
 
-            //Act & Assert
-            var exception = Assert.Throws<ArgumentException>(() => Table.Open(unreadableStream));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(() => this.Exec(() => Table.Open(unreadableStream), useAsync));
+
             exception.ParamName.Should().BeEquivalentTo("stream");
             exception.Message.Should().StartWithEquivalent($"The stream does not allow reading ({nameof(unreadableStream.CanRead)} property returns false).");
         }
 
         [Fact]
-        public void OpenReader_AnotherReaderIsAlreadyOpened_ThrowsInvalidOperationException()
+        public async Task OpenAsync_CustomHeaderLoader_LoadsHeaderWithTheLoader()
         {
             // Arrange
-            var table = Samples.OpenBasicTable();
+            var headerLoader = Substitute.ForPartsOf<HeaderLoader>();
+
+            // Act
+            using (var table = await Table.OpenAsync(Samples.GetBasicTableStream(), headerLoader)) { }
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            // Assert
+            headerLoader.Received().LoadAsync(Arg.Any<Stream>());
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task OpenReader_AnotherReaderIsAlreadyOpened_ThrowsInvalidOperationException(bool useAsync)
+        {
+            // Arrange
+            var table = await OpenBasicTable(useAsync);
             table.OpenReader();
 
             // Act & Assert
@@ -137,17 +168,19 @@ namespace NDbfReader.Tests
             Assert.Equal("The table can open only one reader.", exception.Message);
         }
 
-        [Fact]
-        public void OpenReader_DisposedInstance_ThrowsObjectDisposedException()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task OpenReader_DisposedInstance_ThrowsObjectDisposedException(bool useAsync)
         {
-            PublicInterfaceInteraction_DisposedInstance_ThrowsObjectDisposedException(table => table.OpenReader());
+            return PublicInterfaceInteraction_DisposedInstance_ThrowsObjectDisposedException(useAsync, table => table.OpenReader());
         }
 
-        [Fact]
-        public void OpenReader_NullEncoding_ThrowsArgumentNullException()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task OpenReader_NullEncoding_ThrowsArgumentNullException(bool useAsync)
         {
             // Arrange
-            using (var table = Samples.OpenBasicTable())
+            using (var table = await OpenBasicTable(useAsync))
             {
                 // Act & Assert
                 var exception = Assert.Throws<ArgumentNullException>(() => table.OpenReader(null));
@@ -155,22 +188,29 @@ namespace NDbfReader.Tests
             }
         }
 
-        private void Columns_LoadedFile_ReturnsColumnsProperties<T>(Func<IColumn, T> propertySelector, params T[] expectedValues)
+        private async Task Columns_LoadedFile_ReturnsColumnsProperties<T>(bool useAsync, Func<IColumn, T> propertySelector, params T[] expectedValues)
         {
             // Act
             ReadOnlyCollection<IColumn> actualColumns = null;
 
-            using (var table = Samples.OpenBasicTable())
+            using (var table = await OpenBasicTable(useAsync))
+            {
                 actualColumns = table.Columns;
+            }
 
             // Assert
             actualColumns.Select(propertySelector).ShouldAllBeEquivalentTo(expectedValues);
         }
 
-        private void PublicInterfaceInteraction_DisposedInstance_ThrowsObjectDisposedException(Func<Table, object> action)
+        private Task<Table> OpenBasicTable(bool useAsync)
+        {
+            return this.Exec(() => Samples.OpenBasicTable(), useAsync);
+        }
+
+        private async Task PublicInterfaceInteraction_DisposedInstance_ThrowsObjectDisposedException(bool useAsync, Func<Table, object> action)
         {
             // Arrange
-            var table = Samples.OpenBasicTable();
+            var table = await OpenBasicTable(useAsync);
             table.Dispose();
 
             // Act & Assert

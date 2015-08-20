@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace NDbfReader.Tests
 {
@@ -23,6 +24,11 @@ namespace NDbfReader.Tests
         public static Table OpenBasicTable()
         {
             return Table.Open(GetBasicTableStream());
+        }
+
+        public static Task<Table> OpenBasicTableAsync()
+        {
+            return Table.OpenAsync(GetBasicTableStream());
         }
     }
 }

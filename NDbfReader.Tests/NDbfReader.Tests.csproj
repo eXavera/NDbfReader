@@ -83,6 +83,10 @@
     </Compile>
     <Compile Include="AdditionalReaderTests.cs" />
     <Compile Include="HeaderLoaderTests.cs" />
+    <Compile Include="Infrastructure\InlineDataWithExecModeAttribute.cs" />
+    <Compile Include="Infrastructure\InlineDataWithExecModeAttributeTests.cs" />
+    <Compile Include="Infrastructure\TestMethodExecutionExtensions.cs" />
+    <Compile Include="Infrastructure\TestMethodExecutionExtensionsTests.cs" />
     <Compile Include="Samples.cs" />
     <Compile Include="StreamExtensionsTests.cs" />
     <Compile Include="Infrastructure\ReaderGetMethodsAttribute.cs" />
@@ -115,6 +119,7 @@
     <ProjectReference Include="..\NDbfReader\NDbfReader.csproj">
       <Project>{c98d4551-7c67-477b-9188-5b4b41cb378a}</Project>
       <Name>NDbfReader</Name>
+      <Properties>SkipValidatePackageReferences=true</Properties>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
