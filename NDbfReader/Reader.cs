@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -39,11 +40,7 @@ namespace NDbfReader
             _table = table;
             _encoding = encoding;
 
-            _columnsCache = new Dictionary<string, IColumn>(table.Columns.Count);
-            foreach (IColumn column in table.Columns)
-            {
-                _columnsCache.Add(column.Name, column);
-            }
+            _columnsCache = table.Columns.ToDictionary(c => c.Name, c => c);
         }
 
         private enum SkipDeletedRowsResult
