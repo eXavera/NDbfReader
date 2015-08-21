@@ -32,16 +32,13 @@ namespace NDbfReader.Tests.Infrastructure
         {
             var callExpression = (MethodCallExpression)expression.Body;
             MethodInfo method = callExpression.Method;
-            object[] arguments = callExpression.Arguments.Cast<MemberExpression>().Select(GetValue).ToArray();
+            object[] arguments = GetArguments(callExpression);
 
             try
             {
                 if (useAsync)
                 {
-                    Type[] parameterTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
-
-                    // find async method
-                    MethodInfo asyncMethod = method.DeclaringType.GetMethod(method.Name + "Async", parameterTypes);
+                    MethodInfo asyncMethod = GetAsyncMethod(method);
                     var task = (Task<TResult>)asyncMethod.Invoke(instance, arguments);
                     return task;
                 }
@@ -61,16 +58,13 @@ namespace NDbfReader.Tests.Infrastructure
         {
             var callExpression = (MethodCallExpression)expression.Body;
             MethodInfo method = callExpression.Method;
-            object[] arguments = callExpression.Arguments.Cast<MemberExpression>().Select(GetValue).ToArray();
+            object[] arguments = GetArguments(callExpression);
 
             try
             {
                 if (useAsync)
                 {
-                    Type[] parameterTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
-
-                    // find async method
-                    MethodInfo asyncMethod = method.DeclaringType.GetMethod(method.Name + "Async", parameterTypes);
+                    MethodInfo asyncMethod = GetAsyncMethod(method);
                     var task = (Task)asyncMethod.Invoke(instance, arguments);
                     return task;
                 }
@@ -84,6 +78,24 @@ namespace NDbfReader.Tests.Infrastructure
             {
                 throw e.InnerException;
             }
+        }
+
+        private static object[] GetArguments(MethodCallExpression callExpression)
+        {
+            return callExpression.Arguments.Cast<MemberExpression>().Select(GetValue).ToArray();
+        }
+
+        private static MethodInfo GetAsyncMethod(MethodInfo syncMethod)
+        {
+            Type[] parameterTypes = syncMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+            var asyncMethodName = syncMethod.Name + "Async";
+            MethodInfo asyncMethod = syncMethod.DeclaringType.GetMethod(asyncMethodName, parameterTypes);
+            if (asyncMethod == null)
+            {
+                throw new InvalidOperationException($"Method {syncMethod.DeclaringType.FullName}.{asyncMethodName} was not found.");
+            }
+
+            return asyncMethod;
         }
 
         private static object GetValue(MemberExpression member)
