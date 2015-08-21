@@ -35,11 +35,11 @@ namespace NDbfReader
             }
             else
             {
-                SeekForwardByRead(stream, offset);
+                SeekForwardByReading(stream, offset);
             }
         }
 
-        private static void SeekForwardByRead(Stream stream, int offset)
+        private static void SeekForwardByReading(Stream stream, int offset)
         {
             if (offset <= READ_BY_SINGLE_BYTE_OFFSET_SIZE_THRESHOLD)
             {
