@@ -4,7 +4,7 @@ namespace NDbfReader
 {
     internal interface IParentTable
     {
-        BinaryReader BinaryReader { get; }
+        Stream Stream { get; }
 
         Header Header { get; }
 

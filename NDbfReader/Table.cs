@@ -20,28 +20,28 @@ namespace NDbfReader
     public class Table : IParentTable, IDisposable
     {
         private readonly Header _header;
-        private readonly BinaryReader _reader;
+        private readonly Stream _stream;
         private bool _disposed;
         private bool _isReaderOpened;
 
         /// <summary>
-        /// Initializes a new instance from the specified header and binary reader.
+        /// Initializes a new instance from the specified header and input stream.
         /// </summary>
         /// <param name="header">The dBASE header.</param>
-        /// <param name="reader">The binary reader positioned at the firsh byte of the first row.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="header"/> is <c>null</c> or <paramref name="reader"/> is <c>null</c>.</exception>
-        protected Table(Header header, BinaryReader reader)
+        /// <param name="stream">The input stream positioned at the firsh byte of the first row.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="header"/> is <c>null</c> or <paramref name="stream"/> is <c>null</c>.</exception>
+        protected Table(Header header, Stream stream)
         {
             if (header == null)
             {
                 throw new ArgumentNullException(nameof(header));
             }
-            if (reader == null)
+            if (stream == null)
             {
-                throw new ArgumentNullException(nameof(reader));
+                throw new ArgumentNullException(nameof(stream));
             }
 
-            _reader = reader;
+            _stream = stream;
             _header = header;
         }
 
@@ -59,9 +59,9 @@ namespace NDbfReader
             }
         }
 
-        BinaryReader IParentTable.BinaryReader
+        Stream IParentTable.Stream
         {
-            get { return _reader; }
+            get { return _stream; }
         }
 
         Header IParentTable.Header
@@ -148,7 +148,7 @@ namespace NDbfReader
             }
 
             Header header = headerLoader.Load(stream);
-            return new Table(header, new BinaryReader(stream));
+            return new Table(header, stream);
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace NDbfReader
             }
 
             Header header = await headerLoader.LoadAsync(stream).ConfigureAwait(false);
-            return new Table(header, new BinaryReader(stream));
+            return new Table(header, stream);
         }
 
         /// <summary>
@@ -287,7 +287,7 @@ namespace NDbfReader
         /// </summary>
         protected virtual void Disposing()
         {
-            _reader.Dispose();
+            _stream.Dispose();
         }
 
         /// <summary>

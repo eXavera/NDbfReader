@@ -91,11 +91,11 @@ namespace NDbfReader
             }
         }
 
-        private BinaryReader BinaryReader
+        private Stream Stream
         {
             get
             {
-                return ParentTable.BinaryReader;
+                return ParentTable.Stream;
             }
         }
 
@@ -495,9 +495,9 @@ namespace NDbfReader
             int seek = offset - _currentRowOffset;
             if (seek < 0)
             {
-                if (BinaryReader.BaseStream.CanSeek)
+                if (Stream.CanSeek)
                 {
-                    BinaryReader.BaseStream.Seek(seek, SeekOrigin.Current);
+                    Stream.Seek(seek, SeekOrigin.Current);
                 }
                 else
                 {
@@ -506,17 +506,20 @@ namespace NDbfReader
             }
             else if (seek > 0)
             {
-                BinaryReader.BaseStream.SeekForward(seek);
+                Stream.SeekForward(seek);
             }
             _currentRowOffset += (seek + size);
-            return BinaryReader.ReadBytes(size);
+
+            byte[] buffer = new byte[size];
+            Stream.Read(buffer, 0, size);
+            return buffer;
         }
 
         private void MoveToTheEndOfCurrentRow()
         {
             if (_currentRowOffset >= 0)
             {
-                BinaryReader.BaseStream.SeekForward(Header.RowSize - _currentRowOffset - 1);
+                Stream.SeekForward(Header.RowSize - _currentRowOffset - 1);
             }
         }
 
@@ -540,7 +543,7 @@ namespace NDbfReader
             var isRowDeleted = false;
             do
             {
-                var nextByte = BinaryReader.ReadByte();
+                var nextByte = Stream.ReadByte();
                 if (nextByte == END_OF_FILE)
                 {
                     return SkipDeletedRowsResult.EndOfFile;
@@ -549,7 +552,7 @@ namespace NDbfReader
                 isRowDeleted = (nextByte == DELETED_ROW_FLAG);
                 if (isRowDeleted)
                 {
-                    BinaryReader.BaseStream.SeekForward(Header.RowSize - 1);
+                    Stream.SeekForward(Header.RowSize - 1);
                 }
 
                 _loadedRowCount += 1;

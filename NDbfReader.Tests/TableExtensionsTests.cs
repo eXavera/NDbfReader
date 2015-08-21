@@ -152,7 +152,7 @@ namespace NDbfReader.Tests
         {
             return Substitute.ForPartsOf<MockableTable>(
                 new Header(DateTime.Now, 0, 0, new List<IColumn>() { new BooleanColumn("LOGICAL", 0) }),
-                new BinaryReader(Samples.GetBasicTableStream()));
+                Samples.GetBasicTableStream());
         }
 
         private static IEnumerable<object> ReplaceNullWithDBNull(IEnumerable<object> items)
@@ -207,7 +207,7 @@ namespace NDbfReader.Tests
 
         public class MockableTable : Table
         {
-            public MockableTable(Header header, BinaryReader reader) : base(header, reader)
+            public MockableTable(Header header, Stream stream) : base(header, stream)
             {
             }
         }
