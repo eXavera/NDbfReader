@@ -84,13 +84,7 @@ namespace NDbfReader
             }
         }
 
-        private IParentTable ParentTable
-        {
-            get
-            {
-                return _table;
-            }
-        }
+        private IParentTable ParentTable => _table;
 
         /// <summary>
         /// Gets a <see cref="bool"/> value of the specified column of the current row.
