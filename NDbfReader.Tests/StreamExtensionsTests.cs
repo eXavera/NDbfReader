@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using NDbfReader.Helpers;
+using NDbfReader.Tests.Infrastructure;
 using NSubstitute;
 using Xunit;
 
@@ -8,46 +10,53 @@ namespace NDbfReader.Tests
 {
     public sealed class StreamExtensionsTests
     {
-        [Fact]
-        public void SeekForward_NegativeOffset_ThrowsArgumentOutOfRangeException()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task SeekForward_NegativeOffset_ThrowsArgumentOutOfRangeException(bool useAsync)
         {
             // Arrange
             var stream = Substitute.For<Stream>();
+            int offset = -2;
 
-            var exception = Assert.Throws<ArgumentOutOfRangeException>(() => StreamExtensions.SeekForward(stream, -2));
+            var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => this.Exec(() => StreamExtensions.SeekForward(stream, offset), useAsync));
             Assert.Equal("offset", exception.ParamName);
         }
 
         [Theory]
-        [InlineData(100, 1)]
-        [InlineData(100, 3)]
-        [InlineData(100, 20)]
-        [InlineData(100, 60)]
-        [InlineData(2048, 1024)]
-        public void SeekForward_NonSeekableStream(int capacity, int offset)
+        [InlineDataWithExecMode(100, 1)]
+        [InlineDataWithExecMode(100, 3)]
+        [InlineDataWithExecMode(100, 20)]
+        [InlineDataWithExecMode(100, 60)]
+        [InlineDataWithExecMode(2048, 1024)]
+        public Task SeekForward_NonSeekableStream(bool useAsync, int capacity, int offset)
         {
-            SeekForward_Stream(capacity, offset, stream => stream.CanSeek.Returns(false));
+            return SeekForward_Stream(useAsync, capacity, offset, stream => stream.CanSeek.Returns(false));
         }
 
-        [Fact]
-        public void SeekForward_NullStream_ThrowsArgumentNullException()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task SeekForward_NullStream_ThrowsArgumentNullException(bool useAsync)
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => StreamExtensions.SeekForward(null, 10));
+            Stream stream = null;
+            int offset = 10;
+
+            var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => this.Exec(() => StreamExtensions.SeekForward(stream, offset), useAsync));
+
             Assert.Equal("stream", exception.ParamName);
         }
 
         [Theory]
-        [InlineData(100, 1)]
-        [InlineData(100, 3)]
-        [InlineData(100, 20)]
-        [InlineData(100, 60)]
-        [InlineData(2048, 1024)]
-        public void SeekForward_SeekableStream(int capacity, int offset)
+        [InlineDataWithExecMode(100, 1)]
+        [InlineDataWithExecMode(100, 3)]
+        [InlineDataWithExecMode(100, 20)]
+        [InlineDataWithExecMode(100, 60)]
+        [InlineDataWithExecMode(2048, 1024)]
+        public Task SeekForward_SeekableStream(bool useAsync, int capacity, int offset)
         {
-            SeekForward_Stream(capacity, offset);
+            return SeekForward_Stream(useAsync, capacity, offset);
         }
 
-        private void SeekForward_Stream(int capacity, int offset, Action<Stream> setup = null)
+        private async Task SeekForward_Stream(bool useAsync, int capacity, int offset, Action<Stream> setup = null)
         {
             var buffer = new byte[capacity];
             var stream = Substitute.ForPartsOf<MemoryStream>(buffer);
@@ -56,7 +65,7 @@ namespace NDbfReader.Tests
                 setup(stream);
             }
 
-            StreamExtensions.SeekForward(stream, offset);
+            await this.Exec(() => StreamExtensions.SeekForward(stream, offset), useAsync);
 
             Assert.Equal(offset, stream.Position);
         }
