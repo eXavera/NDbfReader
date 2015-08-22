@@ -59,14 +59,14 @@ namespace NDbfReader
             }
         }
 
-        Stream IParentTable.Stream
-        {
-            get { return _stream; }
-        }
-
         Header IParentTable.Header
         {
             get { return Header; }
+        }
+
+        Stream IParentTable.Stream
+        {
+            get { return _stream; }
         }
 
         /// <summary>

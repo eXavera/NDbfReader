@@ -1,11 +1,11 @@
-﻿using FluentAssertions;
-using NDbfReader.Tests.Infrastructure;
-using NSubstitute;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
+using NDbfReader.Tests.Infrastructure;
+using NSubstitute;
 using Xunit;
 
 namespace NDbfReader.Tests

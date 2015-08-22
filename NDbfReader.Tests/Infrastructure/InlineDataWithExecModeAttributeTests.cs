@@ -1,5 +1,5 @@
-﻿using FluentAssertions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using FluentAssertions;
 using Xunit;
 
 namespace NDbfReader.Tests.Infrastructure

@@ -1,5 +1,5 @@
-﻿using NSubstitute;
-using System.IO;
+﻿using System.IO;
+using NSubstitute;
 
 namespace NDbfReader.Tests.Infrastructure
 {
