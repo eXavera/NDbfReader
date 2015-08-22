@@ -346,6 +346,23 @@ namespace NDbfReader.Tests
         }
 
         [Fact]
+        public void Read_RepeatedCall_SkipsRows()
+        {
+            object[] expectedSecondRowContent = Samples.BasicTableContent.Select(pair => pair.Value[1]).ToArray();
+
+            using (Table table = Samples.OpenBasicTable())
+            {
+                Reader reader = table.OpenReader();
+                reader.Read();
+                reader.Read();
+
+                object[] secondRowContent = table.Columns.Select(reader.GetValue).ToArray();
+
+                secondRowContent.ShouldAllBeEquivalentTo(expectedSecondRowContent);
+            }
+        }
+
+        [Fact]
         public void Read_TableBasedOnNonSeekableStream_ReadsAllRowsAsUsual()
         {
             // Arrange
