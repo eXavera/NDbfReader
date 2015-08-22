@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace NDbfReader
+namespace NDbfReader.Helpers
 {
     /// <summary>
     /// Stream extensions.

@@ -1,6 +1,7 @@
-﻿using NSubstitute;
-using System;
+﻿using System;
 using System.IO;
+using NDbfReader.Helpers;
+using NSubstitute;
 using Xunit;
 
 namespace NDbfReader.Tests
