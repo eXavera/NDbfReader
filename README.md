@@ -3,6 +3,11 @@ NDbfReader
 
 NDbfReader is a .NET library for reading dBASE (.dbf) files. The library is simple, extensible and without any external dependencies.
 
+## Upcoming 2.0 version
+
+- Full async support
+- .NET Core support (ASP.NET 5, UWP)
+
 ## Example
 
 ```csharp
