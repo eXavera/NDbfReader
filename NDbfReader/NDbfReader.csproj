@@ -82,8 +82,11 @@
       <Link>GlobalSuppressions.cs</Link>
     </Compile>
     <Compile Include="BooleanColumn.cs" />
+    <Compile Include="Buffer.cs" />
+    <Compile Include="BufferBuilder.cs" />
     <Compile Include="DateTimeColumn.cs" />
     <Compile Include="Column.cs" />
+    <Compile Include="FillBufferInstruction.cs" />
     <Compile Include="Reader.cs" />
     <Compile Include="Table.cs" />
     <Compile Include="DecimalColumn.cs" />

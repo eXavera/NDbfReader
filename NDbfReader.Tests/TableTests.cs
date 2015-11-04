@@ -170,9 +170,66 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
+        public async Task OpenReader_ColumnInstanceFromDifferentTable_ThrowsArgumentOutOfRangeException(bool useAsync)
+        {
+            using (Table differentTable = await OpenBasicTable(useAsync))
+            using (Table table = await OpenBasicTable(useAsync))
+            {
+                IColumn differentColumn = differentTable.Columns.First();
+
+                var exception = Assert.Throws<ArgumentOutOfRangeException>(() => table.OpenReader(new[] { table.Columns.First(), differentColumn }));
+
+                exception.ParamName.Should().BeEquivalentTo("columns");
+                exception.Message.Should().StartWithEquivalent($"The column instance {differentColumn.Name} doesn't belong to the table.");
+            }
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
         public Task OpenReader_DisposedInstance_ThrowsObjectDisposedException(bool useAsync)
         {
             return PublicInterfaceInteraction_DisposedInstance_ThrowsObjectDisposedException(useAsync, table => table.OpenReader());
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task OpenReader_DuplicitColumnInstance_ThrowsArgumentException(bool useAsync)
+        {
+            using (Table table = await OpenBasicTable(useAsync))
+            {
+                IColumn column = table.Columns.First();
+
+                var exception = Assert.Throws<ArgumentException>(() => table.OpenReader(new[] { column, column }));
+
+                exception.ParamName.Should().BeEquivalentTo("columns");
+                exception.Message.Should().StartWithEquivalent($"Duplicit column {column.Name}.");
+            }
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task OpenReader_DuplicitColumnName_ThrowsArgumentException(bool useAsync)
+        {
+            string columnName = "TEXT";
+            using (Table table = await OpenBasicTable(useAsync))
+            {
+                var exception = Assert.Throws<ArgumentException>(() => table.OpenReader(columnName, columnName));
+                exception.ParamName.Should().BeEquivalentTo("columnNames");
+                exception.Message.Should().StartWithEquivalent($"Duplicit column {columnName}.");
+            }
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task OpenReader_InvalidColumnName_ThrowsArgumentOutOfRangeException(bool useAsync)
+        {
+            string invalidColumnName = "FOO";
+            using (Table table = await OpenBasicTable(useAsync))
+            {
+                var exception = Assert.Throws<ArgumentOutOfRangeException>(() => table.OpenReader(invalidColumnName));
+                exception.ParamName.Should().BeEquivalentTo("columnNames");
+                exception.Message.Should().StartWithEquivalent($"Column {invalidColumnName} was not found.");
+            }
         }
 
         [Theory]
@@ -183,7 +240,7 @@ namespace NDbfReader.Tests
             using (var table = await OpenBasicTable(useAsync))
             {
                 // Act & Assert
-                var exception = Assert.Throws<ArgumentNullException>(() => table.OpenReader(null));
+                var exception = Assert.Throws<ArgumentNullException>(() => table.OpenReader(encoding: null));
                 Assert.Equal("encoding", exception.ParamName);
             }
         }

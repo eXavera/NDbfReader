@@ -14,9 +14,8 @@ namespace NDbfReader
     {
         private const byte DELETED_ROW_FLAG = (byte)'*';
         private const byte END_OF_FILE = 0x1A;
-        private readonly Dictionary<string, IColumn> _columnsCache;
+        private readonly Buffer _buffer;
         private readonly Table _table;
-        private int _currentRowOffset = -1;
         private Encoding _encoding;
         private int _loadedRowCount = 0;
         private bool _rowLoaded;
@@ -24,10 +23,11 @@ namespace NDbfReader
         /// <summary>
         /// Initializes a new instance from the specified table and encoding.
         /// </summary>
-        /// <param name="table">The table from which rows will be read.</param>
+        /// <param name="table">The table from which rows will be loaded.</param>
+        /// <param name="columnsToLoad">The list of columns to load.</param>
         /// <param name="encoding">The encoding of the tables's rows.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="encoding"/> is <c>null</c>.</exception>
-        public Reader(Table table, Encoding encoding)
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="encoding"/> is <c>null</c> or <paramref name="columnsToLoad"/> is <c>null</c>.</exception>
+        public Reader(Table table, Encoding encoding, ICollection<IColumn> columnsToLoad)
         {
             if (table == null)
             {
@@ -37,17 +37,14 @@ namespace NDbfReader
             {
                 throw new ArgumentNullException(nameof(encoding));
             }
+            if (columnsToLoad == null)
+            {
+                throw new ArgumentNullException(nameof(columnsToLoad));
+            }
 
             _table = table;
             _encoding = encoding;
-
-            _columnsCache = table.Columns.ToDictionary(c => c.Name, c => c);
-        }
-
-        private enum SkipDeletedRowsResult
-        {
-            OK,
-            EndOfFile
+            _buffer = CreateBuffer(columnsToLoad.Cast<Column>(), Header.RowSize);
         }
 
         /// <summary>
@@ -301,8 +298,7 @@ namespace NDbfReader
             ValidateReaderState();
 
             var column = (Column)FindColumnByName(columnName);
-            byte[] rawValue = LoadColumnBytes(column.Offset, column.Size);
-            return column.LoadValueAsObject(rawValue, _encoding);
+            return column.LoadValueAsObject(_buffer.Data, _buffer.GetBufferOffsetForColumn(column), _encoding);
         }
 
         /// <summary>
@@ -327,11 +323,11 @@ namespace NDbfReader
                 throw new ArgumentNullException(nameof(column));
             }
             ValidateReaderState();
-            CheckColumnBelongsToParentTable(column);
 
             var columnBase = (Column)column;
-            byte[] rawValue = LoadColumnBytes(columnBase.Offset, columnBase.Size);
-            return columnBase.LoadValueAsObject(rawValue, _encoding);
+            CheckColumnExists(columnBase);
+
+            return columnBase.LoadValueAsObject(_buffer.Data, _buffer.GetBufferOffsetForColumn(columnBase), _encoding);
         }
 
         /// <summary>
@@ -343,9 +339,44 @@ namespace NDbfReader
         {
             ThrowIfDisposed();
 
-            _rowLoaded = ReadNextRow();
+            if (_loadedRowCount >= Header.RowCount)
+            {
+                return _rowLoaded = false;
+            }
 
-            return _rowLoaded;
+            var isRowDeleted = false;
+            do
+            {
+                Stream.Read(_buffer.Data, 0, 1);
+                byte nextByte = _buffer.Data[0];
+                if (nextByte == END_OF_FILE)
+                {
+                    return _rowLoaded = false;
+                }
+
+                isRowDeleted = (nextByte == DELETED_ROW_FLAG);
+                if (isRowDeleted)
+                {
+                    Stream.SeekForward(Header.RowSize - 1);
+                }
+
+                _loadedRowCount += 1;
+            }
+            while (isRowDeleted);
+
+            foreach (FillBufferInstruction instruction in _buffer.FillBufferInstructions)
+            {
+                if (instruction.ShouldSkip)
+                {
+                    Stream.SeekForward(instruction.Count);
+                }
+                else
+                {
+                    Stream.Read(_buffer.Data, instruction.BufferOffset, instruction.Count);
+                }
+            }
+
+            return _rowLoaded = true;
         }
 
         /// <summary>
@@ -377,8 +408,7 @@ namespace NDbfReader
             {
                 throw new ArgumentOutOfRangeException(nameof(columnName), "The column's type does not match the method's return type.");
             }
-            byte[] rawValue = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
-            return typedColumn.LoadValue(rawValue, _encoding);
+            return typedColumn.LoadValue(_buffer.Data, _buffer.GetBufferOffsetForColumn(typedColumn), _encoding);
         }
 
         /// <summary>
@@ -404,15 +434,15 @@ namespace NDbfReader
                 throw new ArgumentNullException(nameof(column));
             }
             ValidateReaderState();
-            CheckColumnBelongsToParentTable(column);
             if (column.Type != typeof(T))
             {
                 throw new ArgumentOutOfRangeException(nameof(column), "The column's type does not match the method's return type.");
             }
 
             var typedColumn = (Column<T>)column;
-            byte[] rawValue = LoadColumnBytes(typedColumn.Offset, typedColumn.Size);
-            return typedColumn.LoadValue(rawValue, _encoding);
+            CheckColumnExists(typedColumn);
+
+            return typedColumn.LoadValue(_buffer.Data, _buffer.GetBufferOffsetForColumn(typedColumn), _encoding);
         }
 
         /// <summary>
@@ -423,93 +453,63 @@ namespace NDbfReader
             ParentTable.ThrowIfDisposed();
         }
 
-        private IColumn FindColumnByName(string columnName)
+        private static Buffer CreateBuffer(IEnumerable<Column> columnsToLoad, int rowSize)
         {
-            if (!_columnsCache.ContainsKey(columnName))
-            {
-                throw new ArgumentOutOfRangeException(nameof(columnName), $"Column {columnName} not found.");
-            }
-            return _columnsCache[columnName];
-        }
+            var builder = new BufferBuilder();
 
-        private void CheckColumnBelongsToParentTable(IColumn column)
-        {
-            if (!_table.Columns.Contains(column))
+            Column prevColumn = null;
+            IEnumerable<Column> orderedColumns = columnsToLoad.Cast<Column>().OrderBy(c => c.Offset).ToArray();
+            foreach (Column column in orderedColumns)
             {
-                throw new ArgumentOutOfRangeException(nameof(column), "The column instance doesn't belong to this table.");
-            }
-        }
-
-        private byte[] LoadColumnBytes(int offset, int size)
-        {
-            int seek = offset - _currentRowOffset;
-            if (seek < 0)
-            {
-                if (Stream.CanSeek)
+                if (prevColumn == null)
                 {
-                    Stream.Seek(seek, SeekOrigin.Current);
+                    if (column.Offset > 0)
+                    {
+                        builder.AddHole(0, column.Offset);
+                    }
+                    builder.AddColumn(column);
                 }
                 else
                 {
-                    throw new InvalidOperationException("The underlying non-seekable stream does not allow reading the columns out of order.");
-                }
-            }
-            else if (seek > 0)
-            {
-                Stream.SeekForward(seek);
-            }
-            _currentRowOffset += (seek + size);
-
-            byte[] buffer = new byte[size];
-            Stream.Read(buffer, 0, size);
-            return buffer;
-        }
-
-        private void MoveToTheEndOfCurrentRow()
-        {
-            if (_currentRowOffset >= 0)
-            {
-                Stream.SeekForward(Header.RowSize - _currentRowOffset - 1);
-            }
-        }
-
-        private bool ReadNextRow()
-        {
-            if (_loadedRowCount >= Header.RowCount)
-            {
-                return false;
-            }
-            MoveToTheEndOfCurrentRow();
-            if (SkipDeletedRows() == SkipDeletedRowsResult.EndOfFile)
-            {
-                return false;
-            }
-            _currentRowOffset = 0;
-            return true;
-        }
-
-        private SkipDeletedRowsResult SkipDeletedRows()
-        {
-            var isRowDeleted = false;
-            do
-            {
-                var nextByte = Stream.ReadByte();
-                if (nextByte == END_OF_FILE)
-                {
-                    return SkipDeletedRowsResult.EndOfFile;
+                    int prevColumnEndOffset = prevColumn.Offset + prevColumn.Size;
+                    int holeSize = column.Offset - prevColumnEndOffset;
+                    if (holeSize > 0)
+                    {
+                        builder.AddHole(prevColumnEndOffset, holeSize);
+                    }
+                    builder.AddColumn(column);
                 }
 
-                isRowDeleted = (nextByte == DELETED_ROW_FLAG);
-                if (isRowDeleted)
-                {
-                    Stream.SeekForward(Header.RowSize - 1);
-                }
-
-                _loadedRowCount += 1;
+                prevColumn = column;
             }
-            while (isRowDeleted);
 
-            return SkipDeletedRowsResult.OK;
+            Column lastColumn = orderedColumns.Last();
+            int lastColumnEndOffset = lastColumn.Offset + lastColumn.Size;
+            int lastHoleSize = (rowSize - (lastColumnEndOffset + 1));
+            if (lastHoleSize > 0)
+            {
+                builder.AddHole(lastColumnEndOffset, lastHoleSize);
+            }
+
+            return builder.Build();
+        }
+
+        private IColumn FindColumnByName(string columnName)
+        {
+            IColumn column = _buffer.FindColumnByName(columnName);
+            if (column == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(columnName), $"Column {columnName} not found.");
+            }
+            return column;
+        }
+
+        private void CheckColumnExists(Column column)
+        {
+            if (!_buffer.HasColumn(column))
+            {
+                throw new ArgumentOutOfRangeException(nameof(column), "The column instance not found.");
+            }
         }
 
         private void ValidateReaderState()

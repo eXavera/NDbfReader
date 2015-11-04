@@ -67,10 +67,20 @@ namespace NDbfReader.Tests
         public void GetMethod_ColumnInstanceFromDifferentTable_ThrowsArgumentOutOfRangeExeptionException(string methodName)
         {
             // Arrange
+            Type columnType = typeof(Reader).GetMethod(methodName, new[] { typeof(IColumn) }).ReturnType;
+
             using (var differentTable = Samples.OpenBasicTable())
             using (var table = Samples.OpenBasicTable())
             {
-                var differentColumn = differentTable.Columns.First();
+                IColumn differentColumn = null;
+                if (columnType == typeof(object))
+                {
+                    differentColumn = differentTable.Columns.First();
+                }
+                else
+                {
+                    differentColumn = differentTable.Columns.Single(c => c.Type == columnType);
+                }
 
                 var reader = table.OpenReader();
                 reader.Read();
@@ -80,7 +90,26 @@ namespace NDbfReader.Tests
                     () => ExecuteGetMethod(reader, methodName, parameterType: typeof(IColumn), parameter: differentColumn));
 
                 exception.ParamName.Should().BeEquivalentTo("column");
-                exception.Message.Should().StartWithEquivalent("The column instance doesn't belong to this table.");
+                exception.Message.Should().StartWithEquivalent("The column instance not found.");
+            }
+        }
+
+        [Theory]
+        [ReaderGetMethods]
+        public void GetMethod_ColumnInstanceUnspecifiedInOpenReader_ThrowsArgumentOutOfRangeException(string getMethodName)
+        {
+            // Arrange
+            using (var table = Samples.OpenBasicTable())
+            {
+                string invalidColumnName = table.Columns[1].Name;
+                var reader = table.OpenReader(new[] { table.Columns.First() });
+                reader.Read();
+
+                // Act & Assert
+                var exception = Assert.Throws<ArgumentOutOfRangeException>(
+                    () => ExecuteGetMethod(reader, getMethodName, parameterType: typeof(string), parameter: invalidColumnName));
+                exception.ParamName.Should().BeEquivalentTo("columnName");
+                exception.Message.Should().StartWithEquivalent($"Column {invalidColumnName} not found.");
             }
         }
 
@@ -118,10 +147,17 @@ namespace NDbfReader.Tests
 
         [Theory]
         [ReaderGetMethods]
+        public void GetMethod_ColumnNameUnspecifiedInOpenReader_ThrowsArgumentOutOfRangeException(string getMethodName)
+        {
+            GetMethod_InvalidColumnName_ThrowsArgumentOutOfRangeException("LONG", new[] { "TEXT", "DATE" }, getMethodName);
+        }
+
+        [Theory]
+        [ReaderGetMethods]
         public void GetMethod_DisposedTable_ThrowsObjectDisposedException(string methodName, Type parameterType)
         {
             PublicInterfaceInteraction_DisposedTable_ThrowsObjectDisposedException(
-                reader => ExecuteGetMethod(reader, methodName, parameterType, GetValidArgument(reader, parameterType)));
+                reader => ExecuteGetMethod(reader, methodName, parameterType, GetValidArgument(reader, methodName, parameterType)));
         }
 
         [Theory]
@@ -164,21 +200,9 @@ namespace NDbfReader.Tests
 
         [Theory]
         [ReaderGetMethods]
-        public void GetMethod_NonExistingColumnName_ThrowsArgumentOutOfRangeException(string methodName)
+        public void GetMethod_NonExistingColumnName_ThrowsArgumentOutOfRangeException(string getMethodName)
         {
-            var nonExistingColumnName = "FOO";
-
-            // Arrange
-            using (var table = Samples.OpenBasicTable())
-            {
-                var reader = table.OpenReader();
-                reader.Read();
-
-                // Act & Assert
-                var exception = Assert.Throws<ArgumentOutOfRangeException>(() => ExecuteGetMethod(reader, methodName, parameterType: typeof(string), parameter: nonExistingColumnName));
-                exception.ParamName.Should().BeEquivalentTo("columnName");
-                exception.Message.Should().StartWithEquivalent("Column " + nonExistingColumnName + " not found.");
-            }
+            GetMethod_InvalidColumnName_ThrowsArgumentOutOfRangeException("FOO", new string[] { }, getMethodName);
         }
 
         [Theory]
@@ -195,10 +219,30 @@ namespace NDbfReader.Tests
             GetMethod_NullParameter_ThrowsArgumentNullExeptionException(methodName, typeof(string), "columnName");
         }
 
-        [Fact]
-        public void GetMethod_PreviousColumnInstanceOnNonSeekableStream_ThrowsInvalidOperationException()
+        [Theory]
+        [InlineData("TEXT,NUMERIC")] // side by side
+        [InlineData("NUMERIC,TEXT")] // out of order
+        [InlineData("TEXT,DATE")] // holes in between
+        [InlineData("NUMERIC,DATE")] // hole at the beggining
+        [InlineData("LOGICAL")] // single
+        public void GetMethod_OpenReadWithExplicitColumnInstances_ReturnsValuesOfGivenColumns(string columnsToLoad)
         {
-            GetMethod_OutOfOrderColumnOnNonSeekableStream_ThrowsInvalidOperationException(reader => reader.GetDate(reader.Table.Columns[1]), reader => reader.GetString(reader.Table.Columns[0]));
+            GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns((table, columnNames) =>
+            {
+                List<IColumn> columns = columnNames.Select(name => table.Columns.Single(c => c.Name == name)).ToList();
+                return table.OpenReader(columns);
+            }, columnsToLoad);
+        }
+
+        [Theory]
+        [InlineData("TEXT,NUMERIC")] // side by side
+        [InlineData("NUMERIC,TEXT")] // out of order
+        [InlineData("TEXT,DATE")] // holes in between
+        [InlineData("NUMERIC,DATE")] // hole at the beggining
+        [InlineData("LOGICAL")] // single
+        public void GetMethod_OpenReadWithExplicitColumnNames_ReturnsValuesOfGivenColumns(string columnsToLoad)
+        {
+            GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns((table, columnNames) => table.OpenReader(columnNames), columnsToLoad);
         }
 
         [Fact]
@@ -222,12 +266,6 @@ namespace NDbfReader.Tests
                 var expectedText = Samples.BasicTableContent["TEXT"].First();
                 Assert.Equal(expectedText, actualText);
             }
-        }
-
-        [Fact]
-        public void GetMethod_PreviousColumnNameOnNonSeekableStream_ThrowsInvalidOperationException()
-        {
-            GetMethod_OutOfOrderColumnOnNonSeekableStream_ThrowsInvalidOperationException(reader => reader.GetDate("DATE"), reader => reader.GetString("TEXT"));
         }
 
         [Fact]
@@ -260,7 +298,7 @@ namespace NDbfReader.Tests
                 var reader = table.OpenReader();
 
                 // Act & Assert
-                var exception = Assert.Throws<InvalidOperationException>(() => ExecuteGetMethod(reader, methodName, parameterType, GetValidArgument(reader, parameterType)));
+                var exception = Assert.Throws<InvalidOperationException>(() => ExecuteGetMethod(reader, methodName, parameterType, GetValidArgument(reader, methodName, parameterType)));
                 Assert.Equal(EXPECTED_NO_ROWS_EXCEPTION_MESSAGE, exception.Message);
             }
         }
@@ -277,32 +315,16 @@ namespace NDbfReader.Tests
                 while (reader.Read()) { }
 
                 // Act & Assert
-                var exception = Assert.Throws<InvalidOperationException>(() => ExecuteGetMethod(reader, methodName, parameterType, GetValidArgument(reader, parameterType)));
+                var exception = Assert.Throws<InvalidOperationException>(() => ExecuteGetMethod(reader, methodName, parameterType, GetValidArgument(reader, methodName, parameterType)));
 
                 Assert.Equal(EXPECTED_NO_ROWS_EXCEPTION_MESSAGE, exception.Message);
             }
         }
 
         [Fact]
-        public void GetMethod_RepeatedColumnInstanceOnNonSeekableStream_ThrowsInvalidOperationException()
-        {
-            Action<Reader> getMethodCall = (reader) => reader.GetDate(reader.Table.Columns[1]);
-
-            GetMethod_OutOfOrderColumnOnNonSeekableStream_ThrowsInvalidOperationException(getMethodCall, getMethodCall);
-        }
-
-        [Fact]
         public void GetMethod_RepeatedColumnInstanceOnSeeeakbleStream_ReturnsTheSameValue()
         {
             GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(reader => reader.GetDate(reader.Table.Columns[1]));
-        }
-
-        [Fact]
-        public void GetMethod_RepeatedColumnNameOnNonSeekableStream_ThrowsInvalidOperationException()
-        {
-            Action<Reader> getMethodCall = (reader) => reader.GetDate("DATE");
-
-            GetMethod_OutOfOrderColumnOnNonSeekableStream_ThrowsInvalidOperationException(getMethodCall, getMethodCall);
         }
 
         [Fact]
@@ -491,25 +513,50 @@ namespace NDbfReader.Tests
             return reader.Table.Columns.First(column => column.Type != returnType).Name;
         }
 
-        private static object GetValidArgument(Reader reader, Type type)
+        private static object GetValidArgument(Reader reader, string methodName, Type argType)
         {
-            var firstColumn = reader.Table.Columns.First();
-
-            if (type == typeof(string))
+            Type columnType = typeof(Reader).GetMethod(methodName, new[] { argType }).ReturnType;
+            IColumn column = null;
+            if (columnType == typeof(object))
             {
-                return firstColumn.Name;
+                column = reader.Table.Columns.First();
             }
-            if (type == typeof(IColumn))
+            else
             {
-                return firstColumn;
+                column = reader.Table.Columns.Single(c => c.Type == columnType);
             }
 
-            throw new ArgumentOutOfRangeException(nameof(type));
+            if (argType == typeof(string))
+            {
+                return column.Name;
+            }
+            if (argType == typeof(IColumn))
+            {
+                return column;
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(argType));
         }
 
         private static IColumn GetZeroSizeColumn(Table table)
         {
             return table.Columns.Single(c => c.Name == ZERO_SIZE_COLUMN_NAME);
+        }
+
+        private void GetMethod_InvalidColumnName_ThrowsArgumentOutOfRangeException(string invalidColumnName, string[] explicitColumnNames, string getMethodName)
+        {
+            // Arrange
+            using (var table = Samples.OpenBasicTable())
+            {
+                var reader = table.OpenReader(explicitColumnNames);
+                reader.Read();
+
+                // Act & Assert
+                var exception = Assert.Throws<ArgumentOutOfRangeException>(
+                    () => ExecuteGetMethod(reader, getMethodName, parameterType: typeof(string), parameter: invalidColumnName));
+                exception.ParamName.Should().BeEquivalentTo("columnName");
+                exception.Message.Should().StartWithEquivalent($"Column {invalidColumnName} not found.");
+            }
         }
 
         private void GetMethod_NullParameter_ThrowsArgumentNullExeptionException(string methodName, Type paramaterType, string parameterName)
@@ -528,22 +575,19 @@ namespace NDbfReader.Tests
             }
         }
 
-        private void GetMethod_OutOfOrderColumnOnNonSeekableStream_ThrowsInvalidOperationException(Action<Reader> firstGetCall, Action<Reader> secondGetCall)
+        private void GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns(Func<Table, string[], Reader> readerOpener, string columnNamesToLoad)
         {
-            // Arrange
-            var nonSeeekableStream = Spy.OnStream(EmbeddedSamples.GetStream(EmbeddedSamples.BASIC));
-            nonSeeekableStream.CanSeek.Returns(false);
+            string[] columnNames = columnNamesToLoad.Split(',');
+            object[] expectedValues = columnNames.Select(columnName => Samples.BasicTableContent[columnName][0]).ToArray();
 
-            using (var table = Table.Open(nonSeeekableStream))
+            using (Table table = Samples.OpenBasicTable())
             {
-                var reader = table.OpenReader();
-
+                Reader reader = readerOpener(table, columnNames);
                 reader.Read();
-                firstGetCall(reader);
 
-                // Act & Assert
-                var exception = Assert.Throws<InvalidOperationException>(() => secondGetCall(reader));
-                Assert.Equal("The underlying non-seekable stream does not allow reading the columns out of order.", exception.Message);
+                object[] actualValues = columnNames.Select(reader.GetValue).ToArray();
+
+                actualValues.ShouldBeEquivalentTo(expectedValues);
             }
         }
 
