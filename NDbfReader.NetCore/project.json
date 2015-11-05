@@ -6,7 +6,7 @@
   "dependencies": {
     "Microsoft.NETCore": "5.0.0",
     "Microsoft.NETCore.Portable.Compatibility": "1.0.0",
-    "RefactoringEssentials": "1.2.0"
+    "RefactoringEssentials": "2.1.0"
   },
   "frameworks": {
     "dotnet": {
