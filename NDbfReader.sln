@@ -7,11 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader", "NDbfReader\ND
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader.Tests", "NDbfReader.Tests\NDbfReader.Tests.csproj", "{9C68CEE0-4686-4FE9-9685-55BA3A742CD9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BA5A742E-3FDC-4295-B029-6F8A6E583760}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader.Net45", "NDbfReader.Net45\NDbfReader.Net45.csproj", "{437155B3-AAD5-40B0-BBF3-FC8E79402790}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B34DCA4-4FB0-4E87-B9AE-2C1B55278509}"
