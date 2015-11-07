@@ -12,7 +12,7 @@ namespace NDbfReader
     [DebuggerDisplay("Decimal {Name}")]
     public class DecimalColumn : Column<decimal?>
     {
-        private static readonly NumberFormatInfo DecimalNumberFormat = new NumberFormatInfo() { NumberDecimalSeparator = "." };
+        private static readonly NumberFormatInfo DecimalNumberFormat = new NumberFormatInfo { NumberDecimalSeparator = "." };
 
         /// <summary>
         /// Initializes a new instance with the specified name and offset.

@@ -113,7 +113,7 @@ namespace NDbfReader
 
         private static DataTable CreateDataTable(IEnumerable<IColumn> columns)
         {
-            var dataTable = new DataTable()
+            var dataTable = new DataTable
             {
                 Locale = CultureInfo.CurrentCulture
             };

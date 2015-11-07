@@ -341,7 +341,7 @@ namespace NDbfReader.Tests
             {
                 var reader = table.OpenReader(Encoding.GetEncoding(1250));
 
-                var expectedItems = new List<string>() { "Mateřská škola Deštná", "Tělocvična Deštná", "Městský úřad Deštná" };
+                var expectedItems = new List<string> { "Mateřská škola Deštná", "Tělocvična Deštná", "Městský úřad Deštná" };
                 var actualItems = new List<string>();
 
                 // Act
@@ -661,7 +661,7 @@ namespace NDbfReader.Tests
             using (var table = Table.Open(stream))
             {
                 var reader = table.OpenReader();
-                var expectedItems = new List<string>() { "text3" };
+                var expectedItems = new List<string> { "text3" };
                 var actualItems = new List<string>();
 
                 // Act
