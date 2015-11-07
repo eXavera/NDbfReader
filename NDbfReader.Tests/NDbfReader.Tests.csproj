@@ -92,7 +92,6 @@
     <Compile Include="Infrastructure\TestMethodExecutionExtensions.cs" />
     <Compile Include="Infrastructure\TestMethodExecutionExtensionsTests.cs" />
     <Compile Include="Samples.cs" />
-    <Compile Include="StreamExtensionsTests.cs" />
     <Compile Include="Infrastructure\ReaderGetMethodsAttribute.cs" />
     <Compile Include="ReaderTests.cs" />
     <Compile Include="TableExtensionsTests.cs">

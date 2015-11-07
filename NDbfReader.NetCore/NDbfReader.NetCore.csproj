@@ -80,9 +80,6 @@
     <Compile Include="..\NDbfReader\HeaderLoader.cs">
       <Link>HeaderLoader.cs</Link>
     </Compile>
-    <Compile Include="..\NDbfReader\Helpers\StreamExtensions.cs">
-      <Link>Helpers\StreamExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\NDbfReader\IColumn.cs">
       <Link>IColumn.cs</Link>
     </Compile>

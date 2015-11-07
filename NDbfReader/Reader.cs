@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using NDbfReader.Helpers;
 
 namespace NDbfReader
 {
@@ -17,6 +16,7 @@ namespace NDbfReader
         private readonly Buffer _buffer;
         private readonly Table _table;
         private Encoding _encoding;
+        private byte[] _helperBufferForSeeking;
         private int _loadedRowCount = 0;
         private bool _rowLoaded;
 
@@ -79,6 +79,18 @@ namespace NDbfReader
                 ThrowIfDisposed();
 
                 return _table;
+            }
+        }
+
+        private byte[] HelperBufferForSeeking
+        {
+            get
+            {
+                if (_helperBufferForSeeking == null)
+                {
+                    _helperBufferForSeeking = new byte[Math.Min(Header.RowSize, 4096)];
+                }
+                return _helperBufferForSeeking;
             }
         }
 
@@ -357,7 +369,7 @@ namespace NDbfReader
                 isRowDeleted = (nextByte == DELETED_ROW_FLAG);
                 if (isRowDeleted)
                 {
-                    Stream.SeekForward(Header.RowSize - 1);
+                    SkipStreamBytes(Header.RowSize - 1);
                 }
 
                 _loadedRowCount += 1;
@@ -368,7 +380,7 @@ namespace NDbfReader
             {
                 if (instruction.ShouldSkip)
                 {
-                    Stream.SeekForward(instruction.Count);
+                    SkipStreamBytes(instruction.Count);
                 }
                 else
                 {
@@ -509,6 +521,29 @@ namespace NDbfReader
             if (!_buffer.HasColumn(column))
             {
                 throw new ArgumentOutOfRangeException(nameof(column), "The column instance not found.");
+            }
+        }
+
+        private void SkipStreamBytes(int offset)
+        {
+            if (Stream.CanSeek)
+            {
+                Stream.Seek(offset, SeekOrigin.Current);
+            }
+            else
+            {
+                byte[] buffer = HelperBufferForSeeking;
+                int bytesToRead = offset;
+                while (bytesToRead > 0)
+                {
+                    int readBytes = Stream.Read(buffer, 0, bytesToRead > buffer.Length ? buffer.Length : bytesToRead);
+                    if (readBytes == 0)
+                    {
+                        break;
+                    }
+
+                    bytesToRead -= readBytes;
+                }
             }
         }
 

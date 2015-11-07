@@ -388,11 +388,7 @@ namespace NDbfReader.Tests
         public void Read_TableBasedOnNonSeekableStream_ReadsAllRowsAsUsual()
         {
             // Arrange
-            var streamSpy = Spy.OnStream(EmbeddedSamples.GetStream(EmbeddedSamples.BASIC));
-            streamSpy.CanSeek.Returns(false);
-            streamSpy.Seek(Arg.Any<long>(), Arg.Any<SeekOrigin>()).Returns(x => { throw new NotSupportedException(); });
-            streamSpy.Position.Returns(x => { throw new NotSupportedException(); });
-            streamSpy.When(s => s.Position = Arg.Any<long>()).Do(x => { throw new NotSupportedException(); });
+            var streamSpy = MakeNonSeekanle((EmbeddedSamples.GetStream(EmbeddedSamples.BASIC)));
 
             // Act
             int rowsCount = 0;
@@ -410,24 +406,32 @@ namespace NDbfReader.Tests
         }
 
         [Fact]
-        public void Read_TableWithDeletedRows_SkipsDeletedRows()
+        public void Read_TableOnNonSeekableStream_SkipsColumns()
         {
             // Arrange
-            using (var table = Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.DELETED_ROWS)))
+            using (var table = Table.Open(MakeNonSeekanle(Samples.GetBasicTableStream())))
             {
-                var reader = table.OpenReader();
-                var expectedItems = new List<string>() { "text3" };
-                var actualItems = new List<string>();
+                Reader reader = table.OpenReader("TEXT", "LOGICAL");
 
                 // Act
-                while (reader.Read())
-                {
-                    actualItems.Add(reader.GetString("NAME"));
-                }
+                reader.Read();
+                object[] result = { reader.GetValue("TEXT"), reader.GetValue("LOGICAL") };
 
                 // Assert
-                actualItems.ShouldAllBeEquivalentTo(expectedItems);
+                result.ShouldAllBeEquivalentTo(new object[] { Samples.BasicTableContent["TEXT"][0], Samples.BasicTableContent["LOGICAL"][0] });
             }
+        }
+
+        [Fact]
+        public void Read_TableOnNonSeekableStreamWithDeletedRows_SkipsDeletedRows()
+        {
+            Read_TableWithDeletedRows_SkipsDeletedRows(MakeNonSeekanle);
+        }
+
+        [Fact]
+        public void Read_TableWithDeletedRows_SkipsDeletedRows()
+        {
+            Read_TableWithDeletedRows_SkipsDeletedRows(stream => stream);
         }
 
         [Fact]
@@ -543,6 +547,17 @@ namespace NDbfReader.Tests
             return table.Columns.Single(c => c.Name == ZERO_SIZE_COLUMN_NAME);
         }
 
+        private static Stream MakeNonSeekanle(Stream stream)
+        {
+            var streamSpy = Spy.OnStream(stream);
+            streamSpy.CanSeek.Returns(false);
+            streamSpy.Seek(Arg.Any<long>(), Arg.Any<SeekOrigin>()).Returns(x => { throw new NotSupportedException(); });
+            streamSpy.Position.Returns(x => { throw new NotSupportedException(); });
+            streamSpy.When(s => s.Position = Arg.Any<long>()).Do(x => { throw new NotSupportedException(); });
+
+            return streamSpy;
+        }
+
         private void GetMethod_InvalidColumnName_ThrowsArgumentOutOfRangeException(string invalidColumnName, string[] explicitColumnNames, string getMethodName)
         {
             // Arrange
@@ -637,6 +652,27 @@ namespace NDbfReader.Tests
             // Act & Assert
             var exception = Assert.Throws<ObjectDisposedException>(() => action(reader));
             Assert.Equal(typeof(Table).FullName, exception.ObjectName);
+        }
+
+        private void Read_TableWithDeletedRows_SkipsDeletedRows(Func<Stream, Stream> streamModifier)
+        {
+            // Arrange
+            var stream = streamModifier(EmbeddedSamples.GetStream(EmbeddedSamples.DELETED_ROWS));
+            using (var table = Table.Open(stream))
+            {
+                var reader = table.OpenReader();
+                var expectedItems = new List<string>() { "text3" };
+                var actualItems = new List<string>();
+
+                // Act
+                while (reader.Read())
+                {
+                    actualItems.Add(reader.GetString("NAME"));
+                }
+
+                // Assert
+                actualItems.ShouldAllBeEquivalentTo(expectedItems);
+            }
         }
     }
 }
