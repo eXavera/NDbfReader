@@ -42,11 +42,9 @@ namespace NDbfReader.Tests.Infrastructure
                     var task = (Task<TResult>)asyncMethod.Invoke(instance, arguments);
                     return task;
                 }
-                else
-                {
-                    var result = (TResult)method.Invoke(instance, arguments);
-                    return Task.FromResult(result);
-                }
+
+                var result = (TResult)method.Invoke(instance, arguments);
+                return Task.FromResult(result);
             }
             catch (TargetInvocationException e)
             {
@@ -68,11 +66,9 @@ namespace NDbfReader.Tests.Infrastructure
                     var task = (Task)asyncMethod.Invoke(instance, arguments);
                     return task;
                 }
-                else
-                {
-                    method.Invoke(instance, arguments);
-                    return Task.FromResult(0);
-                }
+
+                method.Invoke(instance, arguments);
+                return Task.FromResult(0);
             }
             catch (TargetInvocationException e)
             {
