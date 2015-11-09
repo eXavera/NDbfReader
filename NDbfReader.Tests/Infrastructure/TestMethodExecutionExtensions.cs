@@ -97,11 +97,8 @@ namespace NDbfReader.Tests.Infrastructure
         private static object GetValue(MemberExpression member)
         {
             var objectMember = Expression.Convert(member, typeof(object));
-
             var getterLambda = Expression.Lambda<Func<object>>(objectMember);
-
             var getter = getterLambda.Compile();
-
             return getter();
         }
     }
