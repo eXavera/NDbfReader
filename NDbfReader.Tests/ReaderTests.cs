@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using FluentAssertions;
 using NDbfReader.Tests.Infrastructure;
 using NSubstitute;
@@ -17,42 +18,44 @@ namespace NDbfReader.Tests
 
         private const string ZERO_SIZE_COLUMN_NAME = "KRAJID";
 
-        [Fact]
-        public void GetDecimal_ZeroSizeColumnInstance_ReturnsNull()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task GetDecimal_ZeroSizeColumnInstance_ReturnsNull(bool useAsync)
         {
-            GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetDecimal(GetZeroSizeColumn(reader.Table)));
-        }
-
-        [Fact]
-        public void GetDecimal_ZeroSizeColumnName_ReturnsNull()
-        {
-            GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetDecimal(ZERO_SIZE_COLUMN_NAME));
+            return GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetDecimal(GetZeroSizeColumn(reader.Table)), useAsync);
         }
 
         [Theory]
-        [InlineData("GetString", "TEXT")]
-        [InlineData("GetValue", "TEXT")]
-        [InlineData("GetDecimal", "NUMERIC")]
-        [InlineData("GetValue", "NUMERIC")]
-        [InlineData("GetBoolean", "LOGICAL")]
-        [InlineData("GetValue", "LOGICAL")]
-        [InlineData("GetDate", "DATE")]
-        [InlineData("GetValue", "DATE")]
-        [InlineData("GetInt32", "LONG")]
-        [InlineData("GetValue", "LONG")]
-        public void GetMethod_ColumnInstance_ReturnsValue(string methodName, string columnName)
+        [InlineDataWithExecMode]
+        public Task GetDecimal_ZeroSizeColumnName_ReturnsNull(bool useAsync)
+        {
+            return GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetDecimal(ZERO_SIZE_COLUMN_NAME), useAsync);
+        }
+
+        [Theory]
+        [InlineDataWithExecMode("GetString", "TEXT")]
+        [InlineDataWithExecMode("GetValue", "TEXT")]
+        [InlineDataWithExecMode("GetDecimal", "NUMERIC")]
+        [InlineDataWithExecMode("GetValue", "NUMERIC")]
+        [InlineDataWithExecMode("GetBoolean", "LOGICAL")]
+        [InlineDataWithExecMode("GetValue", "LOGICAL")]
+        [InlineDataWithExecMode("GetDate", "DATE")]
+        [InlineDataWithExecMode("GetValue", "DATE")]
+        [InlineDataWithExecMode("GetInt32", "LONG")]
+        [InlineDataWithExecMode("GetValue", "LONG")]
+        public async Task GetMethod_ColumnInstance_ReturnsValue(bool useAsync, string methodName, string columnName)
         {
             // Arrange
             var actualValues = new List<object>();
             var expectedValues = Samples.BasicTableContent[columnName];
 
-            using (var table = Samples.OpenBasicTable())
+            using (var table = await OpenBasicTable(useAsync))
             {
                 var reader = table.OpenReader();
                 var column = table.Columns.Single(c => c.Name == columnName);
 
                 // Act
-                while (reader.Read())
+                while (await reader.Exec(r => r.Read(), useAsync))
                 {
                     actualValues.Add(ExecuteGetMethod(reader, methodName, typeof(IColumn), column));
                 }
@@ -114,28 +117,28 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [InlineData("GetString", "TEXT")]
-        [InlineData("GetValue", "TEXT")]
-        [InlineData("GetDecimal", "NUMERIC")]
-        [InlineData("GetValue", "NUMERIC")]
-        [InlineData("GetBoolean", "LOGICAL")]
-        [InlineData("GetValue", "LOGICAL")]
-        [InlineData("GetDate", "DATE")]
-        [InlineData("GetValue", "DATE")]
-        [InlineData("GetInt32", "LONG")]
-        [InlineData("GetValue", "LONG")]
-        public void GetMethod_ColumnName_ReturnsValue(string methodName, string columnName)
+        [InlineDataWithExecMode("GetString", "TEXT")]
+        [InlineDataWithExecMode("GetValue", "TEXT")]
+        [InlineDataWithExecMode("GetDecimal", "NUMERIC")]
+        [InlineDataWithExecMode("GetValue", "NUMERIC")]
+        [InlineDataWithExecMode("GetBoolean", "LOGICAL")]
+        [InlineDataWithExecMode("GetValue", "LOGICAL")]
+        [InlineDataWithExecMode("GetDate", "DATE")]
+        [InlineDataWithExecMode("GetValue", "DATE")]
+        [InlineDataWithExecMode("GetInt32", "LONG")]
+        [InlineDataWithExecMode("GetValue", "LONG")]
+        public async Task GetMethod_ColumnName_ReturnsValue(bool useAsync, string methodName, string columnName)
         {
             // Arrange
             var actualValues = new List<object>();
             var expectedValues = Samples.BasicTableContent[columnName];
 
-            using (var table = Samples.OpenBasicTable())
+            using (var table = await OpenBasicTable(useAsync))
             {
                 var reader = table.OpenReader();
 
                 // Act
-                while (reader.Read())
+                while (await reader.Exec(r => r.Read(), useAsync))
                 {
                     actualValues.Add(ExecuteGetMethod(reader, methodName, typeof(string), columnName));
                 }
@@ -220,14 +223,14 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [InlineData("TEXT,NUMERIC")] // side by side
-        [InlineData("NUMERIC,TEXT")] // out of order
-        [InlineData("TEXT,DATE")] // holes in between
-        [InlineData("NUMERIC,DATE")] // hole at the beggining
-        [InlineData("LOGICAL")] // single
-        public void GetMethod_OpenReadWithExplicitColumnInstances_ReturnsValuesOfGivenColumns(string columnsToLoad)
+        [InlineDataWithExecMode("TEXT,NUMERIC")] // side by side
+        [InlineDataWithExecMode("NUMERIC,TEXT")] // out of order
+        [InlineDataWithExecMode("TEXT,DATE")] // holes in between
+        [InlineDataWithExecMode("NUMERIC,DATE")] // hole at the beggining
+        [InlineDataWithExecMode("LOGICAL")] // single
+        public Task GetMethod_OpenReadWithExplicitColumnInstances_ReturnsValuesOfGivenColumns(bool useAsync, string columnsToLoad)
         {
-            GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns((table, columnNames) =>
+            return GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns(useAsync, (table, columnNames) =>
             {
                 List<IColumn> columns = columnNames.Select(name => table.Columns.Single(c => c.Name == name)).ToList();
                 return table.OpenReader(columns);
@@ -235,25 +238,26 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [InlineData("TEXT,NUMERIC")] // side by side
-        [InlineData("NUMERIC,TEXT")] // out of order
-        [InlineData("TEXT,DATE")] // holes in between
-        [InlineData("NUMERIC,DATE")] // hole at the beggining
-        [InlineData("LOGICAL")] // single
-        public void GetMethod_OpenReadWithExplicitColumnNames_ReturnsValuesOfGivenColumns(string columnsToLoad)
+        [InlineDataWithExecMode("TEXT,NUMERIC")] // side by side
+        [InlineDataWithExecMode("NUMERIC,TEXT")] // out of order
+        [InlineDataWithExecMode("TEXT,DATE")] // holes in between
+        [InlineDataWithExecMode("NUMERIC,DATE")] // hole at the beggining
+        [InlineDataWithExecMode("LOGICAL")] // single
+        public Task GetMethod_OpenReadWithExplicitColumnNames_ReturnsValuesOfGivenColumns(bool useAsync, string columnsToLoad)
         {
-            GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns((table, columnNames) => table.OpenReader(columnNames), columnsToLoad);
+            return GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns(useAsync, (table, columnNames) => table.OpenReader(columnNames), columnsToLoad);
         }
 
-        [Fact]
-        public void GetMethod_PreviousColumnInstanceOnSeekableStream_ReturnsCorrectValue()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task GetMethod_PreviousColumnInstanceOnSeekableStream_ReturnsCorrectValue(bool useAsync)
         {
             // Arrange
-            using (var table = Samples.OpenBasicTable())
+            using (var table = await OpenBasicTable(useAsync))
             {
                 var reader = table.OpenReader();
 
-                reader.Read();
+                await reader.Exec(r => r.Read(), useAsync);
 
                 var dateColumn = table.Columns[1];
                 var textColumn = table.Columns[0];
@@ -268,15 +272,16 @@ namespace NDbfReader.Tests
             }
         }
 
-        [Fact]
-        public void GetMethod_PreviousColumnNameOnSeekableStream_ReturnsCorrectValue()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task GetMethod_PreviousColumnNameOnSeekableStream_ReturnsCorrectValue(bool useAsync)
         {
             // Arrange
-            using (var table = Samples.OpenBasicTable())
+            using (var table = await OpenBasicTable(useAsync))
             {
                 var reader = table.OpenReader();
 
-                reader.Read();
+                await reader.Exec(r => r.Read(), useAsync);
 
                 // Act
                 reader.GetDate("DATE");
@@ -305,14 +310,14 @@ namespace NDbfReader.Tests
 
         [Theory]
         [ReaderGetMethods]
-        public void GetMethod_ReadMethodReturnedFalse_ThrowsInvalidOperationException(string methodName, Type parameterType)
+        public async Task GetMethod_ReadMethodReturnedFalse_ThrowsInvalidOperationException(bool useAsync, string methodName, Type parameterType)
         {
             // Arrange
-            using (var table = Samples.OpenBasicTable())
+            using (var table = await OpenBasicTable(useAsync))
             {
                 var reader = table.OpenReader();
 
-                while (reader.Read()) { }
+                while (await reader.Exec(r => r.Read(), useAsync)) { }
 
                 // Act & Assert
                 var exception = Assert.Throws<InvalidOperationException>(() => ExecuteGetMethod(reader, methodName, parameterType, GetValidArgument(reader, methodName, parameterType)));
@@ -321,23 +326,27 @@ namespace NDbfReader.Tests
             }
         }
 
-        [Fact]
-        public void GetMethod_RepeatedColumnInstanceOnSeeeakbleStream_ReturnsTheSameValue()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task GetMethod_RepeatedColumnInstanceOnSeeeakbleStream_ReturnsTheSameValue(bool useAsync)
         {
-            GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(reader => reader.GetDate(reader.Table.Columns[1]));
+            return GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(useAsync, reader => reader.GetDate(reader.Table.Columns[1]));
         }
 
-        [Fact]
-        public void GetMethod_RepeatedColumnNameOnSeeeakbleStream_ReturnsTheSameValue()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task GetMethod_RepeatedColumnNameOnSeeeakbleStream_ReturnsTheSameValue(bool useAsync)
         {
-            GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(reader => reader.GetDate("DATE"));
+            return GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(useAsync, reader => reader.GetDate("DATE"));
         }
 
-        [Fact]
-        public void GetString_ReaderOfTableWithCzechTextsOpenedWithCzechEncoding_ReturnsCorrectlyEncodedString()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task GetString_ReaderOfTableWithCzechTextsOpenedWithCzechEncoding_ReturnsCorrectlyEncodedString(bool useAsync)
         {
             // Arrange
-            using (var table = Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.CZECH_ENCODING)))
+            Stream stream = EmbeddedSamples.GetStream(EmbeddedSamples.CZECH_ENCODING);
+            using (var table = await this.Exec(() => Table.Open(stream), useAsync))
             {
                 var reader = table.OpenReader(Encoding.GetEncoding(1250));
 
@@ -345,7 +354,7 @@ namespace NDbfReader.Tests
                 var actualItems = new List<string>();
 
                 // Act
-                while (reader.Read())
+                while (await reader.Exec(r => r.Read(), useAsync))
                 {
                     actualItems.Add(reader.GetString("DS"));
                 }
@@ -355,28 +364,31 @@ namespace NDbfReader.Tests
             }
         }
 
-        [Fact]
-        public void GetValue_ZeroSizeColumnInstance_ReturnsNull()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task GetValue_ZeroSizeColumnInstance_ReturnsNull(bool useAsync)
         {
-            GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetValue(GetZeroSizeColumn(reader.Table)));
+            return GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetValue(GetZeroSizeColumn(reader.Table)), useAsync);
         }
 
-        [Fact]
-        public void GetValue_ZeroSizeColumnName_ReturnsNull()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task GetValue_ZeroSizeColumnName_ReturnsNull(bool useAsync)
         {
-            GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetValue(ZERO_SIZE_COLUMN_NAME));
+            return GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetValue(ZERO_SIZE_COLUMN_NAME), useAsync);
         }
 
-        [Fact]
-        public void Read_RepeatedCall_SkipsRows()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task Read_RepeatedCall_SkipsRows(bool useAsync)
         {
             object[] expectedSecondRowContent = Samples.BasicTableContent.Select(pair => pair.Value[1]).ToArray();
 
-            using (Table table = Samples.OpenBasicTable())
+            using (Table table = await OpenBasicTable(useAsync))
             {
                 Reader reader = table.OpenReader();
-                reader.Read();
-                reader.Read();
+                await reader.Exec(r => r.Read(), useAsync);
+                await reader.Exec(r => r.Read(), useAsync);
 
                 object[] secondRowContent = table.Columns.Select(reader.GetValue).ToArray();
 
@@ -384,37 +396,41 @@ namespace NDbfReader.Tests
             }
         }
 
-        [Fact]
-        public void Read_TableBasedOnNonSeekableStream_ReadsAllRowsAsUsual()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task Read_TableBasedOnNonSeekableStream_ReadsAllRowsAsUsual(bool useAsync)
         {
             // Arrange
             var streamSpy = MakeNonSeekanle((EmbeddedSamples.GetStream(EmbeddedSamples.BASIC)));
 
             // Act
             int rowsCount = 0;
-
-            using (var table = Table.Open(streamSpy))
+            using (var table = await this.Exec(() => Table.Open(streamSpy), useAsync))
             {
                 var reader = table.OpenReader();
 
-                while (reader.Read())
+                while (await reader.Exec(r => r.Read(), useAsync))
+                {
                     rowsCount += 1;
+                }
             }
 
             // Assert
             Assert.Equal(3, rowsCount);
         }
 
-        [Fact]
-        public void Read_TableOnNonSeekableStream_SkipsColumns()
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task Read_TableOnNonSeekableStream_SkipsColumns(bool useAsync)
         {
             // Arrange
-            using (var table = Table.Open(MakeNonSeekanle(Samples.GetBasicTableStream())))
+            Stream stream = MakeNonSeekanle(Samples.GetBasicTableStream());
+            using (var table = await this.Exec(() => Table.Open(stream), useAsync))
             {
                 Reader reader = table.OpenReader("TEXT", "LOGICAL");
 
                 // Act
-                reader.Read();
+                await reader.Exec(r => r.Read(), useAsync);
                 object[] result = { reader.GetValue("TEXT"), reader.GetValue("LOGICAL") };
 
                 // Assert
@@ -422,16 +438,18 @@ namespace NDbfReader.Tests
             }
         }
 
-        [Fact]
-        public void Read_TableOnNonSeekableStreamWithDeletedRows_SkipsDeletedRows()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task Read_TableOnNonSeekableStreamWithDeletedRows_SkipsDeletedRows(bool useAsync)
         {
-            Read_TableWithDeletedRows_SkipsDeletedRows(MakeNonSeekanle);
+            return Read_TableWithDeletedRows_SkipsDeletedRows(useAsync, MakeNonSeekanle);
         }
 
-        [Fact]
-        public void Read_TableWithDeletedRows_SkipsDeletedRows()
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task Read_TableWithDeletedRows_SkipsDeletedRows(bool useAsync)
         {
-            Read_TableWithDeletedRows_SkipsDeletedRows(stream => stream);
+            return Read_TableWithDeletedRows_SkipsDeletedRows(useAsync, stream => stream);
         }
 
         [Fact]
@@ -590,15 +608,15 @@ namespace NDbfReader.Tests
             }
         }
 
-        private void GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns(Func<Table, string[], Reader> readerOpener, string columnNamesToLoad)
+        private async Task GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns(bool useAsync, Func<Table, string[], Reader> readerOpener, string columnNamesToLoad)
         {
             string[] columnNames = columnNamesToLoad.Split(',');
             object[] expectedValues = columnNames.Select(columnName => Samples.BasicTableContent[columnName][0]).ToArray();
 
-            using (Table table = Samples.OpenBasicTable())
+            using (Table table = await OpenBasicTable(useAsync))
             {
                 Reader reader = readerOpener(table, columnNames);
-                reader.Read();
+                await reader.Exec(r => r.Read(), useAsync);
 
                 object[] actualValues = columnNames.Select(reader.GetValue).ToArray();
 
@@ -606,14 +624,14 @@ namespace NDbfReader.Tests
             }
         }
 
-        private void GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(Func<Reader, object> getCall)
+        private async Task GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(bool useAsync, Func<Reader, object> getCall)
         {
             // Arrange
-            using (var table = Samples.OpenBasicTable())
+            using (var table = await OpenBasicTable(useAsync))
             {
                 var reader = table.OpenReader();
 
-                reader.Read();
+                await reader.Exec(r => r.Read(), useAsync);
 
                 // Act
                 var firstValue = getCall(reader);
@@ -624,13 +642,14 @@ namespace NDbfReader.Tests
             }
         }
 
-        private void GetMethod_ZeroSizeColumn_ReturnsNull(Func<Reader, object> getter)
+        private async Task GetMethod_ZeroSizeColumn_ReturnsNull(Func<Reader, object> getter, bool useAsync)
         {
             // Arrange
-            using (var table = Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.ZERO_SIZE_COLUMN)))
+            Stream stream = EmbeddedSamples.GetStream(EmbeddedSamples.ZERO_SIZE_COLUMN);
+            using (var table = await this.Exec(() => Table.Open(stream), useAsync))
             {
                 var reader = table.OpenReader(Encoding.GetEncoding(1250));
-                reader.Read();
+                await reader.Exec((r) => r.Read(), useAsync);
 
                 var expectedValues = new[] { null, "ABCD" };
 
@@ -640,6 +659,11 @@ namespace NDbfReader.Tests
                 // Assert
                 actualValues.ShouldAllBeEquivalentTo(expectedValues);
             }
+        }
+
+        private Task<Table> OpenBasicTable(bool useAsync)
+        {
+            return this.Exec(() => Samples.OpenBasicTable(), useAsync);
         }
 
         private void PublicInterfaceInteraction_DisposedTable_ThrowsObjectDisposedException(Func<Reader, object> action)
@@ -654,18 +678,18 @@ namespace NDbfReader.Tests
             Assert.Equal(typeof(Table).FullName, exception.ObjectName);
         }
 
-        private void Read_TableWithDeletedRows_SkipsDeletedRows(Func<Stream, Stream> streamModifier)
+        private async Task Read_TableWithDeletedRows_SkipsDeletedRows(bool useAsync, Func<Stream, Stream> streamModifier)
         {
             // Arrange
             var stream = streamModifier(EmbeddedSamples.GetStream(EmbeddedSamples.DELETED_ROWS));
-            using (var table = Table.Open(stream))
+            using (var table = await this.Exec(() => Table.Open(stream), useAsync))
             {
                 var reader = table.OpenReader();
                 var expectedItems = new List<string> { "text3" };
                 var actualItems = new List<string>();
 
                 // Act
-                while (reader.Read())
+                while (await reader.Exec(r => r.Read(), useAsync))
                 {
                     actualItems.Add(reader.GetString("NAME"));
                 }

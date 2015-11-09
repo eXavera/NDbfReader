@@ -35,18 +35,33 @@ namespace NDbfReader.Tests.Infrastructure
                 //if the method under test doesn't have a Type parameter, assume it expects only method names
                 getMethods = getMethods.Distinct(new DelegatedEqualityComparer<MethodInfo>(m => m.Name));
             }
+            if(parameterTypes.Contains(typeof(bool)))
+            {
+                // useAsync parameter is required, all method are executed twice
+                getMethods = DoubleItems(getMethods);
+            }
 
-            return getMethods.Select(method =>
+            return getMethods.Select((method, index) =>
             {
                 return parameterTypes.Select<Type, object>(parameterType =>
                 {
+                    if (parameterType == typeof(bool)) return index % 2 == 0; // useAsync
                     if (parameterType == typeof(string)) return method.Name;
                     if (parameterType == typeof(Type)) return method.GetParameters().First().ParameterType;
 
-                    throw new InvalidOperationException($"Unexpected parameter of type {parameterType.FullName}. Only method name and parameter type parameters area supported.");
+                    throw new InvalidOperationException($"Unexpected parameter of type {parameterType.FullName}. Test method must expect useAsync, methodName and methodType parameters.");
                 })
                 .ToArray();
             });
+        }
+
+        private static IEnumerable<MethodInfo> DoubleItems(IEnumerable<MethodInfo> methods)
+        {
+            foreach (MethodInfo method in methods)
+            {
+                yield return method;
+                yield return method;
+            }
         }
     }
 }

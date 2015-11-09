@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace NDbfReader
 {
@@ -392,6 +393,55 @@ namespace NDbfReader
         }
 
         /// <summary>
+        /// Moves the reader to the next row.
+        /// </summary>
+        /// <returns><c>true</c> if there are more rows; otherwise <c>false</c>.</returns>
+        /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
+        public async Task<bool> ReadAsync()
+        {
+            ThrowIfDisposed();
+
+            if (_loadedRowCount >= Header.RowCount)
+            {
+                return _rowLoaded = false;
+            }
+
+            var isRowDeleted = false;
+            do
+            {
+                await Stream.ReadAsync(_buffer.Data, 0, 1).ConfigureAwait(false);
+                byte nextByte = _buffer.Data[0];
+                if (nextByte == END_OF_FILE)
+                {
+                    return _rowLoaded = false;
+                }
+
+                isRowDeleted = (nextByte == DELETED_ROW_FLAG);
+                if (isRowDeleted)
+                {
+                    await SkipStreamBytesAsync(Header.RowSize - 1).ConfigureAwait(false);
+                }
+
+                _loadedRowCount += 1;
+            }
+            while (isRowDeleted);
+
+            foreach (FillBufferInstruction instruction in _buffer.FillBufferInstructions)
+            {
+                if (instruction.ShouldSkip)
+                {
+                    await SkipStreamBytesAsync(instruction.Count).ConfigureAwait(false);
+                }
+                else
+                {
+                    await Stream.ReadAsync(_buffer.Data, instruction.BufferOffset, instruction.Count).ConfigureAwait(false);
+                }
+            }
+
+            return _rowLoaded = true;
+        }
+
+        /// <summary>
         /// Gets a value of the specified column of the current row.
         /// </summary>
         /// <typeparam name="T">The column type.</typeparam>
@@ -537,6 +587,29 @@ namespace NDbfReader
                 while (bytesToRead > 0)
                 {
                     int readBytes = Stream.Read(buffer, 0, bytesToRead > buffer.Length ? buffer.Length : bytesToRead);
+                    if (readBytes == 0)
+                    {
+                        break;
+                    }
+
+                    bytesToRead -= readBytes;
+                }
+            }
+        }
+
+        private async Task SkipStreamBytesAsync(int offset)
+        {
+            if (Stream.CanSeek)
+            {
+                Stream.Seek(offset, SeekOrigin.Current);
+            }
+            else
+            {
+                byte[] buffer = HelperBufferForSeeking;
+                int bytesToRead = offset;
+                while (bytesToRead > 0)
+                {
+                    int readBytes = await Stream.ReadAsync(buffer, 0, bytesToRead > buffer.Length ? buffer.Length : bytesToRead).ConfigureAwait(false);
                     if (readBytes == 0)
                     {
                         break;
