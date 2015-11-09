@@ -78,7 +78,7 @@ namespace NDbfReader.Tests.Infrastructure
 
         private static object[] GetArguments(MethodCallExpression callExpression)
         {
-            return callExpression.Arguments.Cast<MemberExpression>().Select(GetValue).ToArray();
+            return callExpression.Arguments.Select(GetValue).ToArray();
         }
 
         private static MethodInfo GetAsyncMethod(MethodInfo syncMethod)
@@ -94,7 +94,7 @@ namespace NDbfReader.Tests.Infrastructure
             return asyncMethod;
         }
 
-        private static object GetValue(MemberExpression member)
+        private static object GetValue(Expression member)
         {
             var objectMember = Expression.Convert(member, typeof(object));
             var getterLambda = Expression.Lambda<Func<object>>(objectMember);
