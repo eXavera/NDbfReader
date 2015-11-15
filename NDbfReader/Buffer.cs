@@ -7,6 +7,7 @@ namespace NDbfReader
     internal sealed class Buffer
     {
         private readonly IDictionary<Column, int> _bufferMap;
+        private readonly IDictionary<string, Column> _columnsMap;
 
         public Buffer(IEnumerable<FillBufferInstruction> fillBufferInstructions, IDictionary<Column, int> bufferMap)
         {
@@ -21,6 +22,7 @@ namespace NDbfReader
 
             FillBufferInstructions = fillBufferInstructions;
             _bufferMap = bufferMap;
+            _columnsMap = _bufferMap.Keys.ToDictionary(p => p.Name);
 
             int bufferSize = _bufferMap.Keys.Sum(column => column.Size);
             Data = new byte[bufferSize];
@@ -37,7 +39,11 @@ namespace NDbfReader
                 throw new ArgumentNullException(nameof(columnName));
             }
 
-            return _bufferMap.Keys.FirstOrDefault(c => c.Name == columnName);
+            if (_columnsMap.ContainsKey(columnName))
+            {
+                return _columnsMap[columnName];
+            }
+            return null;
         }
 
         public int GetBufferOffsetForColumn(Column column)
