@@ -30,7 +30,7 @@ namespace NDbfReader
         /// <summary>
         /// Loads a value from the specified buffer.
         /// </summary>
-        /// <param name="buffer">The byte array from which a value should be loaded. The buffer length is always at least equal to the column size.</param>
+        /// <param name="buffer">The byte array from which a value should be loaded. The buffer length is always at least equal to the column size.</paramm>
         /// <param name="offset">The byte offset in <paramref name="buffer"/> at which loading begins. </param>
         /// <param name="encoding">The encoding that should be used when loading a value. The encoding is never <c>null</c>.</param>
         /// <returns>A column value.</returns>
@@ -42,7 +42,7 @@ namespace NDbfReader
                 return null;
             }
 
-            char lastChar = stringValue.Last();
+            char lastChar = stringValue[stringValue.Length - 1];
             if (lastChar == ' ' || lastChar == '?')
             {
                 return null;
