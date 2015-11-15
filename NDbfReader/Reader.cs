@@ -377,8 +377,9 @@ namespace NDbfReader
             }
             while (isRowDeleted);
 
-            foreach (FillBufferInstruction instruction in _buffer.FillBufferInstructions)
+            for(int i = 0; i < _buffer.FillBufferInstructions.Count; i++)
             {
+                FillBufferInstruction instruction = _buffer.FillBufferInstructions[i];
                 if (instruction.ShouldSkip)
                 {
                     SkipStreamBytes(instruction.Count);
@@ -426,8 +427,9 @@ namespace NDbfReader
             }
             while (isRowDeleted);
 
-            foreach (FillBufferInstruction instruction in _buffer.FillBufferInstructions)
+            for (int i = 0; i < _buffer.FillBufferInstructions.Count; i++)
             {
+                FillBufferInstruction instruction = _buffer.FillBufferInstructions[i];
                 if (instruction.ShouldSkip)
                 {
                     await SkipStreamBytesAsync(instruction.Count).ConfigureAwait(false);

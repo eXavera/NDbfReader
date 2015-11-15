@@ -9,7 +9,7 @@ namespace NDbfReader
         private readonly IDictionary<Column, int> _bufferMap;
         private readonly IDictionary<string, Column> _columnsMap;
 
-        public Buffer(IEnumerable<FillBufferInstruction> fillBufferInstructions, IDictionary<Column, int> bufferMap)
+        public Buffer(IList<FillBufferInstruction> fillBufferInstructions, IDictionary<Column, int> bufferMap)
         {
             if (fillBufferInstructions == null)
             {
@@ -30,7 +30,7 @@ namespace NDbfReader
 
         public byte[] Data { get; }
 
-        public IEnumerable<FillBufferInstruction> FillBufferInstructions { get; }
+        public IList<FillBufferInstruction> FillBufferInstructions { get; }
 
         public Column FindColumnByName(string columnName)
         {
