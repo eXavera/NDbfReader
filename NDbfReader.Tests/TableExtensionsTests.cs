@@ -18,13 +18,6 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
-        public Task AsDataTable_ColumnNames_OpensReaderWithASCIIEncoding(bool useAsync)
-        {
-            return AsDataTable_OpensReaderWithASCIIEncoding(table => this.Exec(() => table.AsDataTable("LOGICAL"), useAsync));
-        }
-
-        [Theory]
-        [InlineDataWithExecMode]
         public async Task AsDataTable_ColumnNames_ReturnsDataTableOnlyWithTheColumnNames(bool useAsync)
         {
             // Arrange
@@ -85,13 +78,6 @@ namespace NDbfReader.Tests
                 Assert.Equal("columnNames", exception.ParamName);
                 Assert.Equal(invalidColumnName, exception.ActualValue);
             }
-        }
-
-        [Theory]
-        [InlineDataWithExecMode]
-        public Task AsDataTable_NoParameters_OpensReaderWithASCIIEncoding(bool useAsync)
-        {
-            return AsDataTable_OpensReaderWithASCIIEncoding(table => this.Exec(() => table.AsDataTable(), useAsync));
         }
 
         [Theory]
@@ -175,19 +161,6 @@ namespace NDbfReader.Tests
                 // Assert
                 Assert.Equal("columnNames", exception.ParamName);
                 exception.Message.Should().StartWith("No column names specified. Specify at least one column.");
-            }
-        }
-
-        private async Task AsDataTable_OpensReaderWithASCIIEncoding(Func<Table, Task> action)
-        {
-            // Arrange
-            using (var table = GetMockedBasicSampleTable())
-            {
-                // Act
-                await action(table);
-
-                // Assert
-                table.Received().OpenReader(Encoding.ASCII);
             }
         }
 
