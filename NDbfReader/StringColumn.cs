@@ -10,6 +10,10 @@ namespace NDbfReader
     [DebuggerDisplay("String {Name}")]
     public class StringColumn : Column<string>
     {
+        private Encoding _lastEncoding;
+        private byte[] _spacePattern;
+        private byte[] _zeroPattern;
+
         /// <summary>
         /// Initializes a new instance with the specified name and offset.
         /// </summary>
@@ -32,8 +36,49 @@ namespace NDbfReader
         /// <returns>A column value.</returns>
         protected override string DoLoad(byte[] buffer, int offset, Encoding encoding)
         {
-            string value = encoding.GetString(buffer, offset, Size).TrimEnd('\0', ' ');
-            return value.Length == 0 ? null : value;
+            // Why don't just call string.TrimEnd method? Because the method allocates a lot of objects.
+            if (_lastEncoding == null || _lastEncoding != encoding)
+            {
+                _lastEncoding = encoding;
+                _zeroPattern = encoding.GetBytes(new[] { '\0' });
+                _spacePattern = encoding.GetBytes(new[] { ' ' });
+            }
+
+            int size = GetSizeOfTrimString(buffer, offset, offset + Size, _spacePattern, _zeroPattern);
+            if (size == 0)
+            {
+                return null;
+            }
+            return encoding.GetString(buffer, offset, size);
+        }
+
+        private static bool EndsWith(byte[] input, int endIndex, byte[] values)
+        {
+            if (endIndex < values.Length) return false;
+
+            int inputStartIndex = endIndex - values.Length;
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (input[inputStartIndex + i] != values[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static int GetSizeOfTrimString(byte[] buffer, int startIndex, int endIndex, byte[] spacePattern, byte[] zeroPattern)
+        {
+            // both patterns haave the same length
+            int patternLength = spacePattern.Length;
+            for (int i = endIndex; i >= startIndex; i -= patternLength)
+            {
+                if (!EndsWith(buffer, i, spacePattern) && !EndsWith(buffer, i, zeroPattern))
+                {
+                    return i - startIndex;
+                }
+            }
+            return 0;
         }
     }
 }
