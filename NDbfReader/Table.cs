@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -238,29 +236,23 @@ namespace NDbfReader
         /// <summary>
         /// Opens a reader of the table with the default <c>ASCII</c> encoding. Only one reader per table can be opened.
         /// </summary>
-        /// <param name="columnNames">The names of columns which will be loaded by returned reader. If no column specified, than all columns will be loaded.</param>
         /// <returns>A reader of the table.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Some of the column specified in <paramref name="columnNames"/> was not found or does not belong to the table.</exception>
-        /// <exception cref="ArgumentException">Some of the column specified in <paramref name="columnNames"/> was specified multiple times.</exception>
         /// <exception cref="InvalidOperationException">Another reader of the table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The table is disposed.</exception>
-        public Reader OpenReader(params string[] columnNames)
+        public Reader OpenReader()
         {
-            return OpenReader(DefaultEncoding, columnNames);
+            return OpenReader(DefaultEncoding);
         }
 
         /// <summary>
         /// Opens a reader of the table with the specified encoding. Only one reader per table can be opened.
         /// </summary>
         /// <param name="encoding">The encoding that is used to load the rows content.</param>
-        /// <param name="columnNames">The names of columns which will be loaded by returned reader. If no column specified, than all columns will be loaded.</param>
         /// <returns>A reader of the table.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Some of the column specified in <paramref name="columnNames"/> was not found or does not belong to the table.</exception>
-        /// <exception cref="ArgumentException">Some of the column specified in <paramref name="columnNames"/> was specified multiple times.</exception>
         /// <exception cref="InvalidOperationException">Another reader of the table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The table is disposed.</exception>
-        public virtual Reader OpenReader(Encoding encoding, params string[] columnNames)
+        public virtual Reader OpenReader(Encoding encoding)
         {
             if (encoding == null)
             {
@@ -275,95 +267,18 @@ namespace NDbfReader
             }
             _isReaderOpened = true;
 
-            ICollection<IColumn> columnsToLoad = null;
-            if (columnNames.Length == 0)
-            {
-                columnsToLoad = _header.Columns;
-            }
-            else
-            {
-                columnsToLoad = new List<IColumn>(columnNames.Length);
-                for (int i = 0; i < columnNames.Length; i++)
-                {
-                    string columnName = columnNames[i];
-                    IColumn column = _header.Columns.FirstOrDefault(c => c.Name == columnName);
-                    if (column == null)
-                    {
-                        throw new ArgumentOutOfRangeException(nameof(columnNames), $"Column {columnName} was not found.");
-                    }
-                    if (columnsToLoad.Contains(column))
-                    {
-                        throw new ArgumentException($"Duplicit column {columnName}.", nameof(columnNames));
-                    }
-                    if (!_header.Columns.Contains(column))
-                    {
-                        throw new ArgumentOutOfRangeException(nameof(columnNames), $"The column instance {column.Name} doesn't belong to the table.");
-                    }
-                    columnsToLoad.Add(column);
-                }
-            }
-
-            return CreateReader(encoding, columnsToLoad);
-        }
-
-        /// <summary>
-        /// Opens a reader of the table with the default <c>ASCII</c> encoding. Only one reader per table can be opened.
-        /// </summary>
-        /// <param name="columns">The columns which will be loaded by returned reader. If no column specified, than all columns will be loaded.</param>
-        /// <returns>A reader of the table.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Some of the column specified in <paramref name="columns"/> does not belong to the table.</exception>
-        /// <exception cref="ArgumentException">Some of the column specified in <paramref name="columns"/> was specified multiple times.</exception>
-        /// <exception cref="InvalidOperationException">Another reader of the table is opened.</exception>
-        /// <exception cref="ObjectDisposedException">The table is disposed.</exception>
-        public Reader OpenReader(ICollection<IColumn> columns)
-        {
-            return OpenReader(DefaultEncoding, columns);
-        }
-
-        /// <summary>
-        /// Opens a reader of the table with the specified encoding. Only one reader per table can be opened.
-        /// </summary>
-        /// <param name="encoding">The encoding that is passed to the new <see cref="Reader"/> instance.</param>
-        /// <param name="columns">The columns which will be loaded by returned reader. If no column specified, than all columns will be loaded.</param>
-        /// <returns>A reader of the table.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Some of the column specified in <paramref name="columns"/> does not belong to the table.</exception>
-        /// <exception cref="ArgumentException">Some of the column specified in <paramref name="columns"/> was specified multiple times.</exception>
-        /// <exception cref="InvalidOperationException">Another reader of the table is opened.</exception>
-        /// <exception cref="ObjectDisposedException">The table is disposed.</exception>
-        public Reader OpenReader(Encoding encoding, ICollection<IColumn> columns)
-        {
-            if (columns == null)
-            {
-                throw new ArgumentNullException(nameof(columns));
-            }
-            var uniqueColumns = new HashSet<IColumn>();
-            foreach (IColumn column in columns)
-            {
-                if (!_header.Columns.Contains(column))
-                {
-                    throw new ArgumentOutOfRangeException(nameof(columns), $"The column instance {column.Name} doesn't belong to the table.");
-                }
-                if (!uniqueColumns.Add(column))
-                {
-                    throw new ArgumentException($"Duplicit column {column.Name}.", nameof(columns));
-                }
-            }
-
-            return CreateReader(encoding, uniqueColumns);
+            return CreateReader(encoding);
         }
 
         /// <summary>
         /// Creates a <see cref="Reader"/> instance.
         /// </summary>
         /// <param name="encoding">The encoding that is passed to the new <see cref="Reader"/> instance.</param>
-        /// <param name="columnsToLoad">The columns which will be loaded by returned reader.</param>
         /// <returns>A <see cref="Reader"/> instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <c>null</c>.</exception>
-        protected virtual Reader CreateReader(Encoding encoding, ICollection<IColumn> columnsToLoad)
+        protected virtual Reader CreateReader(Encoding encoding)
         {
-            return new Reader(this, encoding, columnsToLoad);
+            return new Reader(this, encoding);
         }
 
         /// <summary>

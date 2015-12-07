@@ -56,12 +56,6 @@
     <Compile Include="..\NDbfReader\BooleanColumn.cs">
       <Link>BooleanColumn.cs</Link>
     </Compile>
-    <Compile Include="..\NDbfReader\Buffer.cs">
-      <Link>Buffer.cs</Link>
-    </Compile>
-    <Compile Include="..\NDbfReader\BufferBuilder.cs">
-      <Link>BufferBuilder.cs</Link>
-    </Compile>
     <Compile Include="..\NDbfReader\Column.cs">
       <Link>Column.cs</Link>
     </Compile>
@@ -70,9 +64,6 @@
     </Compile>
     <Compile Include="..\NDbfReader\DecimalColumn.cs">
       <Link>DecimalColumn.cs</Link>
-    </Compile>
-    <Compile Include="..\NDbfReader\FillBufferInstruction.cs">
-      <Link>FillBufferInstruction.cs</Link>
     </Compile>
     <Compile Include="..\NDbfReader\Header.cs">
       <Link>Header.cs</Link>

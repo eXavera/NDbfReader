@@ -98,7 +98,7 @@ namespace NDbfReader
 
             List<IColumn> selectedColumns = GetSelectedColumns(table, columnNames);
             DataTable dataTable = CreateDataTable(selectedColumns);
-            FillData(selectedColumns, dataTable, table.OpenReader(encoding, selectedColumns));
+            FillData(selectedColumns, dataTable, table.OpenReader(encoding));
             return dataTable;
         }
 
@@ -187,7 +187,7 @@ namespace NDbfReader
 
             List<IColumn> selectedColumns = GetSelectedColumns(table, columnNames);
             DataTable dataTable = CreateDataTable(selectedColumns);
-            await FillDataAsync(selectedColumns, dataTable, table.OpenReader(encoding, selectedColumns)).ConfigureAwait(false);
+            await FillDataAsync(selectedColumns, dataTable, table.OpenReader(encoding)).ConfigureAwait(false);
             return dataTable;
         }
 

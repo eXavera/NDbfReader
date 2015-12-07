@@ -14,21 +14,26 @@ namespace NDbfReader
     {
         private const byte DELETED_ROW_FLAG = (byte)'*';
         private const byte END_OF_FILE = 0x1A;
-        private readonly Buffer _buffer;
+        private const int MAX_BUFFER_SIZE = 4096;
+        private const int MAX_ROWS_IN_BUFFER = 3;
+
+        private readonly byte[] _buffer;
+        private readonly HashSet<Column> _columns;
+        private readonly IDictionary<string, Column> _columnsCache;
+        private readonly int _rowSize;
         private readonly Table _table;
+        private int _bufferOffset;
         private Encoding _encoding;
-        private byte[] _helperBufferForSeeking;
-        private int _loadedRowCount = 0;
+        private int _loadedRowCount;
         private bool _rowLoaded;
 
         /// <summary>
         /// Initializes a new instance from the specified table and encoding.
         /// </summary>
         /// <param name="table">The table from which rows will be loaded.</param>
-        /// <param name="columnsToLoad">The list of columns to load.</param>
         /// <param name="encoding">The encoding of the tables's rows.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="encoding"/> is <c>null</c> or <paramref name="columnsToLoad"/> is <c>null</c>.</exception>
-        public Reader(Table table, Encoding encoding, ICollection<IColumn> columnsToLoad)
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="encoding"/> is <c>null</c>.</exception>
+        public Reader(Table table, Encoding encoding)
         {
             if (table == null)
             {
@@ -38,14 +43,25 @@ namespace NDbfReader
             {
                 throw new ArgumentNullException(nameof(encoding));
             }
-            if (columnsToLoad == null)
-            {
-                throw new ArgumentNullException(nameof(columnsToLoad));
-            }
 
             _table = table;
             _encoding = encoding;
-            _buffer = CreateBuffer(columnsToLoad.Cast<Column>(), Header.RowSize);
+            _rowSize = Header.RowSize;
+            _columns = new HashSet<Column>(table.Columns.Cast<Column>());
+            _columnsCache = table.Columns.Cast<Column>().ToDictionary(c => c.Name, c => c);
+
+            int bufferSize = 0;
+            if (_rowSize >= MAX_BUFFER_SIZE)
+            {
+                bufferSize = _rowSize;
+            }
+            else
+            {
+                int rowsInBuffer = Math.Min(MAX_BUFFER_SIZE / _rowSize, MAX_ROWS_IN_BUFFER);
+                bufferSize = rowsInBuffer * _rowSize;
+            }
+
+            _buffer = new byte[bufferSize];
         }
 
         /// <summary>
@@ -80,18 +96,6 @@ namespace NDbfReader
                 ThrowIfDisposed();
 
                 return _table;
-            }
-        }
-
-        private byte[] HelperBufferForSeeking
-        {
-            get
-            {
-                if (_helperBufferForSeeking == null)
-                {
-                    _helperBufferForSeeking = new byte[Math.Min(Header.RowSize, 4096)];
-                }
-                return _helperBufferForSeeking;
             }
         }
 
@@ -311,7 +315,7 @@ namespace NDbfReader
             ValidateReaderState();
 
             var column = (Column)FindColumnByName(columnName);
-            return column.LoadValueAsObject(_buffer.Data, _buffer.GetBufferOffsetForColumn(column), _encoding);
+            return column.LoadValueAsObject(_buffer, GetColumnOffsetInBuffer(column), _encoding);
         }
 
         /// <summary>
@@ -340,7 +344,7 @@ namespace NDbfReader
             var columnBase = (Column)column;
             CheckColumnExists(columnBase);
 
-            return columnBase.LoadValueAsObject(_buffer.Data, _buffer.GetBufferOffsetForColumn(columnBase), _encoding);
+            return columnBase.LoadValueAsObject(_buffer, GetColumnOffsetInBuffer(columnBase), _encoding);
         }
 
         /// <summary>
@@ -352,43 +356,24 @@ namespace NDbfReader
         {
             ThrowIfDisposed();
 
-            if (_loadedRowCount >= Header.RowCount)
-            {
-                return _rowLoaded = false;
-            }
-
-            var isRowDeleted = false;
             do
             {
-                Stream.Read(_buffer.Data, 0, 1);
-                byte nextByte = _buffer.Data[0];
-                if (nextByte == END_OF_FILE)
+                if (_loadedRowCount >= Header.RowCount)
                 {
                     return _rowLoaded = false;
                 }
 
-                isRowDeleted = (nextByte == DELETED_ROW_FLAG);
-                if (isRowDeleted)
+                int newBufferOffset = _bufferOffset + _rowSize;
+                if (newBufferOffset >= _buffer.Length || _loadedRowCount == 0)
                 {
-                    SkipStreamBytes(Header.RowSize - 1);
+                    Stream.Read(_buffer, 0, _buffer.Length);
+                    newBufferOffset = 0;
                 }
 
+                _bufferOffset = newBufferOffset;
                 _loadedRowCount += 1;
             }
-            while (isRowDeleted);
-
-            for(int i = 0; i < _buffer.FillBufferInstructions.Count; i++)
-            {
-                FillBufferInstruction instruction = _buffer.FillBufferInstructions[i];
-                if (instruction.ShouldSkip)
-                {
-                    SkipStreamBytes(instruction.Count);
-                }
-                else
-                {
-                    Stream.Read(_buffer.Data, instruction.BufferOffset, instruction.Count);
-                }
-            }
+            while (_buffer[_bufferOffset] == DELETED_ROW_FLAG);
 
             return _rowLoaded = true;
         }
@@ -402,43 +387,24 @@ namespace NDbfReader
         {
             ThrowIfDisposed();
 
-            if (_loadedRowCount >= Header.RowCount)
-            {
-                return _rowLoaded = false;
-            }
-
-            var isRowDeleted = false;
             do
             {
-                await Stream.ReadAsync(_buffer.Data, 0, 1).ConfigureAwait(false);
-                byte nextByte = _buffer.Data[0];
-                if (nextByte == END_OF_FILE)
+                if (_loadedRowCount >= Header.RowCount)
                 {
                     return _rowLoaded = false;
                 }
 
-                isRowDeleted = (nextByte == DELETED_ROW_FLAG);
-                if (isRowDeleted)
+                int newBufferOffset = _bufferOffset + _rowSize;
+                if (newBufferOffset >= _buffer.Length || _loadedRowCount == 0)
                 {
-                    await SkipStreamBytesAsync(Header.RowSize - 1).ConfigureAwait(false);
+                    await Stream.ReadAsync(_buffer, 0, _buffer.Length);
+                    newBufferOffset = 0;
                 }
 
+                _bufferOffset = newBufferOffset;
                 _loadedRowCount += 1;
             }
-            while (isRowDeleted);
-
-            for (int i = 0; i < _buffer.FillBufferInstructions.Count; i++)
-            {
-                FillBufferInstruction instruction = _buffer.FillBufferInstructions[i];
-                if (instruction.ShouldSkip)
-                {
-                    await SkipStreamBytesAsync(instruction.Count).ConfigureAwait(false);
-                }
-                else
-                {
-                    await Stream.ReadAsync(_buffer.Data, instruction.BufferOffset, instruction.Count).ConfigureAwait(false);
-                }
-            }
+            while (_buffer[_bufferOffset] == DELETED_ROW_FLAG);
 
             return _rowLoaded = true;
         }
@@ -472,7 +438,7 @@ namespace NDbfReader
             {
                 throw new ArgumentOutOfRangeException(nameof(columnName), "The column's type does not match the method's return type.");
             }
-            return typedColumn.LoadValue(_buffer.Data, _buffer.GetBufferOffsetForColumn(typedColumn), _encoding);
+            return typedColumn.LoadValue(_buffer, GetColumnOffsetInBuffer(typedColumn), _encoding);
         }
 
         /// <summary>
@@ -506,7 +472,7 @@ namespace NDbfReader
             var typedColumn = (Column<T>)column;
             CheckColumnExists(typedColumn);
 
-            return typedColumn.LoadValue(_buffer.Data, _buffer.GetBufferOffsetForColumn(typedColumn), _encoding);
+            return typedColumn.LoadValue(_buffer, GetColumnOffsetInBuffer(typedColumn), _encoding);
         }
 
         /// <summary>
@@ -517,108 +483,25 @@ namespace NDbfReader
             ParentTable.ThrowIfDisposed();
         }
 
-        private static Buffer CreateBuffer(IEnumerable<Column> columnsToLoad, int rowSize)
-        {
-            var builder = new BufferBuilder();
-
-            Column prevColumn = null;
-            IEnumerable<Column> orderedColumns = columnsToLoad.Cast<Column>().OrderBy(c => c.Offset).ToArray();
-            foreach (Column column in orderedColumns)
-            {
-                if (prevColumn == null)
-                {
-                    if (column.Offset > 0)
-                    {
-                        builder.AddHole(0, column.Offset);
-                    }
-                    builder.AddColumn(column);
-                }
-                else
-                {
-                    int prevColumnEndOffset = prevColumn.Offset + prevColumn.Size;
-                    int holeSize = column.Offset - prevColumnEndOffset;
-                    if (holeSize > 0)
-                    {
-                        builder.AddHole(prevColumnEndOffset, holeSize);
-                    }
-                    builder.AddColumn(column);
-                }
-
-                prevColumn = column;
-            }
-
-            Column lastColumn = orderedColumns.Last();
-            int lastColumnEndOffset = lastColumn.Offset + lastColumn.Size;
-            int lastHoleSize = (rowSize - (lastColumnEndOffset + 1));
-            if (lastHoleSize > 0)
-            {
-                builder.AddHole(lastColumnEndOffset, lastHoleSize);
-            }
-
-            return builder.Build();
-        }
-
         private IColumn FindColumnByName(string columnName)
         {
-            IColumn column = _buffer.FindColumnByName(columnName);
-            if (column == null)
+            if (!_columnsCache.ContainsKey(columnName))
             {
                 throw new ArgumentOutOfRangeException(nameof(columnName), $"Column {columnName} not found.");
             }
-            return column;
+            return _columnsCache[columnName];
+        }
+
+        private int GetColumnOffsetInBuffer(Column column)
+        {
+            return _bufferOffset + column.Offset + 1;
         }
 
         private void CheckColumnExists(Column column)
         {
-            if (!_buffer.HasColumn(column))
+            if (!_columns.Contains(column))
             {
                 throw new ArgumentOutOfRangeException(nameof(column), "The column instance not found.");
-            }
-        }
-
-        private void SkipStreamBytes(int offset)
-        {
-            if (Stream.CanSeek)
-            {
-                Stream.Seek(offset, SeekOrigin.Current);
-            }
-            else
-            {
-                byte[] buffer = HelperBufferForSeeking;
-                int bytesToRead = offset;
-                while (bytesToRead > 0)
-                {
-                    int readBytes = Stream.Read(buffer, 0, bytesToRead > buffer.Length ? buffer.Length : bytesToRead);
-                    if (readBytes == 0)
-                    {
-                        break;
-                    }
-
-                    bytesToRead -= readBytes;
-                }
-            }
-        }
-
-        private async Task SkipStreamBytesAsync(int offset)
-        {
-            if (Stream.CanSeek)
-            {
-                Stream.Seek(offset, SeekOrigin.Current);
-            }
-            else
-            {
-                byte[] buffer = HelperBufferForSeeking;
-                int bytesToRead = offset;
-                while (bytesToRead > 0)
-                {
-                    int readBytes = await Stream.ReadAsync(buffer, 0, bytesToRead > buffer.Length ? buffer.Length : bytesToRead).ConfigureAwait(false);
-                    if (readBytes == 0)
-                    {
-                        break;
-                    }
-
-                    bytesToRead -= readBytes;
-                }
             }
         }
 

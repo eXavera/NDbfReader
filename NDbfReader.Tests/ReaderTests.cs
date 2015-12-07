@@ -98,25 +98,6 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [ReaderGetMethods]
-        public void GetMethod_ColumnInstanceUnspecifiedInOpenReader_ThrowsArgumentOutOfRangeException(string getMethodName)
-        {
-            // Arrange
-            using (var table = Samples.OpenBasicTable())
-            {
-                string invalidColumnName = table.Columns[1].Name;
-                var reader = table.OpenReader(new[] { table.Columns.First() });
-                reader.Read();
-
-                // Act & Assert
-                var exception = Assert.Throws<ArgumentOutOfRangeException>(
-                    () => ExecuteGetMethod(reader, getMethodName, parameterType: typeof(string), parameter: invalidColumnName));
-                exception.ParamName.Should().BeEquivalentTo("columnName");
-                exception.Message.Should().StartWithEquivalent($"Column {invalidColumnName} not found.");
-            }
-        }
-
-        [Theory]
         [InlineDataWithExecMode("GetString", "TEXT")]
         [InlineDataWithExecMode("GetValue", "TEXT")]
         [InlineDataWithExecMode("GetDecimal", "NUMERIC")]
@@ -146,13 +127,6 @@ namespace NDbfReader.Tests
 
             //Assert
             actualValues.ShouldAllBeEquivalentTo(expectedValues);
-        }
-
-        [Theory]
-        [ReaderGetMethods]
-        public void GetMethod_ColumnNameUnspecifiedInOpenReader_ThrowsArgumentOutOfRangeException(string getMethodName)
-        {
-            GetMethod_InvalidColumnName_ThrowsArgumentOutOfRangeException("LONG", new[] { "TEXT", "DATE" }, getMethodName);
         }
 
         [Theory]
@@ -205,7 +179,7 @@ namespace NDbfReader.Tests
         [ReaderGetMethods]
         public void GetMethod_NonExistingColumnName_ThrowsArgumentOutOfRangeException(string getMethodName)
         {
-            GetMethod_InvalidColumnName_ThrowsArgumentOutOfRangeException("FOO", new string[] { }, getMethodName);
+            GetMethod_InvalidColumnName_ThrowsArgumentOutOfRangeException("FOO", getMethodName);
         }
 
         [Theory]
@@ -220,32 +194,6 @@ namespace NDbfReader.Tests
         public void GetMethod_NullColumnName_ThrowsArgumentNullExeptionException(string methodName)
         {
             GetMethod_NullParameter_ThrowsArgumentNullExeptionException(methodName, typeof(string), "columnName");
-        }
-
-        [Theory]
-        [InlineDataWithExecMode("TEXT,NUMERIC")] // side by side
-        [InlineDataWithExecMode("NUMERIC,TEXT")] // out of order
-        [InlineDataWithExecMode("TEXT,DATE")] // holes in between
-        [InlineDataWithExecMode("NUMERIC,DATE")] // hole at the beggining
-        [InlineDataWithExecMode("LOGICAL")] // single
-        public Task GetMethod_OpenReadWithExplicitColumnInstances_ReturnsValuesOfGivenColumns(bool useAsync, string columnsToLoad)
-        {
-            return GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns(useAsync, (table, columnNames) =>
-            {
-                List<IColumn> columns = columnNames.Select(name => table.Columns.Single(c => c.Name == name)).ToList();
-                return table.OpenReader(columns);
-            }, columnsToLoad);
-        }
-
-        [Theory]
-        [InlineDataWithExecMode("TEXT,NUMERIC")] // side by side
-        [InlineDataWithExecMode("NUMERIC,TEXT")] // out of order
-        [InlineDataWithExecMode("TEXT,DATE")] // holes in between
-        [InlineDataWithExecMode("NUMERIC,DATE")] // hole at the beggining
-        [InlineDataWithExecMode("LOGICAL")] // single
-        public Task GetMethod_OpenReadWithExplicitColumnNames_ReturnsValuesOfGivenColumns(bool useAsync, string columnsToLoad)
-        {
-            return GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns(useAsync, (table, columnNames) => table.OpenReader(columnNames), columnsToLoad);
         }
 
         [Theory]
@@ -421,25 +369,6 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
-        public async Task Read_TableOnNonSeekableStream_SkipsColumns(bool useAsync)
-        {
-            // Arrange
-            Stream stream = MakeNonSeekanle(Samples.GetBasicTableStream());
-            using (var table = await this.Exec(() => Table.Open(stream), useAsync))
-            {
-                Reader reader = table.OpenReader("TEXT", "LOGICAL");
-
-                // Act
-                await reader.Exec(r => r.Read(), useAsync);
-                object[] result = { reader.GetValue("TEXT"), reader.GetValue("LOGICAL") };
-
-                // Assert
-                result.ShouldAllBeEquivalentTo(new object[] { Samples.BasicTableContent["TEXT"][0], Samples.BasicTableContent["LOGICAL"][0] });
-            }
-        }
-
-        [Theory]
-        [InlineDataWithExecMode]
         public Task Read_TableOnNonSeekableStreamWithDeletedRows_SkipsDeletedRows(bool useAsync)
         {
             return Read_TableWithDeletedRows_SkipsDeletedRows(useAsync, MakeNonSeekanle);
@@ -576,12 +505,12 @@ namespace NDbfReader.Tests
             return streamSpy;
         }
 
-        private void GetMethod_InvalidColumnName_ThrowsArgumentOutOfRangeException(string invalidColumnName, string[] explicitColumnNames, string getMethodName)
+        private void GetMethod_InvalidColumnName_ThrowsArgumentOutOfRangeException(string invalidColumnName, string getMethodName)
         {
             // Arrange
             using (var table = Samples.OpenBasicTable())
             {
-                var reader = table.OpenReader(explicitColumnNames);
+                var reader = table.OpenReader();
                 reader.Read();
 
                 // Act & Assert
@@ -605,22 +534,6 @@ namespace NDbfReader.Tests
                     () => ExecuteGetMethod(reader, methodName, parameterType: paramaterType, parameter: null));
 
                 Assert.Equal(parameterName, exception.ParamName);
-            }
-        }
-
-        private async Task GetMethod_OpenReaderWithExplicitColumns_ReturnsValuesOfGivenColumns(bool useAsync, Func<Table, string[], Reader> readerOpener, string columnNamesToLoad)
-        {
-            string[] columnNames = columnNamesToLoad.Split(',');
-            object[] expectedValues = columnNames.Select(columnName => Samples.BasicTableContent[columnName][0]).ToArray();
-
-            using (Table table = await OpenBasicTable(useAsync))
-            {
-                Reader reader = readerOpener(table, columnNames);
-                await reader.Exec(r => r.Read(), useAsync);
-
-                object[] actualValues = columnNames.Select(reader.GetValue).ToArray();
-
-                actualValues.ShouldBeEquivalentTo(expectedValues);
             }
         }
 
