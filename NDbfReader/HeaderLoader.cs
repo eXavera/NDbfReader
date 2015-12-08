@@ -22,6 +22,8 @@ namespace NDbfReader
         private const int HEADER_SIZE = 32;
         private const int MONTH_OFFSET = 2;
         private const int ROW_COUNT_OFFSET = 4;
+        private const int DATA_START_OFFSET_L = 8;
+        private const int DATA_START_OFFSET_H = 9;
         private const int ROW_SIZE_OFFSET = 10;
         private const int YEAR_OFFSET = 1;
         private static readonly HeaderLoader _default = new HeaderLoader();
@@ -50,7 +52,12 @@ namespace NDbfReader
 
             BasicProperties properties = ParseBasicProperties(buffer);
 
-            return LoadColumns(stream, properties, buffer.Last());
+            var retVal = LoadColumns(stream, properties, buffer.Last());
+
+            var dataOffset = (buffer[DATA_START_OFFSET_H] << 8) | buffer[DATA_START_OFFSET_L];
+            stream.Seek(dataOffset, SeekOrigin.Begin);
+
+            return retVal;
         }
 
         /// <summary>
