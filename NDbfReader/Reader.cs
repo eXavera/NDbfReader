@@ -441,6 +441,22 @@ namespace NDbfReader
             return typedColumn.LoadValue(_buffer, GetColumnOffsetInBuffer(typedColumn), _encoding);
         }
 
+        public byte[] GetBytes(string columnName)
+        {
+            if (columnName == null)
+            {
+                throw new ArgumentNullException(nameof(columnName));
+            }
+            ValidateReaderState();
+
+            var typedColumn = FindColumnByName(columnName) as Column;
+            if (typedColumn == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(columnName), "The column does not exists.");
+            }
+            return typedColumn.LoadBytes(_buffer, GetColumnOffsetInBuffer(typedColumn));
+        }
+
         /// <summary>
         /// Gets a value of the specified column of the current row.
         /// </summary>
@@ -473,6 +489,20 @@ namespace NDbfReader
             CheckColumnExists(typedColumn);
 
             return typedColumn.LoadValue(_buffer, GetColumnOffsetInBuffer(typedColumn), _encoding);
+        }
+
+        public byte[] GetBytes(IColumn column)
+        {
+            if (column == null)
+            {
+                throw new ArgumentNullException(nameof(column));
+            }
+            ValidateReaderState();
+
+            var typedColumn = (Column)column;
+            CheckColumnExists(typedColumn);
+
+            return typedColumn.LoadBytes(_buffer, GetColumnOffsetInBuffer(typedColumn));
         }
 
         /// <summary>
