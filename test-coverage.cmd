@@ -14,7 +14,7 @@ MKDIR ".\opencover"
  -output:.\opencover\output.xml
 
  MKDIR ".\opencover\report" /s /q
-.\packages\ReportGenerator.2.3.4.0\tools\ReportGenerator.exe^
+.\packages\ReportGenerator.2.3.5.0\tools\ReportGenerator.exe^
  -reports:.\opencover\output.xml^
  -targetdir:.\opencover\report^
  -reporttypes:Html
