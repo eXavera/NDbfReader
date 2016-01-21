@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 
 namespace NDbfReader
@@ -36,7 +37,7 @@ namespace NDbfReader
             {
                 return null;
             }
-            return DateTime.ParseExact(stringValue, "yyyyMMdd", null);
+            return DateTime.ParseExact(stringValue, "yyyyMMdd", null, DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite);
         }
     }
 }
