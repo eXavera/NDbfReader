@@ -10,6 +10,7 @@ namespace NDbfReader.Tests
         public const string DELETED_ROWS = "DeletedRows.dbf";
         public const string UNSUPPORTED_TYPES = "UnsupportedTypes.dbf";
         public const string ZERO_SIZE_COLUMN = "ZeroSizeColumn.dbf";
+        public const string WHITE_SPACES = "WhiteSpaces.dbf";
 
         public static Stream GetStream(string fileName)
         {

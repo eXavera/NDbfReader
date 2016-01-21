@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 
 namespace NDbfReader
@@ -42,12 +41,12 @@ namespace NDbfReader
                 return null;
             }
 
-            char lastChar = stringValue[stringValue.Length - 1];
-            if (lastChar == ' ' || lastChar == '?')
+            decimal value;
+            if (decimal.TryParse(stringValue, NumberStyles.Float | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, DecimalNumberFormat, out value))
             {
-                return null;
+                return value;
             }
-            return decimal.Parse(stringValue, NumberStyles.Float | NumberStyles.AllowLeadingWhite, DecimalNumberFormat);
+            return null;
         }
     }
 }

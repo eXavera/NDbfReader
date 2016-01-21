@@ -20,6 +20,20 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
+        public async Task GetDecimal_ValueWithWhitespace_ReturnsValue(bool useAsync)
+        {
+            using (var table = await this.Exec(() => Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.WHITE_SPACES)), useAsync))
+            {
+                var reader = table.OpenReader(Encoding.GetEncoding(1250));
+                await reader.Exec(r => r.Read(), useAsync);
+
+                decimal? actualValue = reader.GetDecimal("OBJ_SEQ");
+                actualValue.ShouldBeEquivalentTo(11085340);
+            }
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
         public Task GetDecimal_ZeroSizeColumnInstance_ReturnsNull(bool useAsync)
         {
             return GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetDecimal(GetZeroSizeColumn(reader.Table)), useAsync);
