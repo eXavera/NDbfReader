@@ -64,6 +64,27 @@ namespace NDbfReader
         /// <param name="encoding">The encoding that should be used when loading a value.</param>
         /// <returns>A column value.</returns>
         public abstract object LoadValueAsObject(byte[] buffer, int offset, Encoding encoding);
+
+        public byte[] LoadBytes(byte[] buffer, int offset)
+        {
+            if (buffer == null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+            if (offset < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            }
+
+            return DoLoadBytes(buffer, offset);
+        }
+
+        protected byte[] DoLoadBytes(byte[] buffer, int offset)
+        {
+            var retVal = new byte[Size];
+            Array.Copy(buffer, offset, retVal, 0, Size);
+            return retVal;
+        }
     }
 
     /// <summary>
