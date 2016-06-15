@@ -95,6 +95,9 @@
     <Compile Include="..\NDbfReader\TableExtensions.cs">
       <Link>TableExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\NDbfReader\UnsupportedColumn.cs">
+      <Link>UnsupportedColumn.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

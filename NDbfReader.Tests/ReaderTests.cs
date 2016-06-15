@@ -328,6 +328,24 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
+        public async Task GetValue_UnsupportedColumn_ReturnsBytes(bool useAsync)
+        {
+            using (var table = await this.Exec(() => Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.UNSUPPORTED_TYPES)), useAsync))
+            {
+                Reader reader = table.OpenReader();
+                for (int i = 0; i < 3; i++)
+                {
+                    await reader.Exec(r => r.Read(), useAsync);
+                }
+
+                var actualBytes = reader.GetValue("UNITPRICE") as byte[];
+                var expectedBytes = new byte[] { 32, 1, 0, 0, 0, 67, 104, 97 };
+                actualBytes.ShouldAllBeEquivalentTo(expectedBytes);
+            }
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
         public Task GetValue_ZeroSizeColumnInstance_ReturnsNull(bool useAsync)
         {
             return GetMethod_ZeroSizeColumn_ReturnsNull(reader => reader.GetValue(GetZeroSizeColumn(reader.Table)), useAsync);

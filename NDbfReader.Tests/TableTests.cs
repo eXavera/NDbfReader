@@ -117,18 +117,6 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
-        public async Task Open_TableWithUnsupportedColumn_ThrowsNotSupportedException(bool useAsync)
-        {
-            Stream stream = EmbeddedSamples.GetStream(EmbeddedSamples.UNSUPPORTED_TYPES);
-
-            var exception = await Assert.ThrowsAsync<NotSupportedException>(
-                () => this.Exec(() => Table.Open(stream), useAsync));
-
-            Assert.Equal("The TIMESTAMP column's type 0x54 is not supported.", exception.Message);
-        }
-
-        [Theory]
-        [InlineDataWithExecMode]
         public async Task Open_UnreadableStream_ThrowsArgumentException(bool useAsync)
         {
             var unreadableStream = Substitute.For<Stream>();
@@ -138,6 +126,20 @@ namespace NDbfReader.Tests
 
             exception.ParamName.Should().BeEquivalentTo("stream");
             exception.Message.Should().StartWithEquivalent($"The stream does not allow reading ({nameof(unreadableStream.CanRead)} property returns false).");
+        }
+
+
+        [Theory]
+        [InlineDataWithExecMode]
+        public async Task Open_UnsupportedColumnType_CreatesUnsupportedColumnInstance(bool useAsync)
+        {
+            using (var table = await this.Exec(() => Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.UNSUPPORTED_TYPES)), useAsync))
+            {
+                var actualUnsupportedColumns = table.Columns.OfType<UnsupportedColumn>().Select(c => new { c.Name, c.NativeType });
+
+                var expectedColumns = new[] { new { Name = "UNITPRICE", NativeType = 89 }, new { Name = "_NullFlags", NativeType = 48 } };
+                actualUnsupportedColumns.ShouldAllBeEquivalentTo(expectedColumns);
+            }
         }
 
         [Fact]

@@ -85,7 +85,6 @@ namespace NDbfReader
         /// <returns>A column instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> or <paramref name="columnOffset"/> is &lt; 0.</exception>
-        /// <exception cref="NotSupportedException">value of <paramref name="type"/> parameter is not supported.</exception>
         protected virtual Column CreateColumn(byte size, byte type, string name, int columnOffset)
         {
             if (size < 0)
@@ -120,7 +119,7 @@ namespace NDbfReader
                     return new DecimalColumn(name, columnOffset, size);
 
                 default:
-                    throw new NotSupportedException($"The {name} column's type 0x{type:X} is not supported.");
+                    return new UnsupportedColumn(name, columnOffset, size, type);
             }
         }
 
