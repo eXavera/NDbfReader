@@ -339,7 +339,7 @@ namespace NDbfReader.Tests
                 }
 
                 var actualBytes = reader.GetValue("UNITPRICE") as byte[];
-                var expectedBytes = new byte[] { 32, 1, 0, 0, 0, 67, 104, 97 };
+                var expectedBytes = new byte[] { 160, 134, 1, 0, 0, 0, 0, 0 };
                 actualBytes.ShouldAllBeEquivalentTo(expectedBytes);
             }
         }
@@ -381,11 +381,11 @@ namespace NDbfReader.Tests
         public async Task Read_TableBasedOnNonSeekableStream_ReadsAllRowsAsUsual(bool useAsync)
         {
             // Arrange
-            var streamSpy = MakeNonSeekanle((EmbeddedSamples.GetStream(EmbeddedSamples.BASIC)));
+            var stream = EmbeddedSamples.GetStream(EmbeddedSamples.BASIC).ToNonSeekable();
 
             // Act
             int rowsCount = 0;
-            using (var table = await this.Exec(() => Table.Open(streamSpy), useAsync))
+            using (var table = await this.Exec(() => Table.Open(stream), useAsync))
             {
                 var reader = table.OpenReader();
 
@@ -403,7 +403,7 @@ namespace NDbfReader.Tests
         [InlineDataWithExecMode]
         public Task Read_TableOnNonSeekableStreamWithDeletedRows_SkipsDeletedRows(bool useAsync)
         {
-            return Read_TableWithDeletedRows_SkipsDeletedRows(useAsync, MakeNonSeekanle);
+            return Read_TableWithDeletedRows_SkipsDeletedRows(useAsync, StreamExtensions.ToNonSeekable);
         }
 
         [Theory]
@@ -524,17 +524,6 @@ namespace NDbfReader.Tests
         private static IColumn GetZeroSizeColumn(Table table)
         {
             return table.Columns.Single(c => c.Name == ZERO_SIZE_COLUMN_NAME);
-        }
-
-        private static Stream MakeNonSeekanle(Stream stream)
-        {
-            var streamSpy = Spy.OnStream(stream);
-            streamSpy.CanSeek.Returns(false);
-            streamSpy.Seek(Arg.Any<long>(), Arg.Any<SeekOrigin>()).Returns(x => { throw new NotSupportedException(); });
-            streamSpy.Position.Returns(x => { throw new NotSupportedException(); });
-            streamSpy.When(s => s.Position = Arg.Any<long>()).Do(x => { throw new NotSupportedException(); });
-
-            return streamSpy;
         }
 
         private void GetMethod_InvalidColumnName_ThrowsArgumentOutOfRangeException(string invalidColumnName, string getMethodName)

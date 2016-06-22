@@ -20,6 +20,7 @@ namespace NDbfReader
         private const int DAY_OFFSET = 3;
         private const byte FILE_DESCRIPTOR_TERMINATOR = 0x0D;
         private const int HEADER_SIZE = 32;
+        private const int HEADER_SIZE_OFFSET = 8;
         private const int MONTH_OFFSET = 2;
         private const int ROW_COUNT_OFFSET = 4;
         private const int ROW_SIZE_OFFSET = 10;
@@ -46,11 +47,31 @@ namespace NDbfReader
 
             // optimization: be one byte ahead when loading columns => so we have only one I/O read per column
             var buffer = new byte[HEADER_SIZE + 1];
-            stream.Read(buffer, 0, buffer.Length);
+            int totalReadBytes = stream.Read(buffer, 0, buffer.Length);
 
-            BasicProperties properties = ParseBasicProperties(buffer);
+            BasicProperties headerProperties = ParseBasicProperties(buffer);
 
-            return LoadColumns(stream, properties, buffer.Last());
+            LoadColumnsResult loadColumnsResult = LoadColumns(stream, buffer.Last());
+            totalReadBytes += loadColumnsResult.ReadBytes;
+
+            int bytesToSkip = headerProperties.HeaderSize - totalReadBytes;
+            if (bytesToSkip > 0)
+            {
+                // move to the end of the header
+                if (stream.CanSeek)
+                {
+                    stream.Seek(bytesToSkip, SeekOrigin.Current);
+                }
+                else
+                {
+                    while (bytesToSkip > 0)
+                    {
+                        bytesToSkip -= stream.Read(buffer, 0, Math.Min(buffer.Length, bytesToSkip));
+                    }
+                }
+            }
+
+            return CreateHeader(headerProperties, loadColumnsResult.Columns);
         }
 
         /// <summary>
@@ -68,11 +89,39 @@ namespace NDbfReader
 
             // optimization: be one byte ahead when loading columns => so we have only one I/O read per column
             var buffer = new byte[HEADER_SIZE + 1];
-            await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+            int totalReadBytes = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
 
-            BasicProperties properties = ParseBasicProperties(buffer);
+            BasicProperties headerProperties = ParseBasicProperties(buffer);
 
-            return await LoadColumnsAsync(stream, properties, buffer.Last()).ConfigureAwait(false);
+            LoadColumnsResult loadColumnsResult = await LoadColumnsAsync(stream, buffer.Last()).ConfigureAwait(false);
+            totalReadBytes += loadColumnsResult.ReadBytes;
+
+            int bytesToSkip = headerProperties.HeaderSize - totalReadBytes;
+            if (bytesToSkip > 0)
+            {
+                // move to the end of the header
+                if (stream.CanSeek)
+                {
+                    stream.Seek(bytesToSkip, SeekOrigin.Current);
+                }
+                else
+                {
+                    const int MAX_SKIP_BUFFER_SIZE = 512;
+
+                    byte[] skipBuffer = buffer;
+                    if (bytesToSkip > buffer.Length)
+                    {
+                        skipBuffer = new byte[Math.Min(bytesToSkip, MAX_SKIP_BUFFER_SIZE)];
+                    }
+
+                    while (bytesToSkip > 0)
+                    {
+                        bytesToSkip -= await stream.ReadAsync(skipBuffer, 0, Math.Min(skipBuffer.Length, bytesToSkip)).ConfigureAwait(false);
+                    }
+                }
+            }
+
+            return CreateHeader(headerProperties, loadColumnsResult.Columns);
         }
 
         /// <summary>
@@ -144,8 +193,9 @@ namespace NDbfReader
             DateTime lastModified = ParseLastModifiedDate(buffer);
             int rowCount = BitConverter.ToInt32(buffer, ROW_COUNT_OFFSET);
             short rowSize = BitConverter.ToInt16(buffer, ROW_SIZE_OFFSET);
+            short headerSize = BitConverter.ToInt16(buffer, HEADER_SIZE_OFFSET);
 
-            return new BasicProperties(lastModified, rowCount, rowSize);
+            return new BasicProperties(lastModified, rowCount, rowSize, headerSize);
         }
 
         private static DateTime ParseLastModifiedDate(byte[] buffer)
@@ -157,35 +207,20 @@ namespace NDbfReader
             return new DateTime((year > DateTime.Now.Year % 1000 ? 1900 : 2000) + year, month, day);
         }
 
-        private Header LoadColumns(Stream stream, BasicProperties properties, byte firstColumnByte)
+        private static void SkipBytesWithBuffer(Stream stream, byte[] buffer, int bytesToSkip)
         {
-            var columns = new List<IColumn>();
-            int columnOffset = 0;
-
-            // optimization: be one byte ahead when loading columns => so we have only one I/O read per column
-            var columnBytes = new byte[COLUMN_DESCRIPTOR_SIZE + 1];
-            columnBytes[0] = firstColumnByte;
-
-            while (columnBytes[0] != FILE_DESCRIPTOR_TERMINATOR)
+            int toRead = bytesToSkip;
+            while (toRead > 0)
             {
-                // read first byte of next column
-                stream.Read(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE);
-
-                Column newColumn = ParseColumn(columnBytes, columnOffset);
-                columns.Add(newColumn);
-                columnOffset += newColumn.Size;
-
-                // move the first byte of next column where it should be
-                columnBytes[0] = columnBytes.Last();
+                toRead -= stream.Read(buffer, 0, Math.Min(buffer.Length, toRead));
             }
-
-            return CreateHeader(properties, columns);
         }
 
-        private async Task<Header> LoadColumnsAsync(Stream stream, BasicProperties properties, byte firstColumnByte)
+        private LoadColumnsResult LoadColumns(Stream stream, byte firstColumnByte)
         {
             var columns = new List<IColumn>();
             int columnOffset = 0;
+            int readBytes = 0;
 
             // optimization: be one byte ahead when loading columns => so we have only one I/O read per column
             var columnBytes = new byte[COLUMN_DESCRIPTOR_SIZE + 1];
@@ -194,7 +229,7 @@ namespace NDbfReader
             while (columnBytes[0] != FILE_DESCRIPTOR_TERMINATOR)
             {
                 // read first byte of next column
-                await stream.ReadAsync(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE).ConfigureAwait(false);
+                readBytes += stream.Read(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE);
 
                 Column newColumn = ParseColumn(columnBytes, columnOffset);
                 columns.Add(newColumn);
@@ -204,7 +239,33 @@ namespace NDbfReader
                 columnBytes[0] = columnBytes.Last();
             }
 
-            return CreateHeader(properties, columns);
+            return new LoadColumnsResult(columns, readBytes);
+        }
+
+        private async Task<LoadColumnsResult> LoadColumnsAsync(Stream stream, byte firstColumnByte)
+        {
+            var columns = new List<IColumn>();
+            int columnOffset = 0;
+            int readBytes = 0;
+
+            // optimization: be one byte ahead when loading columns => so we have only one I/O read per column
+            var columnBytes = new byte[COLUMN_DESCRIPTOR_SIZE + 1];
+            columnBytes[0] = firstColumnByte;
+
+            while (columnBytes[0] != FILE_DESCRIPTOR_TERMINATOR)
+            {
+                // read first byte of next column
+                readBytes += await stream.ReadAsync(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE).ConfigureAwait(false);
+
+                Column newColumn = ParseColumn(columnBytes, columnOffset);
+                columns.Add(newColumn);
+                columnOffset += newColumn.Size;
+
+                // move the first byte of next column where it should be
+                columnBytes[0] = columnBytes.Last();
+            }
+
+            return new LoadColumnsResult(columns, readBytes);
         }
 
         private Column ParseColumn(byte[] buffer, int columnOffset)
@@ -227,12 +288,19 @@ namespace NDbfReader
             /// <param name="lastModified">The date a table was last modified.</param>
             /// <param name="rowCount">The number of rows in a table.</param>
             /// <param name="rowSize">The size of a row in bytes.</param>
-            public BasicProperties(DateTime lastModified, int rowCount, short rowSize)
+            /// <param name="headerSize">The total size of the header.</param>
+            public BasicProperties(DateTime lastModified, int rowCount, short rowSize, short headerSize)
             {
                 LastModified = lastModified;
                 RowCount = rowCount;
                 RowSize = rowSize;
+                HeaderSize = headerSize;
             }
+
+            /// <summary>
+            /// Gets the total size of the header.
+            /// </summary>
+            public short HeaderSize { get; }
 
             /// <summary>
             /// Gets a date the table was last modified.
@@ -248,6 +316,19 @@ namespace NDbfReader
             /// Gets the size of a row in bytes.
             /// </summary>
             public short RowSize { get; }
+        }
+
+        private sealed class LoadColumnsResult
+        {
+            public LoadColumnsResult(IList<IColumn> columns, int readBytes)
+            {
+                Columns = columns;
+                ReadBytes = readBytes;
+            }
+
+            public IList<IColumn> Columns { get; }
+
+            public int ReadBytes { get; }
         }
     }
 }

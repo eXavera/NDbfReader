@@ -115,6 +115,30 @@ namespace NDbfReader.Tests
             Assert.Equal("stream", exception.ParamName);
         }
 
+
+        [Theory]
+        [InlineDataWithExecMode(true)]
+        [InlineDataWithExecMode(false)]
+        public async Task Open_TableWithExtraHeaderFields_ReturnsCorrectValues(bool useAsync, bool seekableStream)
+        {
+            Stream tableStream = EmbeddedSamples.GetStream(EmbeddedSamples.UNSUPPORTED_TYPES);
+            if (seekableStream)
+            {
+                tableStream = tableStream.ToNonSeekable();
+            }
+
+            using (var table = await this.Exec(() => Table.Open(tableStream), useAsync))
+            {
+                var reader = table.OpenReader();
+                await reader.Exec(r => r.Read(), useAsync);
+
+                var expectedValues = new object[] { 1, "Chai", 1, 1, "10 boxes x 20 bags" };
+                var actualValues = new object[] { reader.GetValue("PRODUCTID"), reader.GetValue("PRODUCTNAM"), reader.GetValue("SUPPLIERID"), reader.GetValue("CATEGORYID"), reader.GetValue("QUANTITYPE") };
+
+                actualValues.ShouldAllBeEquivalentTo(expectedValues);
+            }
+        }
+
         [Theory]
         [InlineDataWithExecMode]
         public async Task Open_UnreadableStream_ThrowsArgumentException(bool useAsync)
@@ -127,7 +151,6 @@ namespace NDbfReader.Tests
             exception.ParamName.Should().BeEquivalentTo("stream");
             exception.Message.Should().StartWithEquivalent($"The stream does not allow reading ({nameof(unreadableStream.CanRead)} property returns false).");
         }
-
 
         [Theory]
         [InlineDataWithExecMode]
