@@ -76,7 +76,7 @@ namespace NDbfReader.Tests
             }
 
             //Assert
-            actualValues.ShouldAllBeEquivalentTo(expectedValues);
+            actualValues.ShouldAllBeEquivalentTo(expectedValues, opt => opt.WithStrictOrdering());
         }
 
         [Theory]
@@ -140,7 +140,7 @@ namespace NDbfReader.Tests
             }
 
             //Assert
-            actualValues.ShouldAllBeEquivalentTo(expectedValues);
+            actualValues.ShouldAllBeEquivalentTo(expectedValues, opt => opt.WithStrictOrdering());
         }
 
         [Theory]
@@ -322,7 +322,7 @@ namespace NDbfReader.Tests
                 }
 
                 // Assert
-                actualItems.ShouldAllBeEquivalentTo(expectedItems);
+                actualItems.ShouldAllBeEquivalentTo(expectedItems, opt => opt.WithStrictOrdering());
             }
         }
 
@@ -340,7 +340,7 @@ namespace NDbfReader.Tests
 
                 var actualBytes = reader.GetValue("UNITPRICE") as byte[];
                 var expectedBytes = new byte[] { 160, 134, 1, 0, 0, 0, 0, 0 };
-                actualBytes.ShouldAllBeEquivalentTo(expectedBytes);
+                actualBytes.ShouldAllBeEquivalentTo(expectedBytes, opt => opt.WithStrictOrdering());
             }
         }
 
@@ -372,7 +372,7 @@ namespace NDbfReader.Tests
 
                 object[] secondRowContent = table.Columns.Select(reader.GetValue).ToArray();
 
-                secondRowContent.ShouldAllBeEquivalentTo(expectedSecondRowContent);
+                secondRowContent.ShouldAllBeEquivalentTo(expectedSecondRowContent, opt => opt.WithStrictOrdering());
             }
         }
 
@@ -591,7 +591,7 @@ namespace NDbfReader.Tests
                 var actualValues = new[] { getter(reader), reader.GetString("CSU_KRAJ") };
 
                 // Assert
-                actualValues.ShouldAllBeEquivalentTo(expectedValues);
+                actualValues.ShouldAllBeEquivalentTo(expectedValues, opt => opt.WithStrictOrdering());
             }
         }
 
@@ -629,7 +629,7 @@ namespace NDbfReader.Tests
                 }
 
                 // Assert
-                actualItems.ShouldAllBeEquivalentTo(expectedItems);
+                actualItems.ShouldAllBeEquivalentTo(expectedItems, opt => opt.WithStrictOrdering());
             }
         }
     }

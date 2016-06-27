@@ -17,7 +17,7 @@ namespace NDbfReader.Tests.Infrastructure
             {
                 new object[] { false, 1, 2},
                 new object[] { true, 1, 2}
-            });
+            }, opt => opt.WithStrictOrdering());
         }
     }
 }

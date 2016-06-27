@@ -23,7 +23,7 @@ namespace NDbfReader.Tests
         [InlineDataWithExecMode]
         public Task Columns_ReturnsColumnsNames(bool useAsync)
         {
-            return Columns_LoadedFile_ReturnsColumnsProperties(useAsync, column => column.Name, "TEXT", "NUMERIC", "DATE", "LONG", "LOGICAL");
+            return Columns_LoadedFile_ReturnsColumnsProperties(useAsync, column => column.Name, "TEXT", "DATE", "NUMERIC", "LOGICAL", "LONG");
         }
 
         [Theory]
@@ -37,7 +37,7 @@ namespace NDbfReader.Tests
         [InlineDataWithExecMode]
         public Task Columns_ReturnsColumnsTypes(bool useAsync)
         {
-            return Columns_LoadedFile_ReturnsColumnsProperties(useAsync, column => column.Type, typeof(string), typeof(decimal?), typeof(DateTime?), typeof(int), typeof(bool?));
+            return Columns_LoadedFile_ReturnsColumnsProperties(useAsync, column => column.Type, typeof(string), typeof(DateTime?), typeof(decimal?), typeof(bool?), typeof(int));
         }
 
         [Theory]
@@ -141,7 +141,7 @@ namespace NDbfReader.Tests
                 var expectedValues = new object[] { 1, "Chai", 1, 1, "10 boxes x 20 bags" };
                 var actualValues = new object[] { reader.GetValue("PRODUCTID"), reader.GetValue("PRODUCTNAM"), reader.GetValue("SUPPLIERID"), reader.GetValue("CATEGORYID"), reader.GetValue("QUANTITYPE") };
 
-                actualValues.ShouldAllBeEquivalentTo(expectedValues);
+                actualValues.ShouldAllBeEquivalentTo(expectedValues, opt => opt.WithStrictOrdering());
             }
         }
 
@@ -167,7 +167,7 @@ namespace NDbfReader.Tests
                 var actualUnsupportedColumns = table.Columns.OfType<UnsupportedColumn>().Select(c => new { c.Name, c.NativeType });
 
                 var expectedColumns = new[] { new { Name = "UNITPRICE", NativeType = 89 }, new { Name = "_NullFlags", NativeType = 48 } };
-                actualUnsupportedColumns.ShouldAllBeEquivalentTo(expectedColumns);
+                actualUnsupportedColumns.ShouldAllBeEquivalentTo(expectedColumns, opt => opt.WithStrictOrdering());
             }
         }
 
@@ -230,7 +230,7 @@ namespace NDbfReader.Tests
             }
 
             // Assert
-            actualColumns.Select(propertySelector).ShouldAllBeEquivalentTo(expectedValues);
+            actualColumns.Select(propertySelector).ShouldAllBeEquivalentTo(expectedValues, opt => opt.WithStrictOrdering());
         }
 
         private Task<Table> OpenBasicTable(bool useAsync)

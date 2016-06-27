@@ -29,7 +29,7 @@ namespace NDbfReader.Tests
                     .Cast<DataColumn>().Select(c => c.ColumnName);
 
                 // Assert
-                actualColumns.ShouldAllBeEquivalentTo(new[] { "DATE", "LOGICAL" });
+                actualColumns.ShouldAllBeEquivalentTo(new[] { "DATE", "LOGICAL" }, opt => opt.WithStrictOrdering());
             }
         }
 
@@ -109,7 +109,7 @@ namespace NDbfReader.Tests
 
                 // Assert
                 var actualDataTableColumns = dataTable.Columns.Cast<DataColumn>().Select(column => new { Name = column.ColumnName, Type = column.DataType });
-                actualDataTableColumns.ShouldAllBeEquivalentTo(expectedDataTableColumns);
+                actualDataTableColumns.ShouldAllBeEquivalentTo(expectedDataTableColumns, opt => opt.WithStrictOrdering());
             }
         }
 
@@ -131,7 +131,7 @@ namespace NDbfReader.Tests
 
                 // Assert
                 var actualValues = dataTable.AsEnumerable().Select(row => row[columnName]);
-                actualValues.ShouldAllBeEquivalentTo(expectedValues);
+                actualValues.ShouldAllBeEquivalentTo(expectedValues, opt => opt.WithStrictOrdering());
             }
         }
 
