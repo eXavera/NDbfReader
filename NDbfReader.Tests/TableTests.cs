@@ -28,6 +28,13 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
+        public Task Columns_ReturnsColumnsSizes(bool useAsync)
+        {
+            return Columns_LoadedFile_ReturnsColumnsProperties(useAsync, column => column.Size, 100, 8, 18, 1, 4);
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
         public Task Columns_ReturnsColumnsTypes(bool useAsync)
         {
             return Columns_LoadedFile_ReturnsColumnsProperties(useAsync, column => column.Type, typeof(string), typeof(decimal?), typeof(DateTime?), typeof(int), typeof(bool?));
@@ -114,7 +121,6 @@ namespace NDbfReader.Tests
 
             Assert.Equal("stream", exception.ParamName);
         }
-
 
         [Theory]
         [InlineDataWithExecMode(true)]
