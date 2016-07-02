@@ -160,11 +160,11 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
-        public async Task Open_UnsupportedColumnType_CreatesUnsupportedColumnInstance(bool useAsync)
+        public async Task Open_UnsupportedColumnType_CreatesRawColumnInstance(bool useAsync)
         {
             using (var table = await this.Exec(() => Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.UNSUPPORTED_TYPES)), useAsync))
             {
-                var actualUnsupportedColumns = table.Columns.OfType<UnsupportedColumn>().Select(c => new { c.Name, c.NativeType });
+                var actualUnsupportedColumns = table.Columns.OfType<RawColumn>().Select(c => new { c.Name, c.NativeType });
 
                 var expectedColumns = new[] { new { Name = "UNITPRICE", NativeType = 89 }, new { Name = "_NullFlags", NativeType = 48 } };
                 actualUnsupportedColumns.ShouldAllBeEquivalentTo(expectedColumns, opt => opt.WithStrictOrdering());

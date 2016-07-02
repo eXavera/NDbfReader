@@ -83,6 +83,9 @@
     <Compile Include="..\NDbfReader\NativeColumnType.cs">
       <Link>NativeColumnType.cs</Link>
     </Compile>
+    <Compile Include="..\NDbfReader\RawColumn.cs">
+      <Link>RawColumn.cs</Link>
+    </Compile>
     <Compile Include="..\NDbfReader\Reader.cs">
       <Link>Reader.cs</Link>
     </Compile>
@@ -94,9 +97,6 @@
     </Compile>
     <Compile Include="..\NDbfReader\TableExtensions.cs">
       <Link>TableExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\NDbfReader\UnsupportedColumn.cs">
-      <Link>UnsupportedColumn.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

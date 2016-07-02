@@ -5,10 +5,10 @@ using System.Text;
 namespace NDbfReader
 {
     /// <summary>
-    /// Represents an unsupported column. 
+    /// Represents a raw column. 
     /// </summary>
-    [DebuggerDisplay("Unsupported {NativeTypeHex} {Name}")]
-    public sealed class UnsupportedColumn : Column<byte[]>
+    [DebuggerDisplay("Raw {NativeTypeHex} {Name}")]
+    public sealed class RawColumn : Column<byte[]>
     {
         /// <summary>
         /// Initializes a new instance with the specified name and offset.
@@ -19,7 +19,7 @@ namespace NDbfReader
         /// <param name="nativeType">The column's native type code.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0.</exception>
-        public UnsupportedColumn(string name, int offset, int size, byte nativeType) : base(name, offset, size)
+        public RawColumn(string name, int offset, int size, byte nativeType) : base(name, offset, size)
         {
             NativeType = nativeType;
         }

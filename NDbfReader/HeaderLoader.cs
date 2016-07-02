@@ -168,7 +168,7 @@ namespace NDbfReader
                     return new DecimalColumn(name, columnOffset, size);
 
                 default:
-                    return new UnsupportedColumn(name, columnOffset, size, type);
+                    return new RawColumn(name, columnOffset, size, type);
             }
         }
 
