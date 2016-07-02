@@ -24,10 +24,9 @@ namespace NDbfReader.Tests.Infrastructure
         {
             var readerType = typeof(Reader);
 
-            var getMethods = readerType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            var getMethods = readerType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Where(method => method.Name.StartsWith("Get", StringComparison.Ordinal))
-                .Where(method => !_excludedMethods.Contains(method.Name))
-                .Where(method => method.GetParameters().Length == 1);
+                .Where(method => !_excludedMethods.Contains(method.Name));
 
             var parameterTypes = testMethod.GetParameters().Select(p => p.ParameterType).ToList();
             if (!parameterTypes.Contains(typeof(Type)))

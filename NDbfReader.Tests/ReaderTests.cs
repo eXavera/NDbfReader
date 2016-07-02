@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NDbfReader.Tests.Infrastructure;
-using NSubstitute;
 using Xunit;
 
 namespace NDbfReader.Tests
@@ -17,6 +16,76 @@ namespace NDbfReader.Tests
         private const string EXPECTED_NO_ROWS_EXCEPTION_MESSAGE = "No row is loaded. Call Read method first and check whether it returns true.";
 
         private const string ZERO_SIZE_COLUMN_NAME = "KRAJID";
+
+        [Theory]
+        [InlineData(typeof(string))]
+        [InlineData(typeof(IColumn))]
+        public void GetBytes_InvalidOffset_ThrowsArgumentOutException(Type columnParameterType)
+        {
+            using (var table = Samples.OpenBasicTable())
+            {
+                Reader reader = table.OpenReader();
+                reader.Read();
+                var column = table.Columns.First();
+
+                var exception = Assert.Throws<ArgumentOutOfRangeException>(
+                    () => ExecuteGetBytesMethod(reader, columnParameterType, column, buffer: new byte[column.Size], offset: column.Size + 1));
+                exception.ParamName.ShouldBeEquivalentTo("offset");
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(string))]
+        [InlineData(typeof(IColumn))]
+        public void GetBytes_NullBuffer_ThrowsArgumentNullException(Type columnParameterType)
+        {
+            using (var table = Samples.OpenBasicTable())
+            {
+                Reader reader = table.OpenReader();
+                reader.Read();
+                var column = table.Columns.First();
+
+                var exception = Assert.Throws<ArgumentNullException>(() => ExecuteGetBytesMethod(reader, columnParameterType, column, buffer: null));
+                exception.ParamName.ShouldBeEquivalentTo("buffer");
+            }
+        }
+
+        [Theory]
+        [InlineDataWithExecMode(typeof(string), 0)]
+        [InlineDataWithExecMode(typeof(string), 5)]
+        [InlineDataWithExecMode(typeof(IColumn), 0)]
+        [InlineDataWithExecMode(typeof(IColumn), 5)]
+        public async Task GetBytes_ReturnsData(bool useAsync, Type columnParameterType, int offset)
+        {
+            using (var table = await OpenBasicTable(useAsync))
+            {
+                var reader = table.OpenReader();
+                reader.Read();
+                var dateColumn = table.Columns[1];
+                var buffer = new byte[dateColumn.Size + offset];
+
+                ExecuteGetBytesMethod(reader, columnParameterType, dateColumn, buffer, offset);
+
+                buffer.Skip(offset).ShouldAllBeEquivalentTo(new byte[] { 50, 48, 49, 52, 48, 50, 50, 48 }, opt => opt.WithStrictOrdering());
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(string))]
+        [InlineData(typeof(IColumn))]
+        public void GetBytes_SmallBuffer_ThrowsArgumentException(Type columnParameterType)
+        {
+            using (var table = Samples.OpenBasicTable())
+            {
+                Reader reader = table.OpenReader();
+                reader.Read();
+                var column = table.Columns.First();
+
+                var exception = Assert.Throws<ArgumentException>(() => ExecuteGetBytesMethod(reader, columnParameterType, column, buffer: new byte[column.Size], offset: 1));
+                exception.ParamName.ShouldBeEquivalentTo("buffer");
+                exception.Message.Should().StartWith($"The buffer is too small. Increase the capacity to at least {column.Size + 1} bytes.");
+            }
+        }
 
         [Theory]
         [InlineDataWithExecMode]
@@ -84,7 +153,16 @@ namespace NDbfReader.Tests
         public void GetMethod_ColumnInstanceFromDifferentTable_ThrowsArgumentOutOfRangeExeptionException(string methodName)
         {
             // Arrange
-            Type columnType = typeof(Reader).GetMethod(methodName, new[] { typeof(IColumn) }).ReturnType;
+            Type columnType = typeof(Reader)
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                .SingleOrDefault(m => m.Name == methodName && m.GetParameters().First().ParameterType == typeof(IColumn))
+                .ReturnType;
+
+            if (columnType == typeof(void))
+            {
+                // GetBytes method
+                columnType = typeof(object);
+            }
 
             using (var differentTable = Samples.OpenBasicTable())
             using (var table = Samples.OpenBasicTable())
@@ -104,7 +182,7 @@ namespace NDbfReader.Tests
 
                 // Act & Assert
                 var exception = Assert.Throws<ArgumentOutOfRangeException>(
-                    () => ExecuteGetMethod(reader, methodName, parameterType: typeof(IColumn), parameter: differentColumn));
+                    () => ExecuteGetMethod(reader, methodName, parameterType: typeof(IColumn), columnNameOrInstance: differentColumn));
 
                 exception.ParamName.Should().BeEquivalentTo("column");
                 exception.Message.Should().StartWithEquivalent("The column instance not found.");
@@ -152,7 +230,7 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [ReaderGetMethods(exclude: "GetValue")]
+        [ReaderGetMethods(exclude: new[] { "GetValue", nameof(Reader.GetBytes) })]
         public void GetMethod_MismatchedColumnInstance_ThrowsArgumentOutOfRangeExeptionException(string methodName)
         {
             // Arrange
@@ -163,7 +241,7 @@ namespace NDbfReader.Tests
 
                 // Act & Assert
                 var exception = Assert.Throws<ArgumentOutOfRangeException>(
-                    () => ExecuteGetMethod(reader, methodName, parameterType: typeof(IColumn), parameter: GetMismatchedColumnInstance(reader, methodName)));
+                    () => ExecuteGetMethod(reader, methodName, parameterType: typeof(IColumn), columnNameOrInstance: GetMismatchedColumnInstance(reader, methodName)));
 
                 exception.ParamName.Should().BeEquivalentTo("column");
                 exception.Message.Should().StartWithEquivalent("The column's type does not match the method's return type.");
@@ -171,7 +249,7 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [ReaderGetMethods(exclude: "GetValue")]
+        [ReaderGetMethods(exclude: new[] { "GetValue", nameof(Reader.GetBytes) })]
         public void GetMethod_MismatchedColumnName_ThrowsArgumentOutOfRangeExeptionException(string methodName)
         {
             // Arrange
@@ -182,7 +260,7 @@ namespace NDbfReader.Tests
 
                 // Act & Assert
                 var exception = Assert.Throws<ArgumentOutOfRangeException>(
-                    () => ExecuteGetMethod(reader, methodName, parameterType: typeof(string), parameter: GetMismatchedColumnName(reader, methodName)));
+                    () => ExecuteGetMethod(reader, methodName, parameterType: typeof(string), columnNameOrInstance: GetMismatchedColumnName(reader, methodName)));
 
                 exception.ParamName.Should().BeEquivalentTo("columnName");
                 exception.Message.Should().StartWithEquivalent("The column's type does not match the method's return type.");
@@ -465,14 +543,61 @@ namespace NDbfReader.Tests
             }
         }
 
-        private static object ExecuteGetMethod(Reader reader, string methodName, Type parameterType, object parameter = null)
+        private static void ExecuteGetBytesMethod(Reader reader, Type columnParameterType, IColumn column, byte[] buffer, int offset = 0)
         {
-            var methodInfo = typeof(Reader).GetMethod(methodName, new[] { parameterType });
-            if (methodInfo == null) throw new ArgumentOutOfRangeException(nameof(methodName), "Method " + methodName + " not found.");
+            MethodInfo method = typeof(Reader).GetMethod(nameof(Reader.GetBytes), new[] { columnParameterType, typeof(byte[]), typeof(int) });
+            object columnParameter = (columnParameterType == typeof(string) ? (object)column.Name : column);
 
             try
             {
-                return methodInfo.Invoke(reader, new object[] { parameter });
+                method.Invoke(reader, new[] { columnParameter, buffer, offset });
+            }
+            catch (TargetInvocationException e)
+            {
+                throw e.InnerException;
+            }
+        }
+
+        private static object ExecuteGetMethod(Reader reader, string methodName, Type parameterType, object columnNameOrInstance = null)
+        {
+            var methodInfo = typeof(Reader)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .SingleOrDefault(m => m.Name == methodName && m.GetParameters().First().ParameterType == parameterType);
+
+            if (methodInfo == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(methodName), "Method " + methodName + " not found.");
+            }
+
+            var parameters = new List<object>() { columnNameOrInstance };
+            ParameterInfo[] declaredParameters = methodInfo.GetParameters();
+            if (declaredParameters.Length > 1)
+            {
+                // GetBytes method
+                if (columnNameOrInstance == null)
+                {
+                    // buffer parameter
+                    parameters.Add(new byte[1]);
+                }
+                else
+                {
+                    var column = columnNameOrInstance as IColumn;
+                    if (column == null)
+                    {
+                        // it's column name, lets find the instance
+                        column = reader.Table.Columns.SingleOrDefault(c => c.Name == (string)columnNameOrInstance);
+                    }
+                    // buffer parameter
+                    parameters.Add(new byte[column?.Size ?? 1]);
+                }
+
+                // offset parameter
+                parameters.Add(0);
+            }
+
+            try
+            {
+                return methodInfo.Invoke(reader, parameters.ToArray());
             }
             catch (TargetInvocationException e)
             {
@@ -498,7 +623,17 @@ namespace NDbfReader.Tests
 
         private static object GetValidArgument(Reader reader, string methodName, Type argType)
         {
-            Type columnType = typeof(Reader).GetMethod(methodName, new[] { argType }).ReturnType;
+            Type columnType = typeof(Reader)
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                .Single(m => m.Name == methodName && m.GetParameters().First().ParameterType == argType)
+                .ReturnType;
+
+            if (columnType == typeof(void))
+            {
+                // GetBytes method
+                columnType = typeof(object);
+            }
+
             IColumn column = null;
             if (columnType == typeof(object))
             {
@@ -536,7 +671,7 @@ namespace NDbfReader.Tests
 
                 // Act & Assert
                 var exception = Assert.Throws<ArgumentOutOfRangeException>(
-                    () => ExecuteGetMethod(reader, getMethodName, parameterType: typeof(string), parameter: invalidColumnName));
+                    () => ExecuteGetMethod(reader, getMethodName, parameterType: typeof(string), columnNameOrInstance: invalidColumnName));
                 exception.ParamName.Should().BeEquivalentTo("columnName");
                 exception.Message.Should().StartWithEquivalent($"Column {invalidColumnName} not found.");
             }
@@ -552,7 +687,7 @@ namespace NDbfReader.Tests
 
                 // Act & Assert
                 var exception = Assert.Throws<ArgumentNullException>(
-                    () => ExecuteGetMethod(reader, methodName, parameterType: paramaterType, parameter: null));
+                    () => ExecuteGetMethod(reader, methodName, parameterType: paramaterType, columnNameOrInstance: null));
 
                 Assert.Equal(parameterName, exception.ParamName);
             }

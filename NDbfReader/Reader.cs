@@ -140,6 +140,91 @@ namespace NDbfReader
         public virtual bool? GetBoolean(IColumn column) => GetValue<bool?>(column);
 
         /// <summary>
+        /// Gets raw bytes of the specified column of the current row.
+        /// </summary>
+        /// <param name="column">The column.</param>
+        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the the raw bytes of the specified column starting at the specified <paramref name="offset"/>.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the raw bytes of the specified column.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="column"/> is <c>null</c>.<br />
+        /// -- or --<br />
+        /// <paramref name="buffer"/> is <c>null</c>.<br />
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="column"/> is from different table instance.<br />
+        /// -- or --<br />
+        /// <paramref name="offset"/> &lt; 0.<br />
+        /// -- or --<br />
+        /// <paramref name="offset"/> is larger then the buffer length.<br />
+        /// </exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small. The buffer length has to be at least column size + <paramref name="offset"/>.</exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
+        /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
+        public virtual void GetBytes(IColumn column, byte[] buffer, int offset = 0)
+        {
+            if (column == null)
+            {
+                throw new ArgumentNullException(nameof(column));
+            }
+            if (buffer == null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+            if (offset < 0 || offset >= buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            }
+            ValidateReaderState();
+
+            var columnBase = (Column)column;
+            CheckColumnExists(columnBase);
+            ValidateBufferSize(buffer, offset, column);
+
+            CopyColumnBytes(columnBase, buffer, offset);
+        }
+
+        /// <summary>
+        /// Gets raw bytes of the specified column of the current row.
+        /// </summary>
+        /// <param name="columnName">The column name.</param>
+        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the the raw bytes of the specified column starting at the specified <paramref name="offset"/>.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the raw bytes of the specified column.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="columnName"/> is <c>null</c>.<br />
+        /// -- or --<br />
+        /// <paramref name="buffer"/> is <c>null</c>.<br />
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="offset"/> &lt; 0.<br />
+        /// -- or --<br />
+        /// <paramref name="offset"/> is larger then the buffer length.<br />
+        /// </exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small. The buffer length has to be at least column size + <paramref name="offset"/>.</exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
+        /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
+        public virtual void GetBytes(string columnName, byte[] buffer, int offset = 0)
+        {
+            if (columnName == null)
+            {
+                throw new ArgumentNullException(nameof(columnName));
+            }
+            if (buffer == null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+            if (offset < 0 || offset >= buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            }
+            ValidateReaderState();
+
+            var column = (Column)FindColumnByName(columnName);
+            ValidateBufferSize(buffer, offset, column);
+
+            CopyColumnBytes(column, buffer, offset);
+        }
+
+        /// <summary>
         /// Gets a <see cref="DateTime"/> value of the specified column of the current row.
         /// </summary>
         /// <param name="columnName">The column name.</param>
@@ -481,6 +566,19 @@ namespace NDbfReader
         protected void ThrowIfDisposed()
         {
             ParentTable.ThrowIfDisposed();
+        }
+
+        private static void ValidateBufferSize(byte[] buffer, int offset, IColumn column)
+        {
+            if ((buffer.Length - offset) < column.Size)
+            {
+                throw new ArgumentException($"The buffer is too small. Increase the capacity to at least {column.Size + 1} bytes.", nameof(buffer));
+            }
+        }
+
+        private void CopyColumnBytes(Column column, byte[] destBuffer, int destOffset)
+        {
+            Array.Copy(_buffer, GetColumnOffsetInBuffer(column), destBuffer, destOffset, column.Size);
         }
 
         private IColumn FindColumnByName(string columnName)
