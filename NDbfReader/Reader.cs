@@ -118,7 +118,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual bool? GetBoolean(string columnName) => GetValue<bool?>(columnName);
+        public bool? GetBoolean(string columnName) => GetValue<bool?>(columnName);
 
         /// <summary>
         /// Gets a <see cref="bool"/> value of the specified column of the current row.
@@ -137,7 +137,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual bool? GetBoolean(IColumn column) => GetValue<bool?>(column);
+        public bool? GetBoolean(IColumn column) => GetValue<bool?>(column);
 
         /// <summary>
         /// Gets raw bytes of the specified column of the current row.
@@ -160,7 +160,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small. The buffer length has to be at least column size + <paramref name="offset"/>.</exception>
         /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual void GetBytes(IColumn column, byte[] buffer, int offset = 0)
+        public void GetBytes(IColumn column, byte[] buffer, int offset = 0)
         {
             if (column == null)
             {
@@ -202,7 +202,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small. The buffer length has to be at least column size + <paramref name="offset"/>.</exception>
         /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual void GetBytes(string columnName, byte[] buffer, int offset = 0)
+        public void GetBytes(string columnName, byte[] buffer, int offset = 0)
         {
             if (columnName == null)
             {
@@ -241,7 +241,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual DateTime? GetDate(string columnName) => GetValue<DateTime?>(columnName);
+        public DateTime? GetDate(string columnName) => GetValue<DateTime?>(columnName);
 
         /// <summary>
         /// Gets a <see cref="DateTime"/> value of the specified column of the current row.
@@ -260,7 +260,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual DateTime? GetDate(IColumn column) => GetValue<DateTime?>(column);
+        public DateTime? GetDate(IColumn column) => GetValue<DateTime?>(column);
 
         /// <summary>
         /// Gets a <see cref="decimal"/> value of the specified column of the current row.
@@ -279,7 +279,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual decimal? GetDecimal(string columnName) => GetValue<decimal?>(columnName);
+        public decimal? GetDecimal(string columnName) => GetValue<decimal?>(columnName);
 
         /// <summary>
         /// Gets a <see cref="decimal"/> value of the specified column of the current row.
@@ -298,7 +298,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual decimal? GetDecimal(IColumn column) => GetValue<decimal?>(column);
+        public decimal? GetDecimal(IColumn column) => GetValue<decimal?>(column);
 
         /// <summary>
         /// Gets a <see cref="int"/> value of the specified column of the current row.
@@ -317,7 +317,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual int GetInt32(string columnName) => GetValue<int>(columnName);
+        public int GetInt32(string columnName) => GetValue<int>(columnName);
 
         /// <summary>
         /// Gets a <see cref="int"/> value of the specified column of the current row.
@@ -336,7 +336,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual int GetInt32(IColumn column) => GetValue<int>(column);
+        public int GetInt32(IColumn column) => GetValue<int>(column);
 
         /// <summary>
         /// Gets a <see cref="string"/> value of the specified column of the current row.
@@ -355,7 +355,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual string GetString(string columnName) => GetValue<string>(columnName);
+        public string GetString(string columnName) => GetValue<string>(columnName);
 
         /// <summary>
         /// Gets a <see cref="string"/> value of the specified column of the current row.
@@ -374,7 +374,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual string GetString(IColumn column) => GetValue<string>(column);
+        public string GetString(IColumn column) => GetValue<string>(column);
 
         /// <summary>
         /// Gets a value of the specified column of the current row.
@@ -391,7 +391,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual object GetValue(string columnName)
+        public object GetValue(string columnName)
         {
             if (columnName == null)
             {
@@ -418,7 +418,7 @@ namespace NDbfReader
         /// The underlying stream is non-seekable and columns are read out of order.
         /// </exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public virtual object GetValue(IColumn column)
+        public object GetValue(IColumn column)
         {
             if (column == null)
             {
