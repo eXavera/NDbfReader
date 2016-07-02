@@ -18,8 +18,6 @@ namespace NDbfReader
         private const int MAX_ROWS_IN_BUFFER = 3;
 
         private readonly byte[] _buffer;
-        private readonly HashSet<Column> _columns;
-        private readonly IDictionary<string, Column> _columnsCache;
         private readonly int _rowSize;
         private readonly Table _table;
         private int _bufferOffset;
@@ -47,8 +45,6 @@ namespace NDbfReader
             _table = table;
             _encoding = encoding;
             _rowSize = Header.RowSize;
-            _columns = new HashSet<Column>(table.Columns.Cast<Column>());
-            _columnsCache = table.Columns.Cast<Column>().ToDictionary(c => c.Name, c => c);
 
             int bufferSize = 0;
             if (_rowSize >= MAX_BUFFER_SIZE)
@@ -583,11 +579,12 @@ namespace NDbfReader
 
         private IColumn FindColumnByName(string columnName)
         {
-            if (!_columnsCache.ContainsKey(columnName))
+            IColumn column = Header.Columns.FindByName(columnName);
+            if (column == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(columnName), $"Column {columnName} not found.");
             }
-            return _columnsCache[columnName];
+            return column;
         }
 
         private int GetColumnOffsetInBuffer(Column column)
@@ -597,7 +594,7 @@ namespace NDbfReader
 
         private void CheckColumnExists(Column column)
         {
-            if (!_columns.Contains(column))
+            if (!Header.Columns.Contains(column))
             {
                 throw new ArgumentOutOfRangeException(nameof(column), "The column instance not found.");
             }

@@ -48,10 +48,10 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets a list of all columns in the table.
+        /// Gets the columns of the table.
         /// </summary>
         /// <exception cref="ObjectDisposedException">The table is disposed.</exception>
-        public ReadOnlyCollection<IColumn> Columns
+        public ColumnCollection Columns
         {
             get
             {

@@ -59,6 +59,9 @@
     <Compile Include="..\NDbfReader\Column.cs">
       <Link>Column.cs</Link>
     </Compile>
+    <Compile Include="..\NDbfReader\ColumnCollection.cs">
+      <Link>ColumnCollection.cs</Link>
+    </Compile>
     <Compile Include="..\NDbfReader\DateTimeColumn.cs">
       <Link>DateTimeColumn.cs</Link>
     </Compile>

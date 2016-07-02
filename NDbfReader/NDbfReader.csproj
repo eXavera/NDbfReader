@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>false</RunCodeAnalysis>
@@ -84,6 +84,7 @@
       <Link>GlobalSuppressions.cs</Link>
     </Compile>
     <Compile Include="BooleanColumn.cs" />
+    <Compile Include="ColumnCollection.cs" />
     <Compile Include="DateTimeColumn.cs" />
     <Compile Include="Column.cs" />
     <Compile Include="Reader.cs" />

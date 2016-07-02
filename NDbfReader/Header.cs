@@ -36,13 +36,13 @@ namespace NDbfReader
             LastModified = lastModified;
             RowCount = rowCount;
             RowSize = rowSize;
-            Columns = new ReadOnlyCollection<IColumn>(columns);
+            Columns = new ColumnCollection(columns);
         }
 
         /// <summary>
         /// Gets the columns.
         /// </summary>
-        public ReadOnlyCollection<IColumn> Columns { get; }
+        public ColumnCollection Columns { get; }
 
         /// <summary>
         /// Gets a date the table was last modified.

@@ -222,7 +222,7 @@ namespace NDbfReader.Tests
         private async Task Columns_LoadedFile_ReturnsColumnsProperties<T>(bool useAsync, Func<IColumn, T> propertySelector, params T[] expectedValues)
         {
             // Act
-            ReadOnlyCollection<IColumn> actualColumns = null;
+            ColumnCollection actualColumns = null;
 
             using (var table = await OpenBasicTable(useAsync))
             {

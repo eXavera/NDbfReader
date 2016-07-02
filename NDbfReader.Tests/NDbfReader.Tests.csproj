@@ -86,6 +86,7 @@
       <Link>GlobalSuppressions.cs</Link>
     </Compile>
     <Compile Include="AdditionalReaderTests.cs" />
+    <Compile Include="ColumnCollectionTests.cs" />
     <Compile Include="HeaderLoaderTests.cs" />
     <Compile Include="Infrastructure\InlineDataWithExecModeAttribute.cs" />
     <Compile Include="Infrastructure\InlineDataWithExecModeAttributeTests.cs" />
