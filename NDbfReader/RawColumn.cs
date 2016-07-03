@@ -40,7 +40,7 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets the native type code of column value.
+        /// Gets the code of dBASE native type.
         /// </summary>
         public byte NativeType { get; }
 

@@ -69,7 +69,7 @@ namespace NDbfReader
 
         private static int GetSizeOfTrimString(byte[] buffer, int startIndex, int endIndex, byte[] spacePattern, byte[] zeroPattern)
         {
-            // both patterns haave the same length
+            // both patterns have the same length
             int patternLength = spacePattern.Length;
             for (int i = endIndex; i >= startIndex; i -= patternLength)
             {

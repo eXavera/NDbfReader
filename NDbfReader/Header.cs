@@ -45,7 +45,7 @@ namespace NDbfReader
         public ColumnCollection Columns { get; }
 
         /// <summary>
-        /// Gets a date the table was last modified.
+        /// Gets the date the table was last modified.
         /// </summary>
         public DateTime LastModified { get; }
 

@@ -29,8 +29,8 @@ namespace NDbfReader
         /// Initializes a new instance from the specified table and encoding.
         /// </summary>
         /// <param name="table">The table from which rows will be loaded.</param>
-        /// <param name="encoding">The encoding of the tables's rows.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="encoding"/> is <c>null</c>.</exception>
+        /// <param name="encoding">The encoding.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="encoding"/> is <c>null</c>.</exception>
         public Reader(Table table, Encoding encoding)
         {
             if (table == null)
@@ -108,11 +108,7 @@ namespace NDbfReader
         /// -- or --<br />
         /// The column has different type then <see cref="bool"/>.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public bool? GetBoolean(string columnName) => GetValue<bool?>(columnName);
 
@@ -127,11 +123,7 @@ namespace NDbfReader
         /// -- or --<br />
         /// The column is from different table instance.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public bool? GetBoolean(IColumn column) => GetValue<bool?>(column);
 
@@ -231,11 +223,7 @@ namespace NDbfReader
         /// -- or --<br />
         /// The column has different type then <see cref="DateTime"/>.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public DateTime? GetDate(string columnName) => GetValue<DateTime?>(columnName);
 
@@ -250,11 +238,7 @@ namespace NDbfReader
         /// -- or --<br />
         /// The column is from different table instance.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public DateTime? GetDate(IColumn column) => GetValue<DateTime?>(column);
 
@@ -269,11 +253,7 @@ namespace NDbfReader
         /// -- or --<br />
         /// The column has different type then <see cref="decimal"/>.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public decimal? GetDecimal(string columnName) => GetValue<decimal?>(columnName);
 
@@ -288,11 +268,7 @@ namespace NDbfReader
         /// -- or --<br />
         /// The column is from different table instance.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public decimal? GetDecimal(IColumn column) => GetValue<decimal?>(column);
 
@@ -307,11 +283,7 @@ namespace NDbfReader
         /// -- or --<br />
         /// The column has different type then <see cref="int"/>.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public int GetInt32(string columnName) => GetValue<int>(columnName);
 
@@ -326,11 +298,7 @@ namespace NDbfReader
         /// -- or --<br />
         /// The column is from different table instance.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public int GetInt32(IColumn column) => GetValue<int>(column);
 
@@ -345,11 +313,7 @@ namespace NDbfReader
         /// -- or --<br />
         /// The column has different type then <see cref="string"/>.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public string GetString(string columnName) => GetValue<string>(columnName);
 
@@ -364,11 +328,7 @@ namespace NDbfReader
         /// -- or --<br />
         /// The column is from different table instance.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public string GetString(IColumn column) => GetValue<string>(column);
 
@@ -381,11 +341,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentOutOfRangeException">
         /// The column is from different table instance.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public object GetValue(string columnName)
         {
@@ -408,11 +364,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentOutOfRangeException">
         /// The column is from different table instance.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public object GetValue(IColumn column)
         {
@@ -500,11 +452,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentOutOfRangeException">
         /// The column is from different table instance.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         protected T GetValue<T>(string columnName)
         {
@@ -532,11 +480,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentOutOfRangeException">
         /// The column is from different table instance.
         /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.<br />
-        /// -- or --<br />
-        /// The underlying stream is non-seekable and columns are read out of order.
-        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         protected T GetValue<T>(IColumn column)
         {

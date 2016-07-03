@@ -33,10 +33,10 @@ namespace NDbfReader
         public static HeaderLoader Default => _default;
 
         /// <summary>
-        /// Loads a header from the specified binary reader.
+        /// Loads a header from the specified stream.
         /// </summary>
-        /// <param name="stream">The input stream on the first byte of a dBASE table.</param>
-        /// <returns>A header loaded from the specified reader.</returns>
+        /// <param name="stream">The input stream.</param>
+        /// <returns>A header loaded from the specified stream.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
         public virtual Header Load(Stream stream)
         {
@@ -45,7 +45,7 @@ namespace NDbfReader
                 throw new ArgumentNullException(nameof(stream));
             }
 
-            // optimization: be one byte ahead when loading columns => so we have only one I/O read per column
+            // optimization: one byte ahead when loading columns => only one I/O read per column
             var buffer = new byte[HEADER_SIZE + 1];
             int totalReadBytes = stream.Read(buffer, 0, buffer.Length);
 
@@ -75,10 +75,10 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Loads a header from the specified binary reader.
+        /// Loads a header from the specified stream.
         /// </summary>
-        /// <param name="stream">The input stream on the first byte of a dBASE table.</param>
-        /// <returns>A header loaded from the specified reader.</returns>
+        /// <param name="stream">The input stream.</param>
+        /// <returns>A header loaded from the specified stream.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
         public virtual async Task<Header> LoadAsync(Stream stream)
         {
@@ -87,7 +87,7 @@ namespace NDbfReader
                 throw new ArgumentNullException(nameof(stream));
             }
 
-            // optimization: be one byte ahead when loading columns => so we have only one I/O read per column
+            // optimization: one byte ahead when loading columns => only one I/O read per column
             var buffer = new byte[HEADER_SIZE + 1];
             int totalReadBytes = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
 
@@ -128,7 +128,7 @@ namespace NDbfReader
         /// Creates a column based on the specified properties.
         /// </summary>
         /// <param name="size">The column size in bytes.</param>
-        /// <param name="type">The column type.</param>
+        /// <param name="type">The column native type.</param>
         /// <param name="name">The column name.</param>
         /// <param name="columnOffset">The column offset (in bytes) in a row.</param>
         /// <returns>A column instance.</returns>
@@ -178,15 +178,27 @@ namespace NDbfReader
         /// <param name="properties">The header properties.</param>
         /// <param name="columns">The loaded columns.</param>
         /// <returns>A header instance.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="properties"/> is <c>null</c> or <paramref name="columns"/> is <c>null</c>.
+        /// </exception>
         protected virtual Header CreateHeader(BasicProperties properties, IList<IColumn> columns)
         {
+            if(properties == null)
+            {
+                throw new ArgumentNullException(nameof(properties));
+            }
+            if(columns == null)
+            {
+                throw new ArgumentNullException(nameof(columns));
+            }
+
             return new Header(properties.LastModified, properties.RowCount, properties.RowSize, columns);
         }
 
         /// <summary>
-        /// Parsers basic header properties from the specified buffer.
+        /// Parses the header properties from the specified buffer.
         /// </summary>
-        /// <param name="buffer">The header buffer.</param>
+        /// <param name="buffer">The header bytes.</param>
         /// <returns>A <see cref="BasicProperties"/> instance.</returns>
         protected virtual BasicProperties ParseBasicProperties(byte[] buffer)
         {
@@ -222,20 +234,20 @@ namespace NDbfReader
             int columnOffset = 0;
             int readBytes = 0;
 
-            // optimization: be one byte ahead when loading columns => so we have only one I/O read per column
+            // optimization: one byte ahead when loading columns => only one I/O read per column
             var columnBytes = new byte[COLUMN_DESCRIPTOR_SIZE + 1];
             columnBytes[0] = firstColumnByte;
 
             while (columnBytes[0] != FILE_DESCRIPTOR_TERMINATOR)
             {
-                // read first byte of next column
+                // read first byte of the next column
                 readBytes += stream.Read(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE);
 
                 Column newColumn = ParseColumn(columnBytes, columnOffset);
                 columns.Add(newColumn);
                 columnOffset += newColumn.Size;
 
-                // move the first byte of next column where it should be
+                // we're one byte ahead
                 columnBytes[0] = columnBytes.Last();
             }
 
@@ -248,20 +260,20 @@ namespace NDbfReader
             int columnOffset = 0;
             int readBytes = 0;
 
-            // optimization: be one byte ahead when loading columns => so we have only one I/O read per column
+            // optimization: one byte ahead when loading columns => only one I/O read per column
             var columnBytes = new byte[COLUMN_DESCRIPTOR_SIZE + 1];
             columnBytes[0] = firstColumnByte;
 
             while (columnBytes[0] != FILE_DESCRIPTOR_TERMINATOR)
             {
-                // read first byte of next column
+                // read first byte of the next column
                 readBytes += await stream.ReadAsync(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE).ConfigureAwait(false);
 
                 Column newColumn = ParseColumn(columnBytes, columnOffset);
                 columns.Add(newColumn);
                 columnOffset += newColumn.Size;
 
-                // move the first byte of next column where it should be
+                // we're one byte ahead
                 columnBytes[0] = columnBytes.Last();
             }
 

@@ -72,7 +72,7 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets a date the table was last modified.
+        /// Gets the date the table was last modified.
         /// </summary>
         public DateTime LastModified
         {
@@ -85,7 +85,7 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets a dBASE header.
+        /// Gets the dBASE header.
         /// </summary>
         protected Header Header
         {
@@ -101,7 +101,6 @@ namespace NDbfReader
         /// <param name="path">The file to be opened.</param>
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c> or empty.</exception>
-        /// <exception cref="NotSupportedException">The dBASE table constains one or more columns of unsupported type.</exception>
         public static Table Open(string path)
         {
             if (string.IsNullOrEmpty(path))
@@ -119,7 +118,6 @@ namespace NDbfReader
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="stream"/> does not allow reading.</exception>
-        /// <exception cref="NotSupportedException">The dBASE table constains one or more columns of unsupported type.</exception>
         public static Table Open(Stream stream)
         {
             return Open(stream, HeaderLoader.Default);
@@ -133,7 +131,6 @@ namespace NDbfReader
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c> or <paramref name="headerLoader"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="stream"/> does not allow reading.</exception>
-        /// <exception cref="NotSupportedException">The dBASE table constains one or more columns of unsupported type.</exception>
         public static Table Open(Stream stream, HeaderLoader headerLoader)
         {
             if (stream == null)
@@ -159,7 +156,6 @@ namespace NDbfReader
         /// <param name="path">The file to be opened.</param>
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c> or empty.</exception>
-        /// <exception cref="NotSupportedException">The dBASE table constains one or more columns of unsupported type.</exception>
         public static Task<Table> OpenAsync(string path)
         {
             if (string.IsNullOrEmpty(path))
@@ -180,7 +176,6 @@ namespace NDbfReader
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="stream"/> does not allow reading.</exception>
-        /// <exception cref="NotSupportedException">The dBASE table constains one or more columns of unsupported type.</exception>
         public static Task<Table> OpenAsync(Stream stream)
         {
             return OpenAsync(stream, HeaderLoader.Default);
@@ -236,7 +231,7 @@ namespace NDbfReader
         /// <summary>
         /// Opens a reader of the table with the default <c>ASCII</c> encoding. Only one reader per table can be opened.
         /// </summary>
-        /// <returns>A reader of the table.</returns>
+        /// <returns>A <see cref="Reader"/> instance.</returns>
         /// <exception cref="InvalidOperationException">Another reader of the table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The table is disposed.</exception>
         public Reader OpenReader()
@@ -248,7 +243,7 @@ namespace NDbfReader
         /// Opens a reader of the table with the specified encoding. Only one reader per table can be opened.
         /// </summary>
         /// <param name="encoding">The encoding that is used to load the rows content.</param>
-        /// <returns>A reader of the table.</returns>
+        /// <returns>A <see cref="Reader"/> instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <c>null</c>.</exception>
         /// <exception cref="InvalidOperationException">Another reader of the table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The table is disposed.</exception>
