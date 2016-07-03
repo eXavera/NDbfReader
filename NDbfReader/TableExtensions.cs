@@ -228,7 +228,7 @@ namespace NDbfReader
             var selectedColumns = new List<IColumn>(columnNames.Length);
             foreach (string columnName in columnNames)
             {
-                IColumn column = table.Columns.FirstOrDefault(c => c.Name == columnName);
+                IColumn column = table.Columns.FindByName(columnName);
                 if (column == null)
                 {
                     throw new ArgumentOutOfRangeException(nameof(columnNames), columnName, "The table does not have a column with this name.");
