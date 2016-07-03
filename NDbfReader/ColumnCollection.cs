@@ -117,7 +117,7 @@ namespace NDbfReader
 
         internal bool Contains(IColumn column)
         {
-            return _hashSet.Contains(column);
+            return HashSet.Contains(column);
         }
 
         internal IColumn FindByName(string columnName)
