@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("NDbfReader for .NET Core")]
+[assembly: AssemblyProduct("NDbfReader for .NET Standard 1.3")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -13,7 +13,7 @@ namespace NDbfReader
     public static class TableExtensions
     {
         /// <summary>
-        /// Loads the DBF table into a <see cref="DataTable"/> with the default ASCII encoding.
+        /// Loads the DBF table into a <see cref="DataTable"/> with the default UTF-8 encoding.
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
         /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
@@ -33,7 +33,7 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Loads the DBF table into a <see cref="DataTable"/> with the default ASCII encoding.
+        /// Loads the DBF table into a <see cref="DataTable"/> with the default UTF-8 encoding.
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
         /// <param name="columnNames">The names of columns to load.</param>
@@ -43,7 +43,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
         public static DataTable AsDataTable(this Table table, params string[] columnNames)
         {
-            return AsDataTable(table, Encoding.ASCII, columnNames);
+            return AsDataTable(table, Table.DefaultEncoding, columnNames);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Loads the DBF table into a <see cref="DataTable"/> with the default ASCII encoding.
+        /// Loads the DBF table into a <see cref="DataTable"/> with the default UTF-8 encoding.
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
         /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
@@ -122,7 +122,7 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Loads the DBF table into a <see cref="DataTable"/> with the default ASCII encoding.
+        /// Loads the DBF table into a <see cref="DataTable"/> with the default UTF-8 encoding.
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
         /// <param name="columnNames">The names of columns to load.</param>
@@ -132,7 +132,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
         public static Task<DataTable> AsDataTableAsync(this Table table, params string[] columnNames)
         {
-            return AsDataTableAsync(table, Encoding.ASCII, columnNames);
+            return AsDataTableAsync(table, Table.DefaultEncoding, columnNames);
         }
 
         /// <summary>

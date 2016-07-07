@@ -18,7 +18,7 @@ namespace NDbfReader
     /// </example>
     public class Table : IParentTable, IDisposable
     {
-        private static readonly Encoding DefaultEncoding = Encoding.ASCII;
+        internal static readonly Encoding DefaultEncoding = Encoding.UTF8;
 
         private readonly Header _header;
         private readonly Stream _stream;
@@ -228,7 +228,7 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Opens a reader of the table with the default <c>ASCII</c> encoding. Only one reader per table can be opened.
+        /// Opens a reader of the table with the default <c>UTF-8</c> encoding. Only one reader per table can be opened.
         /// </summary>
         /// <returns>A <see cref="Reader"/> instance.</returns>
         /// <exception cref="InvalidOperationException">Another reader of the table is opened.</exception>

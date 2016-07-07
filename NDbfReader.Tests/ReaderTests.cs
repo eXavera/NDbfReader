@@ -530,7 +530,7 @@ namespace NDbfReader.Tests
         }
 
         [Fact]
-        public void TextEncoding_ReaderOpenedWithUnspecifiedEncoding_ReturnsTheASCIIEncoding()
+        public void TextEncoding_ReaderOpenedWithUnspecifiedEncoding_ReturnsUtf8Encoding()
         {
             // Arrange
             using (var table = Samples.OpenBasicTable())
@@ -539,7 +539,7 @@ namespace NDbfReader.Tests
                 var reader = table.OpenReader();
 
                 // Assert
-                Assert.Same(Encoding.ASCII, reader.Encoding);
+                Assert.Same(Encoding.UTF8, reader.Encoding);
             }
         }
 

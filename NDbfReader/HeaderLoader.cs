@@ -282,7 +282,7 @@ namespace NDbfReader
 
         private Column ParseColumn(byte[] buffer, int columnOffset)
         {
-            string name = Encoding.ASCII.GetString(buffer, COLUMN_NAME_OFFSET, COLUMN_NAME_LENGTH).TrimEnd('\0', ' ');
+            string name = Encoding.UTF8.GetString(buffer, COLUMN_NAME_OFFSET, COLUMN_NAME_LENGTH).TrimEnd('\0', ' ');
             byte type = buffer[COLUMN_TYPE_OFFSET];
             byte size = buffer[COLUMN_SIZE_OFFSET];
 
