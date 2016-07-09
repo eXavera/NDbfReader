@@ -1,19 +1,22 @@
 NDbfReader
 ============
 
-NDbfReader is a .NET library for reading dBASE (.dbf) files. The library is simple, extensible and without any external dependencies.
+*Fully managed* .NET library for reading dBASE (.dbf) files.
 
-## Upcoming 2.0 version
+- Fast and lightweight
+- Full *async support*
 
-- Full async support
-- .NET Core support (ASP.NET 5, UWP)
+Supported platforms:
+
+- .NET 4.0 +
+- .NET Core (.NET Standard 1.3)
 
 ## Example
 
 ```csharp
 using (var table = Table.Open("D:\\foo.dbf"))
 {
-   // default is ASCII encoding
+   // default is UTF-8 encoding
    var reader = table.OpenReader(Encoding.GetEncoding(1250));
    while(reader.Read())
    {
@@ -45,7 +48,9 @@ Install-Package NDbfReader
 
 ## Source
 
-Clone the repository and run `build.cmd`. At least `Visual Studio Community 2015` is required.
+Install `Visual Studio 2015` and [.NET Core for Visual Studio](https://www.microsoft.com/net/core).
+
+Clone the repository and run `build.cmd`.
 
 ## Tests
 
