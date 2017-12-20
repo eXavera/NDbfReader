@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader", "NDbfReader\NDbfReader.csproj", "{C98D4551-7C67-477B-9188-5B4B41CB378A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NDbfReader", "NDbfReader\NDbfReader.csproj", "{C98D4551-7C67-477B-9188-5B4B41CB378A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader.Tests", "NDbfReader.Tests\NDbfReader.Tests.csproj", "{9C68CEE0-4686-4FE9-9685-55BA3A742CD9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader.Net45", "NDbfReader.Net45\NDbfReader.Net45.csproj", "{437155B3-AAD5-40B0-BBF3-FC8E79402790}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B34DCA4-4FB0-4E87-B9AE-2C1B55278509}"
 	ProjectSection(SolutionItems) = preProject
@@ -17,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		tempKey.snk = tempKey.snk
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader.NetCore", "NDbfReader.NetCore\NDbfReader.NetCore.csproj", "{8A4BA48E-D806-4FA4-BB3E-D26160798974}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader.Net40", "NDbfReader.Net40\NDbfReader.Net40.csproj", "{2A7E63A2-3297-4630-A669-89164B0120A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,16 +31,15 @@ Global
 		{9C68CEE0-4686-4FE9-9685-55BA3A742CD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C68CEE0-4686-4FE9-9685-55BA3A742CD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C68CEE0-4686-4FE9-9685-55BA3A742CD9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{437155B3-AAD5-40B0-BBF3-FC8E79402790}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{437155B3-AAD5-40B0-BBF3-FC8E79402790}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{437155B3-AAD5-40B0-BBF3-FC8E79402790}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{437155B3-AAD5-40B0-BBF3-FC8E79402790}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8A4BA48E-D806-4FA4-BB3E-D26160798974}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A4BA48E-D806-4FA4-BB3E-D26160798974}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8A4BA48E-D806-4FA4-BB3E-D26160798974}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8A4BA48E-D806-4FA4-BB3E-D26160798974}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A7E63A2-3297-4630-A669-89164B0120A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A7E63A2-3297-4630-A669-89164B0120A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A7E63A2-3297-4630-A669-89164B0120A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A7E63A2-3297-4630-A669-89164B0120A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {12592B0D-AF89-40A7-9B63-21F22F8F775B}
 	EndGlobalSection
 EndGlobal

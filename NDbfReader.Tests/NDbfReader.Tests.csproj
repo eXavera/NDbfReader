@@ -125,7 +125,6 @@
     <ProjectReference Include="..\NDbfReader\NDbfReader.csproj">
       <Project>{c98d4551-7c67-477b-9188-5b4b41cb378a}</Project>
       <Name>NDbfReader</Name>
-      <Properties>SkipValidatePackageReferences=true</Properties>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -5,6 +5,7 @@
 *.suo
 *.user
 *.sln.docstates
+.vs/
 
 # Build results
 
@@ -161,6 +162,5 @@ opencover/
 # Nuget Packages
 packages/
 *.nupkg
-/NDbfReader/key.snk
-/NDbfReader.Net45/key.snk
-/NDbfReader.NetCore/key.snk
+
+key.snk

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !NETSTANDARD_13
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -248,3 +250,5 @@ namespace NDbfReader
         }
     }
 }
+
+#endif
