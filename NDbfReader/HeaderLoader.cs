@@ -219,15 +219,6 @@ namespace NDbfReader
             return new DateTime((year > DateTime.Now.Year % 1000 ? 1900 : 2000) + year, month, day);
         }
 
-        private static void SkipBytesWithBuffer(Stream stream, byte[] buffer, int bytesToSkip)
-        {
-            int toRead = bytesToSkip;
-            while (toRead > 0)
-            {
-                toRead -= stream.Read(buffer, 0, Math.Min(buffer.Length, toRead));
-            }
-        }
-
         private LoadColumnsResult LoadColumns(Stream stream, byte firstColumnByte)
         {
             var columns = new List<IColumn>();
