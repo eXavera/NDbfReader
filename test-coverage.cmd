@@ -8,7 +8,7 @@ RMDIR ".\opencover" /s /q
 MKDIR ".\opencover"
 .\packages\OpenCover.4.6.166\tools\OpenCover.Console.exe^
  -register:user^
- -target:".\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe"^
+ -target:".\packages\xunit.runner.console.2.3.1\tools\net452\xunit.console.exe"^
  -targetargs:".\NDbfReader.Tests\bin\Debug\NDbfReader.Tests.dll -noshadow -quiet"^
  -filter:+[NDbfReader]*^
  -output:.\opencover\output.xml

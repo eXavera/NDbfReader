@@ -486,7 +486,7 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
-        public Task Read_TableWithDeletedRows_SkipsDeletedRows(bool useAsync)
+        public Task Read_TableOnSeekableStreamWithDeletedRows_SkipsDeletedRows(bool useAsync)
         {
             return Read_TableWithDeletedRows_SkipsDeletedRows(useAsync, stream => stream);
         }
