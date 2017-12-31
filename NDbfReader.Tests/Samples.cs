@@ -30,5 +30,12 @@ namespace NDbfReader.Tests
         {
             return Table.OpenAsync(GetBasicTableStream());
         }
+
+        public static class FoxProDateTime
+        {
+            public static readonly string ColumnName = "FLD01";
+
+            public static readonly DateTime Value = new DateTime(2017, 1, 1, 22, 10, 10);
+        }
     }
 }

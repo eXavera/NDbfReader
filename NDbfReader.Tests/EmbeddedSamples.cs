@@ -11,6 +11,7 @@ namespace NDbfReader.Tests
         public const string UNSUPPORTED_TYPES = "UnsupportedTypes.dbf";
         public const string ZERO_SIZE_COLUMN = "ZeroSizeColumn.dbf";
         public const string WHITE_SPACES = "WhiteSpaces.dbf";
+        public const string FOXPRO_DATETIME = "FoxProDateTime.dbf";
 
         public static Stream GetStream(string fileName)
         {

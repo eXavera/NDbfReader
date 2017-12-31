@@ -406,6 +406,42 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
+        public Task GetDate_FoxProDateTimeColumnName_ReturnsCorrectDateTime(bool useAsync)
+        {
+            return GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(
+                useAsync,
+                reader => reader.GetDate(Samples.FoxProDateTime.ColumnName));
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task GetDate_FoxProDateTimeColumnInstance_ReturnsCorrectDateTime(bool useAsync)
+        {
+            return GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(
+                useAsync,
+                reader => reader.GetDate(reader.Table.Columns[Samples.FoxProDateTime.ColumnName]));
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task GetValue_FoxProDateTimeColumnName_ReturnsCorrectDateTime(bool useAsync)
+        {
+            return GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(
+                useAsync,
+                reader => (DateTime?)reader.GetValue(Samples.FoxProDateTime.ColumnName));
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task GetValue_FoxProDateTimeColumnInstance_ReturnsCorrectDateTime(bool useAsync)
+        {
+            return GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(
+                useAsync, 
+                reader => (DateTime?)reader.GetValue(reader.Table.Columns[Samples.FoxProDateTime.ColumnName]));
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
         public async Task GetValue_UnsupportedColumn_ReturnsBytes(bool useAsync)
         {
             using (var table = await this.Exec(() => Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.UNSUPPORTED_TYPES)), useAsync))
@@ -727,6 +763,27 @@ namespace NDbfReader.Tests
 
                 // Assert
                 actualValues.ShouldAllBeEquivalentTo(expectedValues, opt => opt.WithStrictOrdering());
+            }
+        }
+
+        private async Task GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(bool useAsync, Func<Reader, DateTime?> getMethod)
+        {
+            // Arrange
+            Stream stream = EmbeddedSamples.GetStream(EmbeddedSamples.FOXPRO_DATETIME);
+            using (var table = await this.Exec(() => Table.Open(stream), useAsync))
+            {
+                var reader = table.OpenReader();
+
+                DateTime? actualValue = null;
+
+                while (await reader.Exec(r => r.Read(), useAsync))
+                {
+                    // Act
+                    actualValue = getMethod(reader);
+                }
+
+                // Assert
+                actualValue.ShouldBeEquivalentTo(Samples.FoxProDateTime.Value);
             }
         }
 

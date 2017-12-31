@@ -12,6 +12,11 @@
         public const byte Date = 0x44;
 
         /// <summary>
+        /// 8 bytes - the first 4 bytes prepresent days and the next 4 bytes represent miliseconds.
+        /// </summary>
+        public const byte FoxProDateTime = 0x54;
+
+        /// <summary>
         /// Number stored as a string, right justified, and padded with blanks to the width of the field.
         /// </summary>
         /// <remarks>F in ASCII</remarks>

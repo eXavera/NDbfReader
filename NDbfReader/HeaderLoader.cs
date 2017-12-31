@@ -157,6 +157,9 @@ namespace NDbfReader
                 case NativeColumnType.Date:
                     return new DateTimeColumn(name, columnOffset);
 
+                case NativeColumnType.FoxProDateTime:
+                    return new DateTimeColumn(name, columnOffset, DateTimeNativeFormat.FoxPro);
+
                 case NativeColumnType.Long:
                     return new Int32Column(name, columnOffset);
 
