@@ -116,16 +116,16 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [InlineDataWithExecMode("GetString", "TEXT")]
-        [InlineDataWithExecMode("GetValue", "TEXT")]
-        [InlineDataWithExecMode("GetDecimal", "NUMERIC")]
-        [InlineDataWithExecMode("GetValue", "NUMERIC")]
-        [InlineDataWithExecMode("GetBoolean", "LOGICAL")]
-        [InlineDataWithExecMode("GetValue", "LOGICAL")]
-        [InlineDataWithExecMode("GetDate", "DATE")]
-        [InlineDataWithExecMode("GetValue", "DATE")]
-        [InlineDataWithExecMode("GetInt32", "LONG")]
-        [InlineDataWithExecMode("GetValue", "LONG")]
+        [InlineDataWithExecMode(nameof(Reader.GetString), "TEXT")]
+        [InlineDataWithExecMode(nameof(Reader.GetValue), "TEXT")]
+        [InlineDataWithExecMode(nameof(Reader.GetDecimal), "NUMERIC")]
+        [InlineDataWithExecMode(nameof(Reader.GetValue), "NUMERIC")]
+        [InlineDataWithExecMode(nameof(Reader.GetBoolean), "LOGICAL")]
+        [InlineDataWithExecMode(nameof(Reader.GetValue), "LOGICAL")]
+        [InlineDataWithExecMode(nameof(Reader.GetDate), "DATE")]
+        [InlineDataWithExecMode(nameof(Reader.GetValue), "DATE")]
+        [InlineDataWithExecMode(nameof(Reader.GetInt32), "LONG")]
+        [InlineDataWithExecMode(nameof(Reader.GetValue), "LONG")]
         public async Task GetMethod_ColumnInstance_ReturnsValue(bool useAsync, string methodName, string columnName)
         {
             // Arrange
@@ -190,16 +190,16 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [InlineDataWithExecMode("GetString", "TEXT")]
-        [InlineDataWithExecMode("GetValue", "TEXT")]
-        [InlineDataWithExecMode("GetDecimal", "NUMERIC")]
-        [InlineDataWithExecMode("GetValue", "NUMERIC")]
-        [InlineDataWithExecMode("GetBoolean", "LOGICAL")]
-        [InlineDataWithExecMode("GetValue", "LOGICAL")]
-        [InlineDataWithExecMode("GetDate", "DATE")]
-        [InlineDataWithExecMode("GetValue", "DATE")]
-        [InlineDataWithExecMode("GetInt32", "LONG")]
-        [InlineDataWithExecMode("GetValue", "LONG")]
+        [InlineDataWithExecMode(nameof(Reader.GetString), "TEXT")]
+        [InlineDataWithExecMode(nameof(Reader.GetValue), "TEXT")]
+        [InlineDataWithExecMode(nameof(Reader.GetDecimal), "NUMERIC")]
+        [InlineDataWithExecMode(nameof(Reader.GetValue), "NUMERIC")]
+        [InlineDataWithExecMode(nameof(Reader.GetBoolean), "LOGICAL")]
+        [InlineDataWithExecMode(nameof(Reader.GetValue), "LOGICAL")]
+        [InlineDataWithExecMode(nameof(Reader.GetDate), "DATE")]
+        [InlineDataWithExecMode(nameof(Reader.GetValue), "DATE")]
+        [InlineDataWithExecMode(nameof(Reader.GetInt32), "LONG")]
+        [InlineDataWithExecMode(nameof(Reader.GetValue), "LONG")]
         public async Task GetMethod_ColumnName_ReturnsValue(bool useAsync, string methodName, string columnName)
         {
             // Arrange
