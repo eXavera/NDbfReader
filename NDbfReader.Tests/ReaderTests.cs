@@ -303,7 +303,7 @@ namespace NDbfReader.Tests
                 var textColumn = table.Columns[0];
 
                 // Act
-                reader.GetDate(dateColumn);
+                reader.GetDateTime(dateColumn);
                 var actualText = reader.GetString(textColumn);
 
                 // Assert
@@ -324,7 +324,7 @@ namespace NDbfReader.Tests
                 await reader.Exec(r => r.Read(), useAsync);
 
                 // Act
-                reader.GetDate("DATE");
+                reader.GetDateTime("DATE");
                 var actualText = reader.GetString("TEXT");
 
                 // Assert
@@ -370,14 +370,14 @@ namespace NDbfReader.Tests
         [InlineDataWithExecMode]
         public Task GetMethod_RepeatedColumnInstanceOnSeeeakbleStream_ReturnsTheSameValue(bool useAsync)
         {
-            return GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(useAsync, reader => reader.GetDate(reader.Table.Columns[1]));
+            return GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(useAsync, reader => reader.GetDateTime(reader.Table.Columns[1]));
         }
 
         [Theory]
         [InlineDataWithExecMode]
         public Task GetMethod_RepeatedColumnNameOnSeeeakbleStream_ReturnsTheSameValue(bool useAsync)
         {
-            return GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(useAsync, reader => reader.GetDate("DATE"));
+            return GetMethod_RepeatedColumnOnSeekableStream_ReturnsTheSameValue(useAsync, reader => reader.GetDateTime("DATE"));
         }
 
         [Theory]
@@ -410,7 +410,7 @@ namespace NDbfReader.Tests
         {
             return GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(
                 useAsync,
-                reader => reader.GetDate(Samples.FoxProDateTime.ColumnName));
+                reader => reader.GetDateTime(Samples.FoxProDateTime.ColumnName));
         }
 
         [Theory]
@@ -419,7 +419,7 @@ namespace NDbfReader.Tests
         {
             return GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(
                 useAsync,
-                reader => reader.GetDate(reader.Table.Columns[Samples.FoxProDateTime.ColumnName]));
+                reader => reader.GetDateTime(reader.Table.Columns[Samples.FoxProDateTime.ColumnName]));
         }
 
         [Theory]

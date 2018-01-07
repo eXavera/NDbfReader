@@ -223,7 +223,23 @@ namespace NDbfReader
         /// </exception>
         /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public DateTime? GetDate(string columnName) => GetValue<DateTime?>(columnName);
+        public DateTime? GetDateTime(string columnName) => GetValue<DateTime?>(columnName);
+
+        /// <summary>
+        /// Gets a <see cref="DateTime"/> value of the specified column of the current row.
+        /// </summary>
+        /// <param name="columnName">The column name.</param>
+        /// <returns>A <see cref="DateTime"/> value.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// No column with this name was found.<br />
+        /// -- or --<br />
+        /// The column has different type then <see cref="DateTime"/>.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
+        /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
+        [Obsolete("This method has been renamed to " + nameof(GetDateTime))]
+        public DateTime? GetDate(string columnName) => GetDateTime(columnName);
 
         /// <summary>
         /// Gets a <see cref="DateTime"/> value of the specified column of the current row.
@@ -238,7 +254,23 @@ namespace NDbfReader
         /// </exception>
         /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public DateTime? GetDate(IColumn column) => GetValue<DateTime?>(column);
+        public DateTime? GetDateTime(IColumn column) => GetValue<DateTime?>(column);
+
+        /// <summary>
+        /// Gets a <see cref="DateTime"/> value of the specified column of the current row.
+        /// </summary>
+        /// <param name="column">The column.</param>
+        /// <returns>A <see cref="DateTime"/> value.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// The column has different type then <see cref="DateTime"/>.<br />
+        /// -- or --<br />
+        /// The column is from different table instance.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">No row is loaded. The <see cref="Read"/> method returned <c>false</c> or it has not been called yet.</exception>
+        /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
+        [Obsolete("This method has been renamed to " + nameof(GetDateTime))]
+        public DateTime? GetDate(IColumn column) => GetDateTime(column);
 
         /// <summary>
         /// Gets a <see cref="decimal"/> value of the specified column of the current row.
