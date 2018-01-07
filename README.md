@@ -9,7 +9,7 @@ A *fully managed* .NET library for reading dBASE (.dbf) files.
 Supported platforms:
 
 - .NET 4.0 +
-- .NET Core (.NET Standard 1.3)
+- .NET Standard 1.3 +
 
 ## Example
 
@@ -40,17 +40,15 @@ public ActionResult Upload(HttpPostedFileBase file)
 }
 ```
 
-## NuGet
+## Installation
 
-```
-Install-Package NDbfReader
-```
+[![NuGet](https://img.shields.io/nuget/v/NDbfReader.svg)](https://www.nuget.org/packages/NDbfReader)
 
 ## Source
 
-Install `Visual Studio 2015` and [.NET Core for Visual Studio](https://www.microsoft.com/net/core).
+Install `Visual Studio 2017 (15.5+)` with .NET Core.
 
-Clone the repository and run `build.cmd`.
+Clone the repository and run `build.cmd` from `Developer Command Prompt for VS`.
 
 ## Tests
 
