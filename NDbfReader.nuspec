@@ -9,7 +9,7 @@
     <licenseUrl>https://github.com/eXavera/NDbfReader/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/eXavera/NDbfReader</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Fully managed reader of DBF files. Fast and lightweight with async support.</description>
+    <description>A fully managed reader of DBF files. Fast and lightweight with async support.</description>
     <releaseNotes>https://github.com/eXavera/NDbfReader/releases</releaseNotes>
     <copyright>Copyright © 2018 Stanislav Fajfr</copyright>
     <tags>dbf dBASE</tags>
