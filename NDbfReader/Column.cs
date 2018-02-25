@@ -4,15 +4,18 @@ using System.Text;
 namespace NDbfReader
 {
     /// <summary>
-    /// The base class of all column types. Intended for internal usage. To define a custom column type, derive from the generic subclass <see cref="Column&lt;T&gt;"/>.
+    /// The base class of all column types. Intended for internal usage.
     /// </summary>
+    /// <remarks>
+    /// To define a custom column type, derive from <see cref="Column&lt;T&gt;"/>.
+    /// </remarks>
     public abstract class Column : IColumn
     {
         /// <summary>
         /// Initializes a new instance with the specified name, offset and size.
         /// </summary>
-        /// <param name="name">The colum name.</param>
-        /// <param name="offset">The column offset in a row in bytes.</param>
+        /// <param name="name">The column name.</param>
+        /// <param name="offset">The column offset in a row.</param>
         /// <param name="size">The column size in bytes.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0.</exception>
@@ -42,7 +45,7 @@ namespace NDbfReader
         public string Name { get; }
 
         /// <summary>
-        /// Gets the column offset in a row in bytes.
+        /// Gets the column offset in a row.
         /// </summary>
         public int Offset { get; }
 
@@ -52,22 +55,22 @@ namespace NDbfReader
         public int Size { get; }
 
         /// <summary>
-        /// Gets the <c>CLR</c> type of a column value.
+        /// Gets the <c>CLR</c> type of the column value.
         /// </summary>
         public abstract Type Type { get; }
 
         /// <summary>
         /// Loads a value from the specified buffer.
         /// </summary>
-        /// <param name="buffer">The byte array from which a value should be loaded.</param>
-        /// <param name="offset">The byte offset in <paramref name="buffer"/> at which loading begins. </param>
-        /// <param name="encoding">The encoding that should be used when loading a value.</param>
+        /// <param name="buffer">The source buffer.</param>
+        /// <param name="offset">The offset in <paramref name="buffer"/> at which to begin loading the value.</param>
+        /// <param name="encoding">The encoding to use to parse the value.</param>
         /// <returns>A column value.</returns>
         public abstract object LoadValueAsObject(byte[] buffer, int offset, Encoding encoding);
     }
 
     /// <summary>
-    /// The base class for all column types.
+    /// The base class or all column types.
     /// </summary>
     /// <typeparam name="T">The type of the column value.</typeparam>
     public abstract class Column<T> : Column
@@ -75,8 +78,8 @@ namespace NDbfReader
         /// <summary>
         /// Initializes a new instance with the specified name, offset and size.
         /// </summary>
-        /// <param name="name">The colum name.</param>
-        /// <param name="offset">The column offset in a row in bytes.</param>
+        /// <param name="name">The column name.</param>
+        /// <param name="offset">The column offset in a row.</param>
         /// <param name="size">The column size in bytes.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0.</exception>
@@ -86,16 +89,16 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets the <c>CLR</c> type of column value.
+        /// Gets the <c>CLR</c> type of the column value.
         /// </summary>
         public override Type Type => typeof(T);
 
         /// <summary>
         /// Loads a value from the specified buffer.
         /// </summary>
-        /// <param name="buffer">The byte array from which a value should be loaded.</param>
-        /// <param name="offset">The byte offset in <paramref name="buffer"/> at which loading begins. </param>
-        /// <param name="encoding">The encoding that should be used when loading a value.</param>
+        /// <param name="buffer">The source buffer.</param>
+        /// <param name="offset">The offset in <paramref name="buffer"/> at which to begin loading the value.</param>
+        /// <param name="encoding">The encoding to use to parse the value.</param>
         /// <returns>A column value.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c> or <paramref name="encoding"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> &lt; 0.</exception>
@@ -120,9 +123,9 @@ namespace NDbfReader
         /// <summary>
         /// Loads a value from the specified buffer.
         /// </summary>
-        /// <param name="buffer">The byte array from which a value should be loaded.</param>
-        /// <param name="offset">The byte offset in <paramref name="buffer"/> at which loading begins. </param>
-        /// <param name="encoding">The encoding that should be used when loading a value.</param>
+        /// <param name="buffer">The source buffer.</param>
+        /// <param name="offset">The offset in <paramref name="buffer"/> at which to begin loading the value.</param>
+        /// <param name="encoding">The encoding to use to parse the value.</param>
         /// <returns>A column value.</returns>
         public sealed override object LoadValueAsObject(byte[] buffer, int offset, Encoding encoding)
         {
@@ -132,9 +135,9 @@ namespace NDbfReader
         /// <summary>
         /// Loads a value from the specified buffer.
         /// </summary>
-        /// <param name="buffer">The byte array from which a value should be loaded.</param>
-        /// <param name="offset">The byte offset in <paramref name="buffer"/> at which loading begins. </param>
-        /// <param name="encoding">The encoding that should be used when loading a value. The encoding is never <c>null</c>.</param>
+        /// <param name="buffer">The source buffer.</param>
+        /// <param name="offset">The offset in <paramref name="buffer"/> at which to begin loading the value.</param>
+        /// <param name="encoding">The encoding to use to parse the value.</param>
         /// <returns>A column value.</returns>
         protected abstract T DoLoad(byte[] buffer, int offset, Encoding encoding);
     }

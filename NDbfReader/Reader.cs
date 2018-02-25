@@ -24,7 +24,7 @@ namespace NDbfReader
         private bool _rowLoaded;
 
         /// <summary>
-        /// Initializes a new instance from the specified table and encoding.
+        /// Initializes a new instance.
         /// </summary>
         /// <param name="table">The table from which rows will be loaded.</param>
         /// <param name="encoding">The encoding.</param>
@@ -59,7 +59,7 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Gets the encoding used to decode a row's content.
+        /// Gets the encoding used to parse the table content.
         /// </summary>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
         public Encoding Encoding
@@ -129,7 +129,7 @@ namespace NDbfReader
         /// Gets raw bytes of the specified column of the current row.
         /// </summary>
         /// <param name="column">The column.</param>
-        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the the raw bytes of the specified column starting at the specified <paramref name="offset"/>.</param>
+        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the raw bytes of the specified column starting at the specified <paramref name="offset"/>.</param>
         /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the raw bytes of the specified column.</param>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="column"/> is <c>null</c>.<br />
@@ -173,7 +173,7 @@ namespace NDbfReader
         /// Gets raw bytes of the specified column of the current row.
         /// </summary>
         /// <param name="columnName">The column name.</param>
-        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the the raw bytes of the specified column starting at the specified <paramref name="offset"/>.</param>
+        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the raw bytes of the specified column starting at the specified <paramref name="offset"/>.</param>
         /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the raw bytes of the specified column.</param>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="columnName"/> is <c>null</c>.<br />

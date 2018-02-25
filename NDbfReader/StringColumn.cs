@@ -15,10 +15,10 @@ namespace NDbfReader
         private byte[] _zeroPattern;
 
         /// <summary>
-        /// Initializes a new instance with the specified name and offset.
+        /// Initializes a new instance with the specified name, offset and size.
         /// </summary>
         /// <param name="name">The column name.</param>
-        /// <param name="offset">The column offset in a row in bytes.</param>
+        /// <param name="offset">The column offset in a row.</param>
         /// <param name="size">The column size in bytes.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0.</exception>
@@ -30,13 +30,13 @@ namespace NDbfReader
         /// <summary>
         /// Loads a value from the specified buffer.
         /// </summary>
-        /// <param name="buffer">The byte array from which a value should be loaded.</param>
-        /// <param name="offset">The byte offset in <paramref name="buffer"/> at which loading begins. </param>
-        /// <param name="encoding">The encoding that should be used when loading a value. The encoding is never <c>null</c>.</param>
+        /// <param name="buffer">The source buffer.</param>
+        /// <param name="offset">The offset in <paramref name="buffer"/> at which to begin loading the value.</param>
+        /// <param name="encoding">The encoding to use to parse the value.</param>
         /// <returns>A column value.</returns>
         protected override string DoLoad(byte[] buffer, int offset, Encoding encoding)
         {
-            // Why don't just call string.TrimEnd method? Because the method allocates a lot of objects.
+            // Don't use string.TrimEnd method because it allocates a lot of objects.
             if (_lastEncoding == null || _lastEncoding != encoding)
             {
                 _lastEncoding = encoding;

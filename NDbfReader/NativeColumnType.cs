@@ -12,7 +12,7 @@
         public const byte Date = 0x44;
 
         /// <summary>
-        /// 8 bytes - the first 4 bytes prepresent days and the next 4 bytes represent miliseconds.
+        /// 8 bytes - the first 4 bytes represent days and the rest 4 bytes represent milliseconds.
         /// </summary>
         public const byte FoxProDateTime = 0x54;
 

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace NDbfReader
 {
     /// <summary>
-    /// Extensions for for the <see cref="Table"/> class.
+    /// Extensions for the <see cref="Table"/> class.
     /// </summary>
     public static class TableExtensions
     {
@@ -52,7 +52,7 @@ namespace NDbfReader
         /// Loads the DBF table into a <see cref="DataTable"/>.
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
-        /// <param name="encoding">The encoding that is used to load the rows content.</param>
+        /// <param name="encoding">The encoding that is used to load the table content.</param>
         /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
         /// <exception cref="InvalidOperationException">Another reader of the DBF table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
@@ -76,7 +76,7 @@ namespace NDbfReader
         /// Loads the DBF table into a <see cref="DataTable"/>.
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
-        /// <param name="encoding">The encoding that is used to load the rows content.</param>
+        /// <param name="encoding">The encoding that is used to load the table content.</param>
         /// <param name="columnNames">The names of columns to load.</param>
         /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="encoding"/> is <c>null</c> or one of the column names is <c>null</c>.</exception>
@@ -141,7 +141,7 @@ namespace NDbfReader
         /// Loads the DBF table into a <see cref="DataTable"/>.
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
-        /// <param name="encoding">The encoding that is used to load the rows content.</param>
+        /// <param name="encoding">The encoding that is used to load the table content.</param>
         /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
         /// <exception cref="InvalidOperationException">Another reader of the DBF table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
@@ -165,7 +165,7 @@ namespace NDbfReader
         /// Loads the DBF table into a <see cref="DataTable"/>.
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
-        /// <param name="encoding">The encoding that is used to load the rows content.</param>
+        /// <param name="encoding">The encoding that is used to load the table content.</param>
         /// <param name="columnNames">The names of columns to load.</param>
         /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="encoding"/> is <c>null</c> or one of the column names is <c>null</c>.</exception>

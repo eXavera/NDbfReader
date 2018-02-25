@@ -1,7 +1,7 @@
 ﻿namespace NDbfReader
 {
     /// <summary>
-    /// Defines the dBASE datetime formats.
+    /// Defines the dBASE date-time formats.
     /// </summary>
     public enum DateTimeNativeFormat
     {

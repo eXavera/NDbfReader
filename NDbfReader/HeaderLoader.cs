@@ -25,6 +25,7 @@ namespace NDbfReader
         private const int ROW_COUNT_OFFSET = 4;
         private const int ROW_SIZE_OFFSET = 10;
         private const int YEAR_OFFSET = 1;
+
         private static readonly HeaderLoader _default = new HeaderLoader();
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace NDbfReader
                 throw new ArgumentNullException(nameof(stream));
             }
 
-            // optimization: one byte ahead when loading columns => only one I/O read per column
+            // optimization: be one byte ahead when loading columns => only one I/O read per column
             var buffer = new byte[HEADER_SIZE + 1];
             int totalReadBytes = stream.Read(buffer, 0, buffer.Length);
 
@@ -87,7 +88,7 @@ namespace NDbfReader
                 throw new ArgumentNullException(nameof(stream));
             }
 
-            // optimization: one byte ahead when loading columns => only one I/O read per column
+            // optimization: be one byte ahead when loading columns => only one I/O read per column
             var buffer = new byte[HEADER_SIZE + 1];
             int totalReadBytes = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
 
@@ -106,6 +107,7 @@ namespace NDbfReader
                 }
                 else
                 {
+                    // async read is more expensive then sync read so we use bigger buffer to reduce the number of I/O reads
                     const int MAX_SKIP_BUFFER_SIZE = 512;
 
                     byte[] skipBuffer = buffer;
@@ -130,7 +132,7 @@ namespace NDbfReader
         /// <param name="size">The column size in bytes.</param>
         /// <param name="type">The column native type.</param>
         /// <param name="name">The column name.</param>
-        /// <param name="columnOffset">The column offset (in bytes) in a row.</param>
+        /// <param name="columnOffset">The column offset in a row.</param>
         /// <returns>A column instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> or <paramref name="columnOffset"/> is &lt; 0.</exception>
@@ -291,10 +293,10 @@ namespace NDbfReader
             /// <summary>
             /// Initializes a new instance.
             /// </summary>
-            /// <param name="lastModified">The date a table was last modified.</param>
+            /// <param name="lastModified">The date the table was last modified.</param>
             /// <param name="rowCount">The number of rows in a table.</param>
-            /// <param name="rowSize">The size of a row in bytes.</param>
-            /// <param name="headerSize">The total size of the header.</param>
+            /// <param name="rowSize">The row size in bytes.</param>
+            /// <param name="headerSize">The header total size.</param>
             public BasicProperties(DateTime lastModified, int rowCount, short rowSize, short headerSize)
             {
                 LastModified = lastModified;
@@ -304,12 +306,12 @@ namespace NDbfReader
             }
 
             /// <summary>
-            /// Gets the total size of the header.
+            /// Gets the header total size.
             /// </summary>
             public short HeaderSize { get; }
 
             /// <summary>
-            /// Gets a date the table was last modified.
+            /// Gets the date the table was last modified.
             /// </summary>
             public DateTime LastModified { get; }
 
@@ -319,7 +321,7 @@ namespace NDbfReader
             public int RowCount { get; }
 
             /// <summary>
-            /// Gets the size of a row in bytes.
+            /// Gets the row size in bytes.
             /// </summary>
             public short RowSize { get; }
         }

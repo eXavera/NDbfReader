@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace NDbfReader
 {
     /// <summary>
-    /// Represents a dBASE table.  Use one of the Open static methods to create a new instance.
+    /// Represents a dBASE table. Use one of the Open static methods to create a new instance.
     /// </summary>
     /// <example>
     /// <code>
@@ -29,7 +29,7 @@ namespace NDbfReader
         /// Initializes a new instance from the specified header and input stream.
         /// </summary>
         /// <param name="header">The dBASE header.</param>
-        /// <param name="stream">The input stream positioned at the firsh byte of the first row.</param>
+        /// <param name="stream">The input stream positioned at the first byte of the first row.</param>
         /// <exception cref="ArgumentNullException"><paramref name="header"/> is <c>null</c> or <paramref name="stream"/> is <c>null</c>.</exception>
         protected Table(Header header, Stream stream)
         {
@@ -188,7 +188,7 @@ namespace NDbfReader
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c> or <paramref name="headerLoader"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="stream"/> does not allow reading.</exception>
-        /// <exception cref="NotSupportedException">The dBASE table constains one or more columns of unsupported type.</exception>
+        /// <exception cref="NotSupportedException">The dBASE table contains one or more columns of unsupported type.</exception>
         public static async Task<Table> OpenAsync(Stream stream, HeaderLoader headerLoader)
         {
             if (stream == null)
@@ -241,7 +241,7 @@ namespace NDbfReader
         /// <summary>
         /// Opens a reader of the table with the specified encoding. Only one reader per table can be opened.
         /// </summary>
-        /// <param name="encoding">The encoding that is used to load the rows content.</param>
+        /// <param name="encoding">The encoding that is used to load the table content.</param>
         /// <returns>A <see cref="Reader"/> instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <c>null</c>.</exception>
         /// <exception cref="InvalidOperationException">Another reader of the table is opened.</exception>
