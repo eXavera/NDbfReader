@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.Text;
 
 namespace NDbfReader
 {
     /// <summary>
-    /// Represents a date column.
+    /// Represents a FoxPro date time column.
     /// </summary>
-    [DebuggerDisplay("Date {Name}")]
-    public class DateTimeColumn : Column<DateTime?>
+    [DebuggerDisplay("DateTime {Name}")]
+    public class FoxProDateTimeColumn : Column<DateTime?>
     {
         private const int SIZE = 8;
 
@@ -20,7 +19,7 @@ namespace NDbfReader
         /// <param name="offset">The column offset in a row.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0.</exception>
-        public DateTimeColumn(string name, int offset)
+        public FoxProDateTimeColumn(string name, int offset)
             : base(name, offset, SIZE)
         {
         }
@@ -34,12 +33,12 @@ namespace NDbfReader
         /// <returns>A column value.</returns>
         protected override DateTime? DoLoad(byte[] buffer, int offset, Encoding encoding)
         {
-            string stringValue = encoding.GetString(buffer, offset, SIZE);
-            if (string.IsNullOrWhiteSpace(stringValue))
-            {
-                return null;
-            }
-            return DateTime.ParseExact(stringValue, "yyyyMMdd", null, DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite);
+            const uint ZERO_DATE = 1721426;
+
+            uint daysFromZeroDate = BitConverter.ToUInt32(buffer, offset) - ZERO_DATE;
+            uint miliseconds = BitConverter.ToUInt32(buffer, offset + 4);
+
+            return DateTime.MinValue.AddDays(daysFromZeroDate).AddMilliseconds(miliseconds);
         }
     }
 }

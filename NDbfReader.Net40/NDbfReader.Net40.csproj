@@ -84,11 +84,11 @@
     <Compile Include="..\NDbfReader\DateTimeColumn.cs">
       <Link>DateTimeColumn.cs</Link>
     </Compile>
-    <Compile Include="..\NDbfReader\DateTimeNativeFormat.cs">
-      <Link>DateTimeNativeFormat.cs</Link>
-    </Compile>
     <Compile Include="..\NDbfReader\DecimalColumn.cs">
       <Link>DecimalColumn.cs</Link>
+    </Compile>
+    <Compile Include="..\NDbfReader\FoxProDateTimeColumn.cs">
+      <Link>FoxProDateTimeColumn.cs</Link>
     </Compile>
     <Compile Include="..\NDbfReader\Header.cs">
       <Link>Header.cs</Link>
