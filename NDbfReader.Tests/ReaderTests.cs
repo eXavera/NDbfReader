@@ -405,39 +405,51 @@ namespace NDbfReader.Tests
         }
 
         [Theory]
-        [InlineDataWithExecMode]
-        public Task GetDate_FoxProDateTimeColumnName_ReturnsCorrectDateTime(bool useAsync)
+        [InlineDataWithExecMode(true)]
+        [InlineDataWithExecMode(false)]
+        public Task GetDate_FoxProDateTimeColumnName_ReturnsCorrectDateTime(bool useAsync, bool withNullValue)
         {
+            (string columnName, DateTime? expectedValue) = Samples.FoxProDateTime.FirstRow(withNullValue);
+
             return GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(
                 useAsync,
-                reader => reader.GetDateTime(Samples.FoxProDateTime.ColumnName));
+                reader => reader.GetDateTime(columnName), expectedValue);
         }
 
         [Theory]
-        [InlineDataWithExecMode]
-        public Task GetDate_FoxProDateTimeColumnInstance_ReturnsCorrectDateTime(bool useAsync)
+        [InlineDataWithExecMode(true)]
+        [InlineDataWithExecMode(false)]
+        public Task GetDate_FoxProDateTimeColumnInstance_ReturnsCorrectDateTime(bool useAsync, bool withNullValue)
         {
+            (string columnName, DateTime? expectedValue) = Samples.FoxProDateTime.FirstRow(withNullValue);
+
             return GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(
                 useAsync,
-                reader => reader.GetDateTime(reader.Table.Columns[Samples.FoxProDateTime.ColumnName]));
+                reader => reader.GetDateTime(reader.Table.Columns[columnName]), expectedValue);
         }
 
         [Theory]
-        [InlineDataWithExecMode]
-        public Task GetValue_FoxProDateTimeColumnName_ReturnsCorrectDateTime(bool useAsync)
+        [InlineDataWithExecMode(true)]
+        [InlineDataWithExecMode(false)]
+        public Task GetValue_FoxProDateTimeColumnName_ReturnsCorrectDateTime(bool useAsync, bool withNullValue)
         {
+            (string columnName, DateTime? expectedValue) = Samples.FoxProDateTime.FirstRow(withNullValue);
+
             return GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(
                 useAsync,
-                reader => (DateTime?)reader.GetValue(Samples.FoxProDateTime.ColumnName));
+                reader => (DateTime?)reader.GetValue(columnName), expectedValue);
         }
 
         [Theory]
-        [InlineDataWithExecMode]
-        public Task GetValue_FoxProDateTimeColumnInstance_ReturnsCorrectDateTime(bool useAsync)
+        [InlineDataWithExecMode(true)]
+        [InlineDataWithExecMode(false)]
+        public Task GetValue_FoxProDateTimeColumnInstance_ReturnsCorrectDateTime(bool useAsync, bool withNullValue)
         {
+            (string columnName, DateTime? expectedValue) = Samples.FoxProDateTime.FirstRow(withNullValue);
+
             return GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(
                 useAsync, 
-                reader => (DateTime?)reader.GetValue(reader.Table.Columns[Samples.FoxProDateTime.ColumnName]));
+                reader => (DateTime?)reader.GetValue(reader.Table.Columns[columnName]), expectedValue);
         }
 
         [Theory]
@@ -766,7 +778,7 @@ namespace NDbfReader.Tests
             }
         }
 
-        private async Task GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(bool useAsync, Func<Reader, DateTime?> getMethod)
+        private async Task GetMethod_FoxProDateTimeColumn_ReturnsCorrectDateTime(bool useAsync, Func<Reader, DateTime?> getMethod, DateTime? expectedValue)
         {
             // Arrange
             Stream stream = EmbeddedSamples.GetStream(EmbeddedSamples.FOXPRO_DATETIME);
@@ -776,14 +788,14 @@ namespace NDbfReader.Tests
 
                 DateTime? actualValue = null;
 
-                while (await reader.Exec(r => r.Read(), useAsync))
+                if (await reader.Exec(r => r.Read(), useAsync))
                 {
                     // Act
                     actualValue = getMethod(reader);
                 }
 
                 // Assert
-                actualValue.ShouldBeEquivalentTo(Samples.FoxProDateTime.Value);
+                actualValue.TrimMilliseconds().ShouldBeEquivalentTo(expectedValue);
             }
         }
 

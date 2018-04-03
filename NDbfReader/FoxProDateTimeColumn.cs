@@ -33,9 +33,14 @@ namespace NDbfReader
         /// <returns>A column value.</returns>
         protected override DateTime? DoLoad(byte[] buffer, int offset, Encoding encoding)
         {
-            const uint ZERO_DATE = 1721426;
+            uint days = BitConverter.ToUInt32(buffer, offset);
+            if (days == 0)
+            {
+                return null;
+            }
 
-            uint daysFromZeroDate = BitConverter.ToUInt32(buffer, offset) - ZERO_DATE;
+            const uint ZERO_DATE = 1721426;
+            uint daysFromZeroDate = days - ZERO_DATE;
             uint miliseconds = BitConverter.ToUInt32(buffer, offset + 4);
 
             return DateTime.MinValue.AddDays(daysFromZeroDate).AddMilliseconds(miliseconds);

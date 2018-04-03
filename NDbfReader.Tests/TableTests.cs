@@ -178,7 +178,7 @@ namespace NDbfReader.Tests
             var tableStream = EmbeddedSamples.GetStream(EmbeddedSamples.FOXPRO_DATETIME);
             using (var table = await this.Exec(() => Table.Open(tableStream), useAsync))
             {
-                var foxProDateTimeColumn = table.Columns[Samples.FoxProDateTime.ColumnName];
+                var foxProDateTimeColumn = table.Columns[Samples.FoxProDateTime.FirstRow().columnName];
 
                 foxProDateTimeColumn.Should().BeOfType<FoxProDateTimeColumn>();
             }

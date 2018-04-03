@@ -90,6 +90,7 @@
     <Compile Include="AdditionalReaderTests.cs" />
     <Compile Include="ColumnCollectionTests.cs" />
     <Compile Include="HeaderLoaderTests.cs" />
+    <Compile Include="Infrastructure\DateTimeExtensions.cs" />
     <Compile Include="Infrastructure\InlineDataWithExecModeAttribute.cs" />
     <Compile Include="Infrastructure\InlineDataWithExecModeAttributeTests.cs" />
     <Compile Include="Infrastructure\StreamExtensions.cs" />

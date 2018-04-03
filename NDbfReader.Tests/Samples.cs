@@ -33,9 +33,10 @@ namespace NDbfReader.Tests
 
         public static class FoxProDateTime
         {
-            public static readonly string ColumnName = "FLD01";
-
-            public static readonly DateTime Value = new DateTime(2017, 1, 1, 22, 10, 10);
+            public static (string columnName, DateTime? expectedValue) FirstRow(bool withNullValue = false)
+            {
+                return withNullValue ? ("FLAGDATE", (DateTime?)null) : ("UPDATED", new DateTime(2006, 4, 20, 17, 13, 04));
+            }
         }
     }
 }
