@@ -10,9 +10,7 @@ namespace NDbfReader
     [DebuggerDisplay("String {Name}")]
     public class StringColumn : Column<string>
     {
-        private Encoding _lastEncoding;
-        private byte[] _spacePattern;
-        private byte[] _zeroPattern;
+        private char[] _parsedCharsBuffer;
 
         /// <summary>
         /// Initializes a new instance with the specified name, offset and size.
@@ -36,49 +34,22 @@ namespace NDbfReader
         /// <returns>A column value.</returns>
         protected override string DoLoad(byte[] buffer, int offset, Encoding encoding)
         {
-            // Don't use string.TrimEnd method because it allocates a lot of objects.
-            if (_lastEncoding == null || _lastEncoding != encoding)
+            if (_parsedCharsBuffer == null)
             {
-                _lastEncoding = encoding;
-                _zeroPattern = encoding.GetBytes(new[] { '\0' });
-                _spacePattern = encoding.GetBytes(new[] { ' ' });
+                _parsedCharsBuffer = new char[Size];
             }
 
-            int size = GetSizeOfTrimString(buffer, offset, offset + Size, _spacePattern, _zeroPattern);
-            if (size == 0)
+            int readCharsCount = encoding.GetChars(buffer, offset, Size, _parsedCharsBuffer, 0);
+            for (int trimSize = readCharsCount; trimSize > 0; trimSize--)
             {
-                return null;
-            }
-            return encoding.GetString(buffer, offset, size);
-        }
-
-        private static bool EndsWith(byte[] input, int endIndex, byte[] values)
-        {
-            if (endIndex < values.Length) return false;
-
-            int inputStartIndex = endIndex - values.Length;
-            for (int i = 0; i < values.Length; i++)
-            {
-                if (input[inputStartIndex + i] != values[i])
+                char c = _parsedCharsBuffer[trimSize - 1];
+                if (c != '\0' && c != ' ')
                 {
-                    return false;
+                    return new String(_parsedCharsBuffer, 0, trimSize);
                 }
             }
-            return true;
-        }
 
-        private static int GetSizeOfTrimString(byte[] buffer, int startIndex, int endIndex, byte[] spacePattern, byte[] zeroPattern)
-        {
-            // both patterns have the same length
-            int patternLength = spacePattern.Length;
-            for (int i = endIndex; i >= startIndex; i -= patternLength)
-            {
-                if (!EndsWith(buffer, i, spacePattern) && !EndsWith(buffer, i, zeroPattern))
-                {
-                    return i - startIndex;
-                }
-            }
-            return 0;
+            return null;
         }
     }
 }
