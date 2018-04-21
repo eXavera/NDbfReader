@@ -114,6 +114,9 @@
     <Compile Include="..\NDbfReader\Reader.cs">
       <Link>Reader.cs</Link>
     </Compile>
+    <Compile Include="..\NDbfReader\StreamExtensions.cs">
+      <Link>StreamExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\NDbfReader\StringColumn.cs">
       <Link>StringColumn.cs</Link>
     </Compile>

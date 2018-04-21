@@ -16,5 +16,10 @@ namespace NDbfReader.Tests.Infrastructure
 
             return streamSpy;
         }
+
+        public static Stream EmulatePartialReads(this Stream stream)
+        {
+            return new StreamWithPartialReads(stream);
+        }
     }
 }

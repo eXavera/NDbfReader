@@ -48,7 +48,7 @@ namespace NDbfReader
 
             // optimization: be one byte ahead when loading columns => only one I/O read per column
             var buffer = new byte[HEADER_SIZE + 1];
-            int totalReadBytes = stream.Read(buffer, 0, buffer.Length);
+            int totalReadBytes = stream.ReadBlock(buffer, 0, buffer.Length);
 
             BasicProperties headerProperties = ParseBasicProperties(buffer);
 
@@ -67,7 +67,7 @@ namespace NDbfReader
                 {
                     while (bytesToSkip > 0)
                     {
-                        bytesToSkip -= stream.Read(buffer, 0, Math.Min(buffer.Length, bytesToSkip));
+                        bytesToSkip -= stream.ReadBlock(buffer, 0, Math.Min(buffer.Length, bytesToSkip));
                     }
                 }
             }
@@ -90,7 +90,7 @@ namespace NDbfReader
 
             // optimization: be one byte ahead when loading columns => only one I/O read per column
             var buffer = new byte[HEADER_SIZE + 1];
-            int totalReadBytes = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+            int totalReadBytes = await stream.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
 
             BasicProperties headerProperties = ParseBasicProperties(buffer);
 
@@ -118,7 +118,7 @@ namespace NDbfReader
 
                     while (bytesToSkip > 0)
                     {
-                        bytesToSkip -= await stream.ReadAsync(skipBuffer, 0, Math.Min(skipBuffer.Length, bytesToSkip)).ConfigureAwait(false);
+                        bytesToSkip -= await stream.ReadBlockAsync(skipBuffer, 0, Math.Min(skipBuffer.Length, bytesToSkip)).ConfigureAwait(false);
                     }
                 }
             }
@@ -237,7 +237,7 @@ namespace NDbfReader
             while (columnBytes[0] != FILE_DESCRIPTOR_TERMINATOR)
             {
                 // read first byte of the next column
-                readBytes += stream.Read(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE);
+                readBytes += stream.ReadBlock(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE);
 
                 Column newColumn = ParseColumn(columnBytes, columnOffset);
                 columns.Add(newColumn);
@@ -263,7 +263,7 @@ namespace NDbfReader
             while (columnBytes[0] != FILE_DESCRIPTOR_TERMINATOR)
             {
                 // read first byte of the next column
-                readBytes += await stream.ReadAsync(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE).ConfigureAwait(false);
+                readBytes += await stream.ReadBlockAsync(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE).ConfigureAwait(false);
 
                 Column newColumn = ParseColumn(columnBytes, columnOffset);
                 columns.Add(newColumn);

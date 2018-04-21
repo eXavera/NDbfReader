@@ -429,7 +429,7 @@ namespace NDbfReader
                 int newBufferOffset = _bufferOffset + _rowSize;
                 if (newBufferOffset >= _buffer.Length || _loadedRowCount == 0)
                 {
-                    Stream.Read(_buffer, 0, _buffer.Length);
+                    Stream.ReadBlock(_buffer, 0, _buffer.Length);
                     newBufferOffset = 0;
                 }
 
@@ -460,7 +460,7 @@ namespace NDbfReader
                 int newBufferOffset = _bufferOffset + _rowSize;
                 if (newBufferOffset >= _buffer.Length || _loadedRowCount == 0)
                 {
-                    await Stream.ReadAsync(_buffer, 0, _buffer.Length).ConfigureAwait(false);
+                    await Stream.ReadBlockAsync(_buffer, 0, _buffer.Length).ConfigureAwait(false);
                     newBufferOffset = 0;
                 }
 

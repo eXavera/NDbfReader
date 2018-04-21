@@ -94,8 +94,10 @@
     <Compile Include="Infrastructure\InlineDataWithExecModeAttribute.cs" />
     <Compile Include="Infrastructure\InlineDataWithExecModeAttributeTests.cs" />
     <Compile Include="Infrastructure\StreamExtensions.cs" />
+    <Compile Include="Infrastructure\StreamWithPartialReads.cs" />
     <Compile Include="Infrastructure\TestMethodExecutionExtensions.cs" />
     <Compile Include="Infrastructure\TestMethodExecutionExtensionsTests.cs" />
+    <Compile Include="NetworkStreamSupportTests.cs" />
     <Compile Include="Samples.cs" />
     <Compile Include="Infrastructure\ReaderGetMethodsAttribute.cs" />
     <Compile Include="ReaderTests.cs" />
