@@ -173,7 +173,7 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
-        public async Task Oepn_FoxProDateTimeColumn_CreatesFoxProDateTimeColumnInstance(bool useAsync)
+        public async Task Open_FoxProDateTimeColumn_CreatesFoxProDateTimeColumnInstance(bool useAsync)
         {
             var tableStream = EmbeddedSamples.GetStream(EmbeddedSamples.FOXPRO_DATETIME);
             using (var table = await this.Exec(() => Table.Open(tableStream), useAsync))
