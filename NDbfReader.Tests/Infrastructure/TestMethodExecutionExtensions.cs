@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NDbfReader.Tests.Infrastructure
@@ -39,6 +41,7 @@ namespace NDbfReader.Tests.Infrastructure
                 if (useAsync)
                 {
                     MethodInfo asyncMethod = GetAsyncMethod(method);
+                    arguments = AddCancellationTokenIfMissing(asyncMethod, arguments);
                     var task = (Task<TResult>)asyncMethod.Invoke(instance, arguments);
                     return task;
                 }
@@ -63,6 +66,7 @@ namespace NDbfReader.Tests.Infrastructure
                 if (useAsync)
                 {
                     MethodInfo asyncMethod = GetAsyncMethod(method);
+                    arguments = AddCancellationTokenIfMissing(asyncMethod, arguments);
                     var task = (Task)asyncMethod.Invoke(instance, arguments);
                     return task;
                 }
@@ -81,14 +85,36 @@ namespace NDbfReader.Tests.Infrastructure
             return callExpression.Arguments.Select(GetValue).ToArray();
         }
 
+        private static object[] AddCancellationTokenIfMissing(MethodInfo asyncMethod, object[] arguments)
+        {
+            ParameterInfo[] asyncMethodParams = asyncMethod.GetParameters();
+            Type lastParamType = asyncMethodParams.LastOrDefault()?.ParameterType;
+            if (lastParamType == typeof(CancellationToken) && arguments.Length < asyncMethodParams.Length)
+            {
+                var newArguments = new object[arguments.Length + 1];
+                Array.Copy(arguments, newArguments, arguments.Length);
+                newArguments[newArguments.Length - 1] = CancellationToken.None;
+
+                return newArguments;
+            }
+
+            return arguments;
+        }
+
         private static MethodInfo GetAsyncMethod(MethodInfo syncMethod)
         {
-            Type[] parameterTypes = syncMethod.GetParameters().Select(p => p.ParameterType).ToArray();
             var asyncMethodName = syncMethod.Name + "Async";
-            MethodInfo asyncMethod = syncMethod.DeclaringType.GetMethod(asyncMethodName, parameterTypes);
+            List<Type> parameterTypes = syncMethod.GetParameters().Select(p => p.ParameterType).ToList();
+            MethodInfo asyncMethod = syncMethod.DeclaringType.GetMethod(asyncMethodName, parameterTypes.ToArray());
             if (asyncMethod == null)
             {
-                throw new InvalidOperationException($"Method {syncMethod.DeclaringType.FullName}.{asyncMethodName} was not found.");
+                parameterTypes.Add(typeof(CancellationToken));
+                asyncMethod = syncMethod.DeclaringType.GetMethod(asyncMethodName, parameterTypes.ToArray());
+
+                if (asyncMethod == null)
+                {
+                    throw new InvalidOperationException($"Method {syncMethod.DeclaringType.FullName}.{asyncMethodName} was not found.");
+                }
             }
 
             return asyncMethod;

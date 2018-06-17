@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NDbfReader.Tests
@@ -26,9 +27,9 @@ namespace NDbfReader.Tests
             return Table.Open(GetBasicTableStream());
         }
 
-        public static Task<Table> OpenBasicTableAsync()
+        public static Task<Table> OpenBasicTableAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Table.OpenAsync(GetBasicTableStream());
+            return Table.OpenAsync(GetBasicTableStream(), cancellationToken);
         }
 
         public static class FoxProDateTime

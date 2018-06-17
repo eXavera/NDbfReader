@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
@@ -11,13 +12,13 @@ namespace NDbfReader.Tests.Infrastructure
         {
             int Add(int a, int b);
 
-            Task<int> AddAsync(int a, int b);
+            Task<int> AddAsync(int a, int b, CancellationToken cancellationToken = default(CancellationToken));
 
             void Log(string msg);
 
             void Log();
 
-            Task LogAsync(string msg);
+            Task LogAsync(string msg, CancellationToken cancellationToken = default(CancellationToken));
 
             int Sub(int a, int b);
         }
@@ -114,12 +115,12 @@ namespace NDbfReader.Tests.Infrastructure
                 throw new InvalidOperationException();
             }
 
-            public static Task<string> MethodAsync(string arg)
+            public static Task<string> MethodAsync(string arg, CancellationToken cancellationToken = default(CancellationToken))
             {
                 return Task.FromResult(arg + "Async");
             }
 
-            public static Task<string> MethodAsync()
+            public static Task<string> MethodAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
                 throw new InvalidOperationException();
             }

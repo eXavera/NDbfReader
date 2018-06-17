@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NDbfReader.Tests.Infrastructure
 {
@@ -69,6 +71,11 @@ namespace NDbfReader.Tests.Infrastructure
         public override void Write(byte[] buffer, int offset, int count)
         {
             _inner.Write(buffer, offset, count);
+        }
+
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            return _inner.ReadAsync(buffer, offset, count, cancellationToken);
         }
     }
 }

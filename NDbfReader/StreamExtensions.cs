@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NDbfReader
@@ -20,14 +21,14 @@ namespace NDbfReader
             return totalRead;
         }
 
-        public static async Task<int> ReadBlockAsync(this Stream stream, byte[] buffer, int offset, int count)
+        public static async Task<int> ReadBlockAsync(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             int totalRead = 0;
             int lastRead = 0;
 
             do
             {
-                lastRead = await stream.ReadAsync(buffer, offset + totalRead, count - totalRead).ConfigureAwait(false);
+                lastRead = await stream.ReadAsync(buffer, offset + totalRead, count - totalRead, cancellationToken).ConfigureAwait(false);
                 totalRead += lastRead;
             }
             while (totalRead < count && lastRead > 0);

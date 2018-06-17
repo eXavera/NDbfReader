@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NDbfReader
@@ -107,11 +108,12 @@ namespace NDbfReader
         /// Loads the DBF table into a <see cref="DataTable"/> with the default UTF-8 encoding.
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         /// <exception cref="InvalidOperationException">Another reader of the DBF table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
-        public static async Task<DataTable> AsDataTableAsync(this Table table)
+        public static async Task<DataTable> AsDataTableAsync(this Table table, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (table == null)
             {
@@ -119,8 +121,23 @@ namespace NDbfReader
             }
 
             DataTable dataTable = CreateDataTable(table.Columns);
-            await FillDataAsync(table.Columns, dataTable, table.OpenReader()).ConfigureAwait(false);
+            await FillDataAsync(table.Columns, dataTable, table.OpenReader(), cancellationToken).ConfigureAwait(false);
             return dataTable;
+        }
+
+        /// <summary>
+        /// Loads the DBF table into a <see cref="DataTable"/> with the default UTF-8 encoding.
+        /// </summary>
+        /// <param name="table">The DBF table to load.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <param name="columnNames">The names of columns to load.</param>
+        /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or one of the column names is <c>null</c>.</exception>
+        /// <exception cref="InvalidOperationException">Another reader of the DBF table is opened.</exception>
+        /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
+        public static Task<DataTable> AsDataTableAsync(this Table table, CancellationToken cancellationToken, params string[] columnNames)
+        {
+            return AsDataTableAsync(table, Table.DefaultEncoding, cancellationToken, columnNames);
         }
 
         /// <summary>
@@ -134,7 +151,7 @@ namespace NDbfReader
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
         public static Task<DataTable> AsDataTableAsync(this Table table, params string[] columnNames)
         {
-            return AsDataTableAsync(table, Table.DefaultEncoding, columnNames);
+            return AsDataTableAsync(table, default(CancellationToken), columnNames);
         }
 
         /// <summary>
@@ -142,10 +159,11 @@ namespace NDbfReader
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
         /// <param name="encoding">The encoding that is used to load the table content.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
         /// <exception cref="InvalidOperationException">Another reader of the DBF table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
-        public static async Task<DataTable> AsDataTableAsync(this Table table, Encoding encoding)
+        public static async Task<DataTable> AsDataTableAsync(this Table table, Encoding encoding, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (table == null)
             {
@@ -157,7 +175,7 @@ namespace NDbfReader
             }
 
             DataTable dataTable = CreateDataTable(table.Columns);
-            await FillDataAsync(table.Columns, dataTable, table.OpenReader(encoding)).ConfigureAwait(false);
+            await FillDataAsync(table.Columns, dataTable, table.OpenReader(encoding), cancellationToken).ConfigureAwait(false);
             return dataTable;
         }
 
@@ -166,12 +184,13 @@ namespace NDbfReader
         /// </summary>
         /// <param name="table">The DBF table to load.</param>
         /// <param name="encoding">The encoding that is used to load the table content.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <param name="columnNames">The names of columns to load.</param>
         /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="encoding"/> is <c>null</c> or one of the column names is <c>null</c>.</exception>
         /// <exception cref="InvalidOperationException">Another reader of the DBF table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
-        public static async Task<DataTable> AsDataTableAsync(this Table table, Encoding encoding, params string[] columnNames)
+        public static async Task<DataTable> AsDataTableAsync(this Table table, Encoding encoding, CancellationToken cancellationToken, params string[] columnNames)
         {
             if (table == null)
             {
@@ -188,8 +207,23 @@ namespace NDbfReader
 
             List<IColumn> selectedColumns = GetSelectedColumns(table, columnNames);
             DataTable dataTable = CreateDataTable(selectedColumns);
-            await FillDataAsync(selectedColumns, dataTable, table.OpenReader(encoding)).ConfigureAwait(false);
+            await FillDataAsync(selectedColumns, dataTable, table.OpenReader(encoding), cancellationToken).ConfigureAwait(false);
             return dataTable;
+        }
+
+        /// <summary>
+        /// Loads the DBF table into a <see cref="DataTable"/>.
+        /// </summary>
+        /// <param name="table">The DBF table to load.</param>
+        /// <param name="encoding">The encoding that is used to load the table content.</param>
+        /// <param name="columnNames">The names of columns to load.</param>
+        /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="encoding"/> is <c>null</c> or one of the column names is <c>null</c>.</exception>
+        /// <exception cref="InvalidOperationException">Another reader of the DBF table is opened.</exception>
+        /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
+        public static Task<DataTable> AsDataTableAsync(this Table table, Encoding encoding, params string[] columnNames)
+        {
+            return AsDataTableAsync(table, encoding, default(CancellationToken), columnNames);
         }
 
         private static DataTable CreateDataTable(IEnumerable<IColumn> columns)
@@ -216,9 +250,9 @@ namespace NDbfReader
             }
         }
 
-        private static async Task FillDataAsync(IEnumerable<IColumn> columns, DataTable dataTable, Reader reader)
+        private static async Task FillDataAsync(IEnumerable<IColumn> columns, DataTable dataTable, Reader reader, CancellationToken cancellationToken = default(CancellationToken))
         {
-            while (await reader.ReadAsync().ConfigureAwait(false))
+            while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
                 dataTable.Rows.Add(LoadRow(dataTable, columns, reader));
             }

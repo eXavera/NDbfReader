@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NDbfReader
@@ -444,14 +445,17 @@ namespace NDbfReader
         /// <summary>
         /// Moves the reader to the next row.
         /// </summary>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns><c>true</c> if there are more rows; otherwise <c>false</c>.</returns>
         /// <exception cref="ObjectDisposedException">The parent table is disposed.</exception>
-        public async Task<bool> ReadAsync()
+        public async Task<bool> ReadAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             ThrowIfDisposed();
 
             do
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (_loadedRowCount >= Header.RowCount)
                 {
                     return _rowLoaded = false;
@@ -460,7 +464,7 @@ namespace NDbfReader
                 int newBufferOffset = _bufferOffset + _rowSize;
                 if (newBufferOffset >= _buffer.Length || _loadedRowCount == 0)
                 {
-                    await Stream.ReadBlockAsync(_buffer, 0, _buffer.Length).ConfigureAwait(false);
+                    await Stream.ReadBlockAsync(_buffer, 0, _buffer.Length, cancellationToken).ConfigureAwait(false);
                     newBufferOffset = 0;
                 }
 

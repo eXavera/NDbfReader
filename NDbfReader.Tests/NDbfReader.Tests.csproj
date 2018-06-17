@@ -88,6 +88,7 @@
       <Link>GlobalSuppressions.cs</Link>
     </Compile>
     <Compile Include="AdditionalReaderTests.cs" />
+    <Compile Include="CancellationTokenSupportTests.cs" />
     <Compile Include="ColumnCollectionTests.cs" />
     <Compile Include="HeaderLoaderTests.cs" />
     <Compile Include="Infrastructure\DateTimeExtensions.cs" />
