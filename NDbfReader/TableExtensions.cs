@@ -113,7 +113,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         /// <exception cref="InvalidOperationException">Another reader of the DBF table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
-        public static async Task<DataTable> AsDataTableAsync(this Table table, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<DataTable> AsDataTableAsync(this Table table, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (table == null)
             {
@@ -121,8 +121,7 @@ namespace NDbfReader
             }
 
             DataTable dataTable = CreateDataTable(table.Columns);
-            await FillDataAsync(table.Columns, dataTable, table.OpenReader(), cancellationToken).ConfigureAwait(false);
-            return dataTable;
+            return FillDataAsync(table.Columns, dataTable, table.OpenReader(), cancellationToken);
         }
 
         /// <summary>
@@ -163,7 +162,7 @@ namespace NDbfReader
         /// <returns>A <see cref="DataTable"/> loaded from the DBF table.</returns>
         /// <exception cref="InvalidOperationException">Another reader of the DBF table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
-        public static async Task<DataTable> AsDataTableAsync(this Table table, Encoding encoding, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<DataTable> AsDataTableAsync(this Table table, Encoding encoding, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (table == null)
             {
@@ -175,8 +174,7 @@ namespace NDbfReader
             }
 
             DataTable dataTable = CreateDataTable(table.Columns);
-            await FillDataAsync(table.Columns, dataTable, table.OpenReader(encoding), cancellationToken).ConfigureAwait(false);
-            return dataTable;
+            return FillDataAsync(table.Columns, dataTable, table.OpenReader(encoding), cancellationToken);
         }
 
         /// <summary>
@@ -190,7 +188,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="encoding"/> is <c>null</c> or one of the column names is <c>null</c>.</exception>
         /// <exception cref="InvalidOperationException">Another reader of the DBF table is opened.</exception>
         /// <exception cref="ObjectDisposedException">The DBF table is disposed.</exception>
-        public static async Task<DataTable> AsDataTableAsync(this Table table, Encoding encoding, CancellationToken cancellationToken, params string[] columnNames)
+        public static Task<DataTable> AsDataTableAsync(this Table table, Encoding encoding, CancellationToken cancellationToken, params string[] columnNames)
         {
             if (table == null)
             {
@@ -207,8 +205,7 @@ namespace NDbfReader
 
             List<IColumn> selectedColumns = GetSelectedColumns(table, columnNames);
             DataTable dataTable = CreateDataTable(selectedColumns);
-            await FillDataAsync(selectedColumns, dataTable, table.OpenReader(encoding), cancellationToken).ConfigureAwait(false);
-            return dataTable;
+            return FillDataAsync(selectedColumns, dataTable, table.OpenReader(encoding), cancellationToken);
         }
 
         /// <summary>
@@ -250,12 +247,14 @@ namespace NDbfReader
             }
         }
 
-        private static async Task FillDataAsync(IEnumerable<IColumn> columns, DataTable dataTable, Reader reader, CancellationToken cancellationToken = default(CancellationToken))
+        private static async Task<DataTable> FillDataAsync(IEnumerable<IColumn> columns, DataTable dataTable, Reader reader, CancellationToken cancellationToken = default(CancellationToken))
         {
             while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
                 dataTable.Rows.Add(LoadRow(dataTable, columns, reader));
             }
+
+            return dataTable;
         }
 
         private static List<IColumn> GetSelectedColumns(Table table, string[] columnNames)
