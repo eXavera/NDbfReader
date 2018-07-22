@@ -12,32 +12,25 @@ Supported platforms:
 - .NET Standard 1.3 (without `AsDataTable` methods)
 - .NET Standard 2.0
 
+[Supported data types](https://github.com/eXavera/NDbfReader/wiki/Supported-data-types)
+
 ## Example
 
 ```csharp
-using (var table = Table.Open("D:\\foo.dbf"))
+using (var table = Table.Open(@"D:\mytable.dbf"))
 {
-   // UTF-8 is the default encoding
-   var reader = table.OpenReader(Encoding.GetEncoding(1250));
-   while(reader.Read())
-   {
-     var name = reader.GetString("NAME");
-     //...
-   }
-}
-```
-The whole table can be loaded into a `DataTable`:
-```
-using (var table = Table.Open("D:\\foo.dbf"))
-   return table.AsDataTable();
-```
-Non-seekable (forward-only) streams are also supported:
-```csharp
-[HttpPost]
-public ActionResult Upload(HttpPostedFileBase file)
-{
-   using (var table = Table.Open(file.InputStream))
-   //..
+    var reader = table.OpenReader(Encoding.ASCII);
+    while (reader.Read())
+    {
+        var row = new MyRow()
+        {
+            Text = reader.GetString("TEXT"),
+            DateTime = reader.GetDateTime("DATETIME"),
+            IntValue = reader.GetInt32("INT"),
+            DecimalValue = reader.GetDecimal("DECIMAL"),
+            BooleanValue = reader.GetBoolean("BOOL")
+        };
+    }
 }
 ```
 
