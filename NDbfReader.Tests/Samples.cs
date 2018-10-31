@@ -39,5 +39,40 @@ namespace NDbfReader.Tests
                 return withNullValue ? ("FLAGDATE", (DateTime?)null) : ("UPDATED", new DateTime(2006, 4, 20, 17, 13, 04));
             }
         }
+
+        public static class TenBytesDates
+        {
+            public static readonly IEnumerable<object> FirstRowContent = new object[]
+            {
+                "0000000000",
+                "JOHN",
+                "DOE",
+                "NOP",
+                "001122",
+                null,
+                "123",
+                null,
+                null,
+                "MAIN",
+                "ST",
+                null,
+                null,
+                "NEW YORK",
+                "NY",
+                "11111",
+                "2222",
+                "555 LEFT ST",
+                null,
+                null,
+                "22222-222",
+                new DateTime(1960, 1, 1),
+                "F",
+                new DateTime(1978, 1, 1),
+                new DateTime(2000, 1, 1),
+                "F",
+                "F",
+                "F"
+            };
+        }
     }
 }

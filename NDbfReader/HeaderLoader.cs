@@ -159,16 +159,16 @@ namespace NDbfReader
                     return new StringColumn(name, columnOffset, size);
 
                 case NativeColumnType.Date:
-                    return new DateTimeColumn(name, columnOffset);
+                    return new DateTimeColumn(name, columnOffset, size);
 
                 case NativeColumnType.FoxProDateTime:
-                    return new FoxProDateTimeColumn(name, columnOffset);
+                    return new FoxProDateTimeColumn(name, columnOffset, size);
 
                 case NativeColumnType.Long:
-                    return new Int32Column(name, columnOffset);
+                    return new Int32Column(name, columnOffset, size);
 
                 case NativeColumnType.Logical:
-                    return new BooleanColumn(name, columnOffset);
+                    return new BooleanColumn(name, columnOffset, size);
 
                 case NativeColumnType.Numeric:
                 case NativeColumnType.Float:

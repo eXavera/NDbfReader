@@ -12,6 +12,7 @@ namespace NDbfReader.Tests
         public const string ZERO_SIZE_COLUMN = "ZeroSizeColumn.dbf";
         public const string WHITE_SPACES = "WhiteSpaces.dbf";
         public const string FOXPRO_DATETIME = "FoxProDateTime.dbf";
+        public const string TEN_BYTES_DATES = "10BytesDates.dbf";
 
         public static Stream GetStream(string fileName)
         {

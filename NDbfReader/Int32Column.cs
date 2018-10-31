@@ -10,6 +10,8 @@ namespace NDbfReader
     [DebuggerDisplay("Int32 {Name}")]
     public class Int32Column : Column<int>
     {
+        private const int MIN_SIZE = 4;
+
         /// <summary>
         /// Initializes a new instance with the specified name and offset.
         /// </summary>
@@ -17,9 +19,27 @@ namespace NDbfReader
         /// <param name="offset">The column offset in a row.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0.</exception>
+        [Obsolete("Specify the actual column size")]
         public Int32Column(string name, int offset)
-            : base(name, offset, size: 4)
+            : base(name, offset, MIN_SIZE)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance with the specified name, offset and size.
+        /// </summary>
+        /// <param name="name">The column name.</param>
+        /// <param name="offset">The column offset in a row.</param>
+        /// <param name="size">The column size in bytes.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 4.</exception>
+        public Int32Column(string name, int offset, int size)
+            : base(name, offset, size)
+        {
+            if (size < MIN_SIZE)
+            {
+                throw new ArgumentOutOfRangeException(nameof(size));
+            }
         }
 
         /// <summary>

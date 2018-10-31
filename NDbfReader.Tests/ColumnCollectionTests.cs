@@ -82,7 +82,7 @@ namespace NDbfReader.Tests
 
         private static IColumn[] CreateTestColumns()
         {
-            return new IColumn[] { new BooleanColumn("col1", 10), new DateTimeColumn("col2", 20) };
+            return new IColumn[] { new BooleanColumn("col1", 10, 1), new DateTimeColumn("col2", 20, 8) };
         }
     }
 }

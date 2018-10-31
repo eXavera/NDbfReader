@@ -138,7 +138,7 @@ namespace NDbfReader.Tests
         private static Table GetMockedBasicSampleTable()
         {
             return Substitute.ForPartsOf<MockableTable>(
-                new Header(DateTime.Now, 0, 0, new List<IColumn> { new BooleanColumn("LOGICAL", 0) }),
+                new Header(DateTime.Now, 0, 0, new List<IColumn> { new BooleanColumn("LOGICAL", 0, 1) }),
                 Samples.GetBasicTableStream());
         }
 

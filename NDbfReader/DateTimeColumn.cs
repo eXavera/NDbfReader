@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.Text;
 
 namespace NDbfReader
@@ -11,7 +10,7 @@ namespace NDbfReader
     [DebuggerDisplay("Date {Name}")]
     public class DateTimeColumn : Column<DateTime?>
     {
-        private const int SIZE = 8;
+        private const int NUMBER_OF_DATE_CHARS = 8;
 
         /// <summary>
         /// Initializes a new instance with the specified name and offset.
@@ -20,9 +19,27 @@ namespace NDbfReader
         /// <param name="offset">The column offset in a row.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0.</exception>
+        [Obsolete("Specify the actual column size")]
         public DateTimeColumn(string name, int offset)
-            : base(name, offset, SIZE)
+            : base(name, offset, NUMBER_OF_DATE_CHARS)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance with the specified name, offset and size.
+        /// </summary>
+        /// <param name="name">The column name.</param>
+        /// <param name="offset">The column offset in a row.</param>
+        /// <param name="size">The column size in bytes.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 8.</exception>
+        public DateTimeColumn(string name, int offset, int size)
+            : base(name, offset, size)
+        {
+            if (size < NUMBER_OF_DATE_CHARS)
+            {
+                throw new ArgumentOutOfRangeException(nameof(size));
+            }
         }
 
         /// <summary>
@@ -34,12 +51,14 @@ namespace NDbfReader
         /// <returns>A column value.</returns>
         protected override DateTime? DoLoad(byte[] buffer, int offset, Encoding encoding)
         {
-            string stringValue = encoding.GetString(buffer, offset, SIZE);
+            string stringValue = encoding.GetString(buffer, offset, NUMBER_OF_DATE_CHARS);
             if (string.IsNullOrWhiteSpace(stringValue))
             {
                 return null;
             }
-            return DateTime.ParseExact(stringValue, "yyyyMMdd", null, DateTimeStyles.AllowLeadingWhite | DateTimeStyles.AllowTrailingWhite);
+
+            // there are no whitespace characters
+            return DateTime.ParseExact(stringValue, "yyyyMMdd", null);
         }
     }
 }
