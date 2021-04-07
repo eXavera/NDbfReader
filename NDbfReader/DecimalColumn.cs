@@ -19,10 +19,11 @@ namespace NDbfReader
         /// <param name="name">The column name.</param>
         /// <param name="offset">The column offset in a row.</param>
         /// <param name="size">The column size in bytes.</param>
+        /// <param name="decimalPrecision">The column decimal precision.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0.</exception>
-        public DecimalColumn(string name, int offset, int size)
-            : base(name, offset, size)
+        public DecimalColumn(string name, int offset, int size, int decimalPrecision)
+            : base(name, offset, size, decimalPrecision)
         {
         }
 

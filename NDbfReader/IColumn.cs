@@ -18,6 +18,11 @@ namespace NDbfReader
         int Size { get; }
 
         /// <summary>
+        /// Gets the column decimal precision.
+        /// </summary>
+        int DecimalPrecision { get; }
+
+        /// <summary>
         /// Gets the <c>CLR</c> type of a column value.
         /// </summary>
         Type Type { get; }

@@ -21,7 +21,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0.</exception>
         public StringColumn(string name, int offset, int size)
-            : base(name, offset, size)
+            : base(name, offset, size, 0)
         {
         }
 

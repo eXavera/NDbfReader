@@ -17,9 +17,10 @@ namespace NDbfReader
         /// <param name="name">The column name.</param>
         /// <param name="offset">The column offset in a row.</param>
         /// <param name="size">The column size in bytes.</param>
+        /// <param name="decimalPrecision">The column decimal precision, positions.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0.</exception>
-        protected internal Column(string name, int offset, int size)
+        protected internal Column(string name, int offset, int size, int decimalPrecision)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -34,9 +35,15 @@ namespace NDbfReader
                 throw new ArgumentOutOfRangeException(nameof(size));
             }
 
+            if (decimalPrecision < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(decimalPrecision));
+            }
+
             Name = name;
             Offset = offset;
             Size = size;
+            DecimalPrecision = decimalPrecision;
         }
 
         /// <summary>
@@ -53,6 +60,11 @@ namespace NDbfReader
         /// Gets the column size in bytes.
         /// </summary>
         public int Size { get; }
+
+        /// <summary>
+        /// Gets the column decimal precision.
+        /// </summary>
+        public int DecimalPrecision { get; }
 
         /// <summary>
         /// Gets the <c>CLR</c> type of the column value.
@@ -81,10 +93,11 @@ namespace NDbfReader
         /// <param name="name">The column name.</param>
         /// <param name="offset">The column offset in a row.</param>
         /// <param name="size">The column size in bytes.</param>
+        /// <param name="decimalPrecision">The column decimal precision.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0.</exception>
-        protected Column(string name, int offset, int size)
-            : base(name, offset, size)
+        protected Column(string name, int offset, int size, int decimalPrecision)
+            : base(name, offset, size, decimalPrecision)
         {
         }
 

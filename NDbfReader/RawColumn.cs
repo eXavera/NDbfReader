@@ -16,10 +16,11 @@ namespace NDbfReader
         /// <param name="name">The column name.</param>
         /// <param name="offset">The column offset in a row.</param>
         /// <param name="size">The column size in bytes.</param>
+        /// <param name="decimalPrecision">The column decimal precision.</param>
         /// <param name="nativeType">The column's native type code.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0.</exception>
-        public RawColumn(string name, int offset, int size, byte nativeType) : base(name, offset, size)
+        public RawColumn(string name, int offset, int size, int decimalPrecision, byte nativeType) : base(name, offset, size, decimalPrecision)
         {
             NativeType = nativeType;
         }

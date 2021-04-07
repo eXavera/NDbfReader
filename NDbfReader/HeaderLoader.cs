@@ -17,6 +17,7 @@ namespace NDbfReader
         private const int COLUMN_NAME_LENGTH = 11;
         private const int COLUMN_NAME_OFFSET = 0;
         private const int COLUMN_SIZE_OFFSET = 16;
+        private const int COLUMN_PRECISION_OFFSET = 17;
         private const int COLUMN_TYPE_OFFSET = 11;
         private const int DAY_OFFSET = 3;
         private const byte FILE_DESCRIPTOR_TERMINATOR = 0x0D;
@@ -132,13 +133,14 @@ namespace NDbfReader
         /// Creates a column based on the specified properties.
         /// </summary>
         /// <param name="size">The column size in bytes.</param>
+        /// <param name="decimals">The column decimal precision.</param>
         /// <param name="type">The column native type.</param>
         /// <param name="name">The column name.</param>
         /// <param name="columnOffset">The column offset in a row.</param>
         /// <returns>A column instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> or <paramref name="columnOffset"/> is &lt; 0.</exception>
-        protected virtual Column CreateColumn(byte size, byte type, string name, int columnOffset)
+        protected virtual Column CreateColumn(byte size, byte decimals, byte type, string name, int columnOffset)
         {
             if (size < 0)
             {
@@ -172,10 +174,10 @@ namespace NDbfReader
 
                 case NativeColumnType.Numeric:
                 case NativeColumnType.Float:
-                    return new DecimalColumn(name, columnOffset, size);
+                    return new DecimalColumn(name, columnOffset, size, decimals);
 
                 default:
-                    return new RawColumn(name, columnOffset, size, type);
+                    return new RawColumn(name, columnOffset, size, decimals, type);
             }
         }
 
@@ -283,8 +285,9 @@ namespace NDbfReader
             string name = Encoding.UTF8.GetString(buffer, COLUMN_NAME_OFFSET, COLUMN_NAME_LENGTH).TrimEnd('\0', ' ');
             byte type = buffer[COLUMN_TYPE_OFFSET];
             byte size = buffer[COLUMN_SIZE_OFFSET];
+            byte decimals = buffer[COLUMN_PRECISION_OFFSET];
 
-            return CreateColumn(size, type, name, columnOffset);
+            return CreateColumn(size, decimals, type, name, columnOffset);
         }
 
         /// <summary>
