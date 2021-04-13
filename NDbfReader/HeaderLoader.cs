@@ -223,6 +223,11 @@ namespace NDbfReader
             byte month = buffer[MONTH_OFFSET];
             byte day = buffer[DAY_OFFSET];
 
+            if (month == 0 || day == 0)
+            {
+                return DateTime.MinValue; // prevent exception for invalid month and day
+            }
+
             return new DateTime((year > DateTime.Now.Year % 1000 ? 1900 : 2000) + year, month, day);
         }
 
