@@ -223,9 +223,10 @@ namespace NDbfReader
             byte month = buffer[MONTH_OFFSET];
             byte day = buffer[DAY_OFFSET];
 
+            // prevent exception for invalid month or day
             if (month == 0 || day == 0)
             {
-                return DateTime.MinValue; // prevent exception for invalid month and day
+                return DateTime.MinValue;
             }
 
             // YY is added to a base of 1900 decimal to determine the actual year giving a range of 1900-2155
