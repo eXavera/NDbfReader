@@ -223,7 +223,15 @@ namespace NDbfReader
             byte month = buffer[MONTH_OFFSET];
             byte day = buffer[DAY_OFFSET];
 
-            return new DateTime((year > DateTime.Now.Year % 1000 ? 1900 : 2000) + year, month, day);
+            // prevent exception for invalid month or day
+            if (month == 0 || day == 0)
+            {
+                return DateTime.MinValue;
+            }
+
+            // YY is added to a base of 1900 decimal to determine the actual year giving a range of 1900-2155
+            // (http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm).
+            return new DateTime(1900 + year, month, day);
         }
 
         private LoadColumnsResult LoadColumns(Stream stream, byte firstColumnByte)
