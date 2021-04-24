@@ -230,8 +230,8 @@ namespace NDbfReader
             }
 
             // YY is added to a base of 1900 decimal to determine the actual year giving a range of 1900-2155
-            // (http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm).
-            return new DateTime(1900 + year, month, day);
+            // but this does not apply for all dBase versions, so we have to 'guess'
+            return new DateTime((year > DateTime.Now.Year % 1000 ? 1900 : 2000) + year, month, day);
         }
 
         private LoadColumnsResult LoadColumns(Stream stream, byte firstColumnByte)
