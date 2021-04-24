@@ -17,11 +17,27 @@ namespace NDbfReader
         /// <param name="offset">The column offset in a row.</param>
         /// <param name="size">The column size in bytes.</param>
         /// <param name="nativeType">The column's native type code.</param>
+        /// <param name="decimalPrecision">The column decimal precision.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0.</exception>
-        public RawColumn(string name, int offset, int size, byte nativeType) : base(name, offset, size)
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0 or <paramref name="decimalPrecision"/> is &lt; 0.</exception>
+        public RawColumn(string name, int offset, int size, byte nativeType, int decimalPrecision) : base(name, offset, size, decimalPrecision)
         {
             NativeType = nativeType;
+        }
+
+        /// <summary>
+        /// This overload is <b>obsolete</b>. Use <c>RawColumn(string name, int offset, int size, byte nativeType, int decimalPrecision)</c> instead.
+        /// </summary>
+        /// <param name="name">The column name.</param>
+        /// <param name="offset">The column offset in a row.</param>
+        /// <param name="size">The column size in bytes.</param>
+        /// <param name="nativeType">The column's native type code.</param>
+        /// <exception cref="NotSupportedException">This constructor is obsolete.</exception>
+        [Obsolete("This overload is no loner used. Use RawColumn(string name, int offset, int size, byte nativeType, int decimalPrecision) instead", error: true)]
+        public RawColumn(string name, int offset, int size, byte nativeType) : base(name, offset, size, 0)
+        {
+            throw new NotSupportedException(
+                "This coverload is no loner used. Use RawColumn(string name, int offset, int size, byte nativeType, int decimalPrecision) instead");
         }
 
         /// <summary>

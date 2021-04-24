@@ -21,7 +21,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0.</exception>
         [Obsolete("Specify the actual column size")]
         public BooleanColumn(string name, int offset)
-            : base(name, offset, MIN_SIZE)
+            : base(name, offset, MIN_SIZE, 0)
         {
         }
 
@@ -34,7 +34,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 1.</exception>
         public BooleanColumn(string name, int offset, int size)
-            : base(name, offset, size)
+            : base(name, offset, size, 0)
         {
             if (size < MIN_SIZE)
             {

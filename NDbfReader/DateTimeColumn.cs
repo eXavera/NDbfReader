@@ -21,7 +21,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0.</exception>
         [Obsolete("Specify the actual column size")]
         public DateTimeColumn(string name, int offset)
-            : base(name, offset, NUMBER_OF_DATE_CHARS)
+            : base(name, offset, NUMBER_OF_DATE_CHARS, 0)
         {
         }
 
@@ -34,7 +34,7 @@ namespace NDbfReader
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 8.</exception>
         public DateTimeColumn(string name, int offset, int size)
-            : base(name, offset, size)
+            : base(name, offset, size, 0)
         {
             if (size < NUMBER_OF_DATE_CHARS)
             {

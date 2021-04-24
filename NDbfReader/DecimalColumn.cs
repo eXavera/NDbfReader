@@ -19,11 +19,27 @@ namespace NDbfReader
         /// <param name="name">The column name.</param>
         /// <param name="offset">The column offset in a row.</param>
         /// <param name="size">The column size in bytes.</param>
+        /// <param name="decimalPrecision">The column decimal precision.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0.</exception>
-        public DecimalColumn(string name, int offset, int size)
-            : base(name, offset, size)
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is &lt; 0 or <paramref name="size"/> is &lt; 0 or <paramref name="decimalPrecision"/> is &lt; 0.</exception>
+        public DecimalColumn(string name, int offset, int size, int decimalPrecision)
+            : base(name, offset, size, decimalPrecision)
         {
+        }
+
+        /// <summary>
+        /// This overload is <b>obsolete</b>. Use <c>DecimalColumn(string name, int offset, int size, int decimalPrecision)</c> instead.
+        /// </summary>
+        /// <param name="name">The column name.</param>
+        /// <param name="offset">The column offset in a row.</param>
+        /// <param name="size">The column size in bytes.</param>
+        /// <exception cref="NotSupportedException">This constructor is obsolete.</exception>
+        [Obsolete("This overload is no loner used. Use DecimalColumn(string name, int offset, int size, int decimalPrecision) instead", error: true)]
+        public DecimalColumn(string name, int offset, int size)
+            : base(name, offset, size, 0)
+        {
+            throw new NotSupportedException(
+                "This coverload is no loner used. Use DecimalColumn(string name, int offset, int size, int decimalPrecision) instead");
         }
 
         /// <summary>

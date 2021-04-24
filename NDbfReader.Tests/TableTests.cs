@@ -35,6 +35,13 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
+        public Task Columns_ReturnsColumnsPrecision(bool useAsync)
+        {
+            return Columns_LoadedFile_ReturnsColumnsProperties(useAsync, column => column.DecimalPrecision, 0, 0, 8, 0, 0);
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
         public Task Columns_ReturnsColumnsTypes(bool useAsync)
         {
             return Columns_LoadedFile_ReturnsColumnsProperties(useAsync, column => column.Type, typeof(string), typeof(DateTime?), typeof(decimal?), typeof(bool?), typeof(int));

@@ -17,6 +17,7 @@ namespace NDbfReader
         private const int COLUMN_NAME_LENGTH = 11;
         private const int COLUMN_NAME_OFFSET = 0;
         private const int COLUMN_SIZE_OFFSET = 16;
+        private const int COLUMN_PRECISION_OFFSET = 17;
         private const int COLUMN_TYPE_OFFSET = 11;
         private const int DAY_OFFSET = 3;
         private const byte FILE_DESCRIPTOR_TERMINATOR = 0x0D;
@@ -154,10 +155,16 @@ namespace NDbfReader
 
                 case NativeColumnType.Numeric:
                 case NativeColumnType.Float:
-                    return new DecimalColumn(columnProperties.Name, columnProperties.Offset, columnProperties.Size);
+                    return new DecimalColumn(
+                        columnProperties.Name, columnProperties.Offset, columnProperties.Size, columnProperties.DecimalPrecision);
 
                 default:
-                    return new RawColumn(columnProperties.Name, columnProperties.Offset, columnProperties.Size, columnProperties.Type);
+                    return new RawColumn(
+                        columnProperties.Name,
+                        columnProperties.Offset,
+                        columnProperties.Size,
+                        columnProperties.Type,
+                        columnProperties.DecimalPrecision);
             }
         }
 
@@ -287,8 +294,9 @@ namespace NDbfReader
             string name = Encoding.UTF8.GetString(buffer, COLUMN_NAME_OFFSET, COLUMN_NAME_LENGTH).TrimEnd('\0', ' ');
             byte type = buffer[COLUMN_TYPE_OFFSET];
             byte size = buffer[COLUMN_SIZE_OFFSET];
+            byte decimals = buffer[COLUMN_PRECISION_OFFSET];
 
-            return CreateColumn(new ColumnProperties(size, type, name, columnOffset));
+            return CreateColumn(new ColumnProperties(size, type, name, columnOffset, decimals));
         }
 
         /// <summary>
@@ -337,7 +345,7 @@ namespace NDbfReader
         /// </summary>
         public readonly struct ColumnProperties
         {
-            internal ColumnProperties(byte size, byte type, string name, int columnOffset)
+            internal ColumnProperties(byte size, byte type, string name, int columnOffset, byte decimalPrecision)
             {
                 if (size < 0)
                 {
@@ -351,11 +359,16 @@ namespace NDbfReader
                 {
                     throw new ArgumentOutOfRangeException(nameof(columnOffset));
                 }
+                if (decimalPrecision < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(decimalPrecision));
+                }
 
                 Size = size;
                 Type = type;
                 Name = name;
                 Offset = columnOffset;
+                DecimalPrecision = decimalPrecision;
             }
 
             /// <summary>
@@ -377,6 +390,11 @@ namespace NDbfReader
             /// The column offset in a row.
             /// </summary>
             public readonly int Offset;
+
+            /// <summary>
+            /// Decimal precision of the column.
+            /// </summary>
+            public readonly byte DecimalPrecision;
         }
 
         private sealed class LoadColumnsResult
