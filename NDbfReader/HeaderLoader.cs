@@ -131,52 +131,48 @@ namespace NDbfReader
         /// <summary>
         /// Creates a column based on the specified properties.
         /// </summary>
+        /// <param name="columnProperties">The column properties.</param>
+        /// <returns>A column instance.</returns>
+        protected virtual Column CreateColumn(in ColumnProperties columnProperties)
+        {
+            switch (columnProperties.Type)
+            {
+                case NativeColumnType.Char:
+                    return new StringColumn(columnProperties.Name, columnProperties.Offset, columnProperties.Size);
+
+                case NativeColumnType.Date:
+                    return new DateTimeColumn(columnProperties.Name, columnProperties.Offset, columnProperties.Size);
+
+                case NativeColumnType.FoxProDateTime:
+                    return new FoxProDateTimeColumn(columnProperties.Name, columnProperties.Offset, columnProperties.Size);
+
+                case NativeColumnType.Long:
+                    return new Int32Column(columnProperties.Name, columnProperties.Offset, columnProperties.Size);
+
+                case NativeColumnType.Logical:
+                    return new BooleanColumn(columnProperties.Name, columnProperties.Offset, columnProperties.Size);
+
+                case NativeColumnType.Numeric:
+                case NativeColumnType.Float:
+                    return new DecimalColumn(columnProperties.Name, columnProperties.Offset, columnProperties.Size);
+
+                default:
+                    return new RawColumn(columnProperties.Name, columnProperties.Offset, columnProperties.Size, columnProperties.Type);
+            }
+        }
+
+        /// <summary>
+        /// This overload is <b>obsolete</b>. Use CreateColumn(ColumnProperties) instead.
+        /// </summary>
         /// <param name="size">The column size in bytes.</param>
         /// <param name="type">The column native type.</param>
         /// <param name="name">The column name.</param>
         /// <param name="columnOffset">The column offset in a row.</param>
-        /// <returns>A column instance.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c> or empty.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> or <paramref name="columnOffset"/> is &lt; 0.</exception>
+        /// <exception cref="NotSupportedException">This method is obsolete.</exception>
+        [Obsolete("This overload is no longer used. Use CreateColumn(ColumnProperties) instead.", error: true)]
         protected virtual Column CreateColumn(byte size, byte type, string name, int columnOffset)
         {
-            if (size < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(size));
-            }
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-            if (columnOffset < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(columnOffset));
-            }
-
-            switch (type)
-            {
-                case NativeColumnType.Char:
-                    return new StringColumn(name, columnOffset, size);
-
-                case NativeColumnType.Date:
-                    return new DateTimeColumn(name, columnOffset, size);
-
-                case NativeColumnType.FoxProDateTime:
-                    return new FoxProDateTimeColumn(name, columnOffset, size);
-
-                case NativeColumnType.Long:
-                    return new Int32Column(name, columnOffset, size);
-
-                case NativeColumnType.Logical:
-                    return new BooleanColumn(name, columnOffset, size);
-
-                case NativeColumnType.Numeric:
-                case NativeColumnType.Float:
-                    return new DecimalColumn(name, columnOffset, size);
-
-                default:
-                    return new RawColumn(name, columnOffset, size, type);
-            }
+            throw new NotSupportedException("This overload is no longer used. Use CreateColumn(ColumnProperties) instead.");
         }
 
         /// <summary>
@@ -292,11 +288,11 @@ namespace NDbfReader
             byte type = buffer[COLUMN_TYPE_OFFSET];
             byte size = buffer[COLUMN_SIZE_OFFSET];
 
-            return CreateColumn(size, type, name, columnOffset);
+            return CreateColumn(new ColumnProperties(size, type, name, columnOffset));
         }
 
         /// <summary>
-        /// Represents basic properties of dBASE header. Only for internal usage.
+        /// Represents raw properties of dBASE header. Only for internal usage.
         /// </summary>
         public class BasicProperties
         {
@@ -334,6 +330,53 @@ namespace NDbfReader
             /// Gets the row size in bytes.
             /// </summary>
             public short RowSize { get; }
+        }
+
+        /// <summary>
+        /// Represents raw properties of dBASE column.
+        /// </summary>
+        public readonly struct ColumnProperties
+        {
+            internal ColumnProperties(byte size, byte type, string name, int columnOffset)
+            {
+                if (size < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(size));
+                }
+                if (string.IsNullOrEmpty(name))
+                {
+                    throw new ArgumentException($"'{nameof(name)}' cannot be null or empty.", nameof(name));
+                }
+                if (columnOffset < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(columnOffset));
+                }
+
+                Size = size;
+                Type = type;
+                Name = name;
+                Offset = columnOffset;
+            }
+
+            /// <summary>
+            /// The column size in bytes.
+            /// </summary>
+            public readonly byte Size;
+
+            /// <summary>
+            /// The native column type.
+            /// </summary>
+            public readonly byte Type;
+
+            /// <summary>
+            /// The column name.
+            /// </summary>
+            public readonly string Name;
+
+            /// <summary>
+            /// The column offset in a row.
+            /// </summary>
+            public readonly int Offset;
         }
 
         private sealed class LoadColumnsResult
