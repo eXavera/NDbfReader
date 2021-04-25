@@ -74,5 +74,15 @@ namespace NDbfReader.Tests
                 "F"
             };
         }
+
+        public static class CurrencyDataType
+        {
+            public static class UnitPriceColumn
+            {
+                public static readonly string Name = "UNITPRICE";
+
+                public static readonly IReadOnlyCollection<decimal> FirstSixRows = new decimal[] { 18, 19, 10, 22, 21.35m };
+            }
+        }
     }
 }

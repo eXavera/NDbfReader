@@ -134,7 +134,7 @@ namespace NDbfReader.Tests
         [InlineDataWithExecMode(false)]
         public async Task Open_TableWithExtraHeaderFields_ReturnsCorrectValues(bool useAsync, bool seekableStream)
         {
-            Stream tableStream = EmbeddedSamples.GetStream(EmbeddedSamples.UNSUPPORTED_TYPES);
+            Stream tableStream = EmbeddedSamples.GetStream(EmbeddedSamples.EXTRA_HEADER_FIELDS);
             if (seekableStream)
             {
                 tableStream = tableStream.ToNonSeekable();
@@ -173,7 +173,35 @@ namespace NDbfReader.Tests
             {
                 var actualUnsupportedColumns = table.Columns.OfType<RawColumn>().Select(c => new { c.Name, c.NativeType });
 
-                var expectedColumns = new[] { new { Name = "UNITPRICE", NativeType = 89 }, new { Name = "_NullFlags", NativeType = 48 } };
+                var expectedColumns = new[] 
+                {
+                    new { Name = "APPNOTES", NativeType = 0x4d },
+                    new { Name = "CLASSES", NativeType = 0x4d },
+                    new { Name = "CONDNOTES", NativeType = 0x4d },
+                    new { Name = "COPYRIGHT", NativeType = 0x4d },
+                    new { Name = "CREDIT", NativeType = 0x4d },
+                    new { Name = "DESCRIP", NativeType = 0x4d },
+                    new { Name = "DIMNOTES", NativeType = 0x4d },
+                    new { Name = "EXHLABEL1", NativeType = 0x4d },
+                    new { Name = "EXHLABEL2", NativeType = 0x4d },
+                    new { Name = "EXHLABEL3", NativeType = 0x4d },
+                    new { Name = "EXHLABEL4", NativeType = 0x4d },
+                    new { Name = "FLAGNOTES", NativeType = 0x4d },
+                    new { Name = "LEGAL", NativeType = 0x4d },
+                    new { Name = "LOANCOND", NativeType = 0x4d },
+                    new { Name = "MAINTNOTE", NativeType = 0x4d },
+                    new { Name = "NOTES", NativeType = 0x4d },
+                    new { Name = "PEOPLE", NativeType = 0x4d },
+                    new { Name = "PROVENANCE", NativeType = 0x4d },
+                    new { Name = "PUBNOTES", NativeType = 0x4d },
+                    new { Name = "RELNOTES", NativeType = 0x4d },
+                    new { Name = "STERMS", NativeType = 0x4d },
+                    new { Name = "SUBJECTS", NativeType = 0x4d },
+                    new { Name = "TEMPNOTES", NativeType = 0x4d },
+                    new { Name = "TITLE", NativeType = 0x4d },
+                    new { Name = "UDF21", NativeType = 0x4d },
+                    new { Name = "UDF22", NativeType = 0x4d }
+                };
                 actualUnsupportedColumns.ShouldAllBeEquivalentTo(expectedColumns, opt => opt.WithStrictOrdering());
             }
         }

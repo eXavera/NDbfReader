@@ -158,6 +158,13 @@ namespace NDbfReader
                     return new DecimalColumn(
                         columnProperties.Name, columnProperties.Offset, columnProperties.Size, columnProperties.DecimalPrecision);
 
+                case NativeColumnType.Currency:
+                    return new CurrencyColumn(
+                        columnProperties.Name,
+                        columnProperties.Offset,
+                        columnProperties.Size,
+                        columnProperties.DecimalPrecision);
+
                 default:
                     return new RawColumn(
                         columnProperties.Name,

@@ -45,5 +45,11 @@
         /// </summary>
         /// <remarks>N in ASCII</remarks>
         public const byte Numeric = 0x4E;
+
+        /// <summary>
+        /// 8 bytes - floating point number stored as 64-bit integer.
+        /// </summary>
+        /// <remarks>Y in ASCII</remarks>
+        public const byte Currency = 0x59;
     }
 }

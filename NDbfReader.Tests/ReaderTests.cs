@@ -454,18 +454,54 @@ namespace NDbfReader.Tests
 
         [Theory]
         [InlineDataWithExecMode]
+        public Task GetDecimal_CurrencyColumnName_ReturnsCorrectDecimal(bool useAsync)
+        {
+            return GetMethod_CurrencyColumn_ReturnsCorrectDecimal(
+                useAsync,
+                reader => reader.GetDecimal(Samples.CurrencyDataType.UnitPriceColumn.Name));
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task GetDecimal_CurrencyColumnInstance_ReturnsCorrectDecimal(bool useAsync)
+        {
+            return GetMethod_CurrencyColumn_ReturnsCorrectDecimal(
+                useAsync,
+                reader => reader.GetDecimal(reader.Table.Columns[Samples.CurrencyDataType.UnitPriceColumn.Name]));
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task GetValue_CurrencyColumnName_ReturnsCorrectDecimal(bool useAsync)
+        {
+            return GetMethod_CurrencyColumn_ReturnsCorrectDecimal(
+                useAsync,
+                reader => (decimal?)reader.GetValue(Samples.CurrencyDataType.UnitPriceColumn.Name));
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
+        public Task GetValue_CurrencyColumnInstance_ReturnsCorrectDecimal(bool useAsync)
+        {
+            return GetMethod_CurrencyColumn_ReturnsCorrectDecimal(
+                useAsync,
+                reader => (decimal?)reader.GetValue(reader.Table.Columns[Samples.CurrencyDataType.UnitPriceColumn.Name]));
+        }
+
+        [Theory]
+        [InlineDataWithExecMode]
         public async Task GetValue_UnsupportedColumn_ReturnsBytes(bool useAsync)
         {
             using (var table = await this.Exec(() => Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.UNSUPPORTED_TYPES)), useAsync))
             {
                 Reader reader = table.OpenReader();
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 15; i++)
                 {
                     await reader.Exec(r => r.Read(), useAsync);
                 }
 
-                var actualBytes = reader.GetValue("UNITPRICE") as byte[];
-                var expectedBytes = new byte[] { 160, 134, 1, 0, 0, 0, 0, 0 };
+                var actualBytes = reader.GetValue("APPNOTES") as byte[];
+                var expectedBytes = new byte[] { 4, 1, 0, 0 };
                 actualBytes.ShouldAllBeEquivalentTo(expectedBytes, opt => opt.WithStrictOrdering());
             }
         }
@@ -796,6 +832,26 @@ namespace NDbfReader.Tests
 
                 // Assert
                 actualValue.TrimMilliseconds().ShouldBeEquivalentTo(expectedValue);
+            }
+        }
+
+        private async Task GetMethod_CurrencyColumn_ReturnsCorrectDecimal(bool useAsync, Func<Reader, decimal?> getMethod)
+        {
+            // Arrange
+            Stream stream = EmbeddedSamples.GetStream(EmbeddedSamples.CURRENCY_DATA_TYPE);
+            using (var table = await this.Exec(() => Table.Open(stream), useAsync))
+            {
+                var reader = table.OpenReader();
+
+                var actualValues = new List<decimal?>();
+                while (await reader.Exec(r => r.Read(), useAsync) && actualValues.Count < Samples.CurrencyDataType.UnitPriceColumn.FirstSixRows.Count)
+                {
+                    // Act
+                    actualValues.Add(getMethod(reader));
+                }
+
+                // Assert
+                actualValues.ShouldAllBeEquivalentTo(Samples.CurrencyDataType.UnitPriceColumn.FirstSixRows, opt => opt.WithStrictOrdering());
             }
         }
 
