@@ -14,8 +14,13 @@ namespace NDbfReader.Tests
     public sealed class ReaderTests
     {
         private const string EXPECTED_NO_ROWS_EXCEPTION_MESSAGE = "No row is loaded. Call Read method first and check whether it returns true.";
-
         private const string ZERO_SIZE_COLUMN_NAME = "KRAJID";
+
+        static ReaderTests()
+        {
+            // support Windows-1250 encoding in donet core
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        }
 
         [Theory]
         [InlineData(typeof(string))]
@@ -93,7 +98,7 @@ namespace NDbfReader.Tests
         {
             using (var table = await this.Exec(() => Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.WHITE_SPACES)), useAsync))
             {
-                var reader = table.OpenReader(Encoding.GetEncoding(1250));
+                var reader = table.OpenReader();
                 await reader.Exec(r => r.Read(), useAsync);
 
                 decimal? actualValue = reader.GetDecimal("OBJ_SEQ");
@@ -801,7 +806,7 @@ namespace NDbfReader.Tests
             Stream stream = EmbeddedSamples.GetStream(EmbeddedSamples.ZERO_SIZE_COLUMN);
             using (var table = await this.Exec(() => Table.Open(stream), useAsync))
             {
-                var reader = table.OpenReader(Encoding.GetEncoding(1250));
+                var reader = table.OpenReader();
                 await reader.Exec((r) => r.Read(), useAsync);
 
                 var expectedValues = new[] { null, "ABCD" };

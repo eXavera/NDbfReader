@@ -130,7 +130,12 @@ namespace NDbfReader.Tests
                 var dataTable = await this.Exec(() => table.AsDataTable(), useAsync);
 
                 // Assert
-                var actualValues = dataTable.AsEnumerable().Select(row => row[columnName]);
+                var actualValues = new List<object>();
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    actualValues.Add(row[columnName]);
+                }
+
                 actualValues.ShouldAllBeEquivalentTo(expectedValues, opt => opt.WithStrictOrdering());
             }
         }

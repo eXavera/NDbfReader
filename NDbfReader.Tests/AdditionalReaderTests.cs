@@ -15,7 +15,7 @@ namespace NDbfReader.Tests
             using (var table = await this.Exec(() => Table.Open(EmbeddedSamples.GetStream(EmbeddedSamples.BIG_CZECH_DATA)), useAsync))
             {
                 var readRows = 0;
-                var reader = table.OpenReader(Encoding.GetEncoding(1250));
+                var reader = table.OpenReader(Encoding.UTF8);
 
                 object value = null;
                 while (await reader.Exec(r => r.Read(), useAsync))

@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NDbfReader", "NDbfReader\NDbfReader.csproj", "{C98D4551-7C67-477B-9188-5B4B41CB378A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader.Tests", "NDbfReader.Tests\NDbfReader.Tests.csproj", "{9C68CEE0-4686-4FE9-9685-55BA3A742CD9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B34DCA4-4FB0-4E87-B9AE-2C1B55278509}"
 	ProjectSection(SolutionItems) = preProject
@@ -17,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader.Net40", "NDbfReader.Net40\NDbfReader.Net40.csproj", "{2A7E63A2-3297-4630-A669-89164B0120A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDbfReader.Tests", "NDbfReader.Tests\NDbfReader.Tests.csproj", "{5C8ED94A-1208-42E4-A3DB-CD8C0D8AAC5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,14 +27,14 @@ Global
 		{C98D4551-7C67-477B-9188-5B4B41CB378A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C98D4551-7C67-477B-9188-5B4B41CB378A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C98D4551-7C67-477B-9188-5B4B41CB378A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9C68CEE0-4686-4FE9-9685-55BA3A742CD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9C68CEE0-4686-4FE9-9685-55BA3A742CD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9C68CEE0-4686-4FE9-9685-55BA3A742CD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9C68CEE0-4686-4FE9-9685-55BA3A742CD9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2A7E63A2-3297-4630-A669-89164B0120A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2A7E63A2-3297-4630-A669-89164B0120A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A7E63A2-3297-4630-A669-89164B0120A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A7E63A2-3297-4630-A669-89164B0120A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C8ED94A-1208-42E4-A3DB-CD8C0D8AAC5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C8ED94A-1208-42E4-A3DB-CD8C0D8AAC5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C8ED94A-1208-42E4-A3DB-CD8C0D8AAC5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C8ED94A-1208-42E4-A3DB-CD8C0D8AAC5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
