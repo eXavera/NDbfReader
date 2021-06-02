@@ -11,7 +11,11 @@ namespace NDbfReader
     [DebuggerDisplay("Decimal {Name}")]
     public class DecimalColumn : Column<decimal?>
     {
-        private static readonly NumberFormatInfo DecimalNumberFormat = new NumberFormatInfo { NumberDecimalSeparator = "." };
+        private static readonly NumberFormatInfo NumberFormat = new NumberFormatInfo { NumberDecimalSeparator = "." };
+
+#if NETSTANDARD_21
+        private char[] _valueCharsBuffer;
+#endif
 
         /// <summary>
         /// Initializes a new instance with the specified name and offset.
@@ -51,18 +55,28 @@ namespace NDbfReader
         /// <returns>A column value.</returns>
         protected override decimal? DoLoad(byte[] buffer, int offset, Encoding encoding)
         {
-            string stringValue = encoding.GetString(buffer, offset, Size);
-            if (stringValue.Length == 0)
+            const NumberStyles NumberStyle = NumberStyles.Float | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
+
+#if NETSTANDARD_21 // avoids string allocation
+            if (_valueCharsBuffer == null)
             {
-                return null;
+                _valueCharsBuffer = new char[Size];
             }
 
-            decimal value;
-            if (decimal.TryParse(stringValue, NumberStyles.Float | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, DecimalNumberFormat, out value))
+            int read = encoding.GetChars(buffer, offset, Size, _valueCharsBuffer, 0);
+            if (read > 0 && decimal.TryParse(_valueCharsBuffer, NumberStyle, NumberFormat, out decimal value))
             {
                 return value;
             }
             return null;
+#else
+            string stringValue = encoding.GetString(buffer, offset, Size);
+            if (stringValue.Length > 0 && decimal.TryParse(stringValue, NumberStyle, NumberFormat, out decimal value))
+            {
+                return value;
+            }
+            return null;
+#endif
         }
     }
 }
