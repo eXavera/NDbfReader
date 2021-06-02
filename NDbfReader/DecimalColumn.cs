@@ -38,12 +38,12 @@ namespace NDbfReader
         /// <param name="offset">The column offset in a row.</param>
         /// <param name="size">The column size in bytes.</param>
         /// <exception cref="NotSupportedException">This constructor is obsolete.</exception>
-        [Obsolete("This overload is no loner used. Use DecimalColumn(string name, int offset, int size, int decimalPrecision) instead", error: true)]
+        [Obsolete("This overload is no longer used. Use DecimalColumn(string name, int offset, int size, int decimalPrecision) instead", error: true)]
         public DecimalColumn(string name, int offset, int size)
             : base(name, offset, size, 0)
         {
             throw new NotSupportedException(
-                "This coverload is no loner used. Use DecimalColumn(string name, int offset, int size, int decimalPrecision) instead");
+                "This coverload is no longer used. Use DecimalColumn(string name, int offset, int size, int decimalPrecision) instead");
         }
 
         /// <summary>

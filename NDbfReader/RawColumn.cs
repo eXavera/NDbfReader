@@ -33,11 +33,11 @@ namespace NDbfReader
         /// <param name="size">The column size in bytes.</param>
         /// <param name="nativeType">The column's native type code.</param>
         /// <exception cref="NotSupportedException">This constructor is obsolete.</exception>
-        [Obsolete("This overload is no loner used. Use RawColumn(string name, int offset, int size, byte nativeType, int decimalPrecision) instead", error: true)]
+        [Obsolete("This overload is no longer used. Use RawColumn(string name, int offset, int size, byte nativeType, int decimalPrecision) instead", error: true)]
         public RawColumn(string name, int offset, int size, byte nativeType) : base(name, offset, size, 0)
         {
             throw new NotSupportedException(
-                "This coverload is no loner used. Use RawColumn(string name, int offset, int size, byte nativeType, int decimalPrecision) instead");
+                "This coverload is no longer used. Use RawColumn(string name, int offset, int size, byte nativeType, int decimalPrecision) instead");
         }
 
         /// <summary>
