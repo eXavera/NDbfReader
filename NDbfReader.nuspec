@@ -34,6 +34,7 @@
         <dependency id="System.IO.FileSystem.Primitives" version="4.0.1" />
       </group>
       <group targetFramework=".NETStandard2.0"></group>
+      <group targetFramework=".NETStandard2.1"></group>
     </dependencies>
   </metadata>
   <files>
@@ -43,6 +44,8 @@
     <file src="NDbfReader\bin\Release\netstandard1.3\NDbfReader.xml" target="lib\netstandard1.3" />
     <file src="NDbfReader\bin\Release\netstandard2.0\NDbfReader.dll" target="lib\netstandard2.0" />
     <file src="NDbfReader\bin\Release\netstandard2.0\NDbfReader.xml" target="lib\netstandard2.0" />
+    <file src="NDbfReader\bin\Release\netstandard2.1\NDbfReader.dll" target="lib\netstandard2.1" />
+    <file src="NDbfReader\bin\Release\netstandard2.1\NDbfReader.xml" target="lib\netstandard2.1" />
     <file src="NDbfReader.Net40\bin\Release\NDbfReader.dll" target="lib\net40" />
     <file src="NDbfReader.Net40\bin\Release\NDbfReader.xml" target="lib\net40" />
   </files>
