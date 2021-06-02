@@ -12,6 +12,10 @@ namespace NDbfReader
     {
         private const int NUMBER_OF_DATE_CHARS = 8;
 
+#if NETSTANDARD_21
+        private char[] _valueCharsBuffer;
+#endif
+
         /// <summary>
         /// Initializes a new instance with the specified name and offset.
         /// </summary>
@@ -51,14 +55,31 @@ namespace NDbfReader
         /// <returns>A column value.</returns>
         protected override DateTime? DoLoad(byte[] buffer, int offset, Encoding encoding)
         {
+            const string DateFormat = "yyyyMMdd";
+            IFormatProvider NoFormatProvider = null;
+
+#if NETSTANDARD_21 // avoids string allocation
+            if (_valueCharsBuffer == null)
+            {
+                _valueCharsBuffer = new char[NUMBER_OF_DATE_CHARS];
+            }
+
+            int read = encoding.GetChars(buffer, offset, NUMBER_OF_DATE_CHARS, _valueCharsBuffer, charIndex: 0);
+            if (read != NUMBER_OF_DATE_CHARS || char.IsWhiteSpace(_valueCharsBuffer[0]))
+            {
+                return null;
+            }
+
+            return DateTime.ParseExact(_valueCharsBuffer, DateFormat, NoFormatProvider);
+#else
             string stringValue = encoding.GetString(buffer, offset, NUMBER_OF_DATE_CHARS);
             if (string.IsNullOrWhiteSpace(stringValue))
             {
                 return null;
             }
 
-            // there are no whitespace characters
-            return DateTime.ParseExact(stringValue, "yyyyMMdd", null);
+            return DateTime.ParseExact(stringValue, DateFormat, NoFormatProvider);
+#endif
         }
     }
 }
