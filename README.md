@@ -10,7 +10,7 @@ Supported platforms:
 
 - .NET 4.0 +
 - .NET Standard 1.3 (without `AsDataTable` methods)
-- .NET Standard 2.0
+- .NET Standard 2.0+
 
 [Supported data types](https://github.com/eXavera/NDbfReader/wiki/Supported-data-types)
 
@@ -40,15 +40,13 @@ using (var table = Table.Open(@"D:\mytable.dbf"))
 
 ## Source
 
-Install `Visual Studio 2017 (15.5+)` and .NET Core 2.0.
+Install `Visual Studio 2019+`
 
 Clone the repository and run `build.cmd` from `Developer Command Prompt for VS`.
 
 ## Tests
 
 Run the `run-tests.cmd` batch file.
-
-Run the `test-coverage.cmd` batch file to calculate the test coverage with [OpenCover](https://github.com/OpenCover/opencover).
 
 ## License
 [MIT](https://github.com/eXavera/NDbfReader/blob/master/LICENSE.md)
