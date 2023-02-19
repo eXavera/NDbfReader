@@ -99,28 +99,30 @@ namespace NDbfReader
         /// Opens a table from the specified file.
         /// </summary>
         /// <param name="path">The file to be opened.</param>
+        /// <param name="encoding">The header encoding</param>
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c> or empty.</exception>
-        public static Table Open(string path)
+        public static Table Open(string path, Encoding encoding)
         {
             if (string.IsNullOrEmpty(path))
             {
                 throw new ArgumentNullException(nameof(path));
             }
 
-            return Open(File.OpenRead(path));
+            return Open(File.OpenRead(path), encoding);
         }
 
         /// <summary>
         /// Opens a table from the specified stream.
         /// </summary>
         /// <param name="stream">The stream of dBASE table to open. The stream is closed when the returned table instance is disposed.</param>
+        /// <param name="encoding">The header encoding</param>
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="stream"/> does not allow reading.</exception>
-        public static Table Open(Stream stream)
+        public static Table Open(Stream stream, Encoding encoding)
         {
-            return Open(stream, HeaderLoader.Default);
+            return Open(stream, HeaderLoader.Default, encoding);
         }
 
         /// <summary>
@@ -128,10 +130,11 @@ namespace NDbfReader
         /// </summary>
         /// <param name="stream">The stream of dBASE table to open. The stream is closed when the returned table instance is disposed.</param>
         /// <param name="headerLoader">The header loader.</param>
+        /// <param name="encoding">The header encoding</param>
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c> or <paramref name="headerLoader"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="stream"/> does not allow reading.</exception>
-        public static Table Open(Stream stream, HeaderLoader headerLoader)
+        public static Table Open(Stream stream, HeaderLoader headerLoader, Encoding encoding)
         {
             if (stream == null)
             {
@@ -146,7 +149,7 @@ namespace NDbfReader
                 throw new ArgumentNullException(nameof(headerLoader));
             }
 
-            Header header = headerLoader.Load(stream);
+            Header header = headerLoader.Load(stream, encoding);
             return new Table(header, stream);
         }
 
@@ -154,10 +157,11 @@ namespace NDbfReader
         /// Opens a table from the specified file.
         /// </summary>
         /// <param name="path">The file to be opened.</param>
+        /// <param name="encoding">The header encoding</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c> or empty.</exception>
-        public static Task<Table> OpenAsync(string path, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<Table> OpenAsync(string path, Encoding encoding, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -167,20 +171,21 @@ namespace NDbfReader
             const int DEFAULT_BUFFER = 4096;
             var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DEFAULT_BUFFER, useAsync: true);
 
-            return OpenAsync(stream, cancellationToken);
+            return OpenAsync(stream, encoding, cancellationToken);
         }
 
         /// <summary>
         /// Opens a table from the specified stream.
         /// </summary>
         /// <param name="stream">The stream of dBASE table to open. The stream is closed when the returned table instance is disposed.</param>
+        /// <param name="encoding">The header encoding</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="stream"/> does not allow reading.</exception>
-        public static Task<Table> OpenAsync(Stream stream, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<Table> OpenAsync(Stream stream, Encoding encoding, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return OpenAsync(stream, HeaderLoader.Default, cancellationToken);
+            return OpenAsync(stream, HeaderLoader.Default, encoding, cancellationToken);
         }
 
         /// <summary>
@@ -188,12 +193,13 @@ namespace NDbfReader
         /// </summary>
         /// <param name="stream">The stream of dBASE table to open. The stream is closed when the returned table instance is disposed.</param>
         /// <param name="headerLoader">The header loader.</param>
+        /// <param name="encoding">The header encoding</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A table instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c> or <paramref name="headerLoader"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="stream"/> does not allow reading.</exception>
         /// <exception cref="NotSupportedException">The dBASE table contains one or more columns of unsupported type.</exception>
-        public static async Task<Table> OpenAsync(Stream stream, HeaderLoader headerLoader, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<Table> OpenAsync(Stream stream, HeaderLoader headerLoader, Encoding encoding, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (stream == null)
             {
@@ -208,7 +214,7 @@ namespace NDbfReader
                 throw new ArgumentNullException(nameof(headerLoader));
             }
 
-            Header header = await headerLoader.LoadAsync(stream, cancellationToken).ConfigureAwait(false);
+            Header header = await headerLoader.LoadAsync(stream, encoding, cancellationToken).ConfigureAwait(false);
             return new Table(header, stream);
         }
 

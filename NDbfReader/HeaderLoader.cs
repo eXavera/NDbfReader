@@ -36,12 +36,24 @@ namespace NDbfReader
         public static HeaderLoader Default => _default;
 
         /// <summary>
-        /// Loads a header from the specified stream.
+        /// Loads a header from the specified stream. (Load with UTF8 encoding)
         /// </summary>
         /// <param name="stream">The input stream.</param>
         /// <returns>A header loaded from the specified stream.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
         public virtual Header Load(Stream stream)
+        {
+            return Load(stream, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Loads a header from the specified stream.
+        /// </summary>
+        /// <param name="stream">The input stream.</param>
+        /// <param name="encoding">The header encoding</param>
+        /// <returns>A header loaded from the specified stream.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
+        public virtual Header Load(Stream stream, Encoding encoding)
         {
             if (stream == null)
             {
@@ -54,7 +66,7 @@ namespace NDbfReader
 
             BasicProperties headerProperties = ParseBasicProperties(buffer);
 
-            LoadColumnsResult loadColumnsResult = LoadColumns(stream, buffer.Last());
+            LoadColumnsResult loadColumnsResult = LoadColumns(stream, buffer.Last(), encoding);
             totalReadBytes += loadColumnsResult.ReadBytes;
 
             int bytesToSkip = headerProperties.HeaderSize - totalReadBytes;
@@ -78,13 +90,23 @@ namespace NDbfReader
         }
 
         /// <summary>
-        /// Loads a header from the specified stream.
+        /// Loads a header from the specified stream. (Load with UTF8 encoding)
         /// </summary>
         /// <param name="stream">The input stream.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A header loaded from the specified stream.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
-        public virtual async Task<Header> LoadAsync(Stream stream, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<Header> LoadAsync(Stream stream, CancellationToken cancellationToken = default(CancellationToken)) => LoadAsync(stream, Encoding.UTF8, cancellationToken);
+
+        /// <summary>
+        /// Loads a header from the specified stream.
+        /// </summary>
+        /// <param name="stream">The input stream.</param>
+        /// <param name="encoding">The header encoding</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A header loaded from the specified stream.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
+        public virtual async Task<Header> LoadAsync(Stream stream, Encoding encoding, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (stream == null)
             {
@@ -97,7 +119,7 @@ namespace NDbfReader
 
             BasicProperties headerProperties = ParseBasicProperties(buffer);
 
-            LoadColumnsResult loadColumnsResult = await LoadColumnsAsync(stream, buffer.Last(), cancellationToken).ConfigureAwait(false);
+            LoadColumnsResult loadColumnsResult = await LoadColumnsAsync(stream, buffer.Last(), encoding, cancellationToken).ConfigureAwait(false);
             totalReadBytes += loadColumnsResult.ReadBytes;
 
             int bytesToSkip = headerProperties.HeaderSize - totalReadBytes;
@@ -200,11 +222,11 @@ namespace NDbfReader
         /// </exception>
         protected virtual Header CreateHeader(BasicProperties properties, IList<IColumn> columns)
         {
-            if(properties == null)
+            if (properties == null)
             {
                 throw new ArgumentNullException(nameof(properties));
             }
-            if(columns == null)
+            if (columns == null)
             {
                 throw new ArgumentNullException(nameof(columns));
             }
@@ -244,7 +266,7 @@ namespace NDbfReader
             return new DateTime((year > DateTime.Now.Year % 1000 ? 1900 : 2000) + year, month, day);
         }
 
-        private LoadColumnsResult LoadColumns(Stream stream, byte firstColumnByte)
+        private LoadColumnsResult LoadColumns(Stream stream, byte firstColumnByte, Encoding encoding)
         {
             var columns = new List<IColumn>();
             int columnOffset = 0;
@@ -259,7 +281,7 @@ namespace NDbfReader
                 // read first byte of the next column
                 readBytes += stream.ReadBlock(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE);
 
-                Column newColumn = ParseColumn(columnBytes, columnOffset);
+                Column newColumn = ParseColumn(columnBytes, columnOffset, encoding);
                 columns.Add(newColumn);
                 columnOffset += newColumn.Size;
 
@@ -270,7 +292,7 @@ namespace NDbfReader
             return new LoadColumnsResult(columns, readBytes);
         }
 
-        private async Task<LoadColumnsResult> LoadColumnsAsync(Stream stream, byte firstColumnByte, CancellationToken cancellationToken)
+        private async Task<LoadColumnsResult> LoadColumnsAsync(Stream stream, byte firstColumnByte, Encoding encoding, CancellationToken cancellationToken)
         {
             var columns = new List<IColumn>();
             int columnOffset = 0;
@@ -285,7 +307,7 @@ namespace NDbfReader
                 // read first byte of the next column
                 readBytes += await stream.ReadBlockAsync(columnBytes, 1, COLUMN_DESCRIPTOR_SIZE, cancellationToken).ConfigureAwait(false);
 
-                Column newColumn = ParseColumn(columnBytes, columnOffset);
+                Column newColumn = ParseColumn(columnBytes, columnOffset, encoding);
                 columns.Add(newColumn);
                 columnOffset += newColumn.Size;
 
@@ -296,9 +318,9 @@ namespace NDbfReader
             return new LoadColumnsResult(columns, readBytes);
         }
 
-        private Column ParseColumn(byte[] buffer, int columnOffset)
+        private Column ParseColumn(byte[] buffer, int columnOffset, Encoding encoding)
         {
-            string name = Encoding.UTF8.GetString(buffer, COLUMN_NAME_OFFSET, COLUMN_NAME_LENGTH).TrimEnd('\0', ' ');
+            string name = encoding.GetString(buffer, COLUMN_NAME_OFFSET, COLUMN_NAME_LENGTH).TrimEnd('\0', ' ');
             byte type = buffer[COLUMN_TYPE_OFFSET];
             byte size = buffer[COLUMN_SIZE_OFFSET];
             byte decimals = buffer[COLUMN_PRECISION_OFFSET];
