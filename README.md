@@ -1,6 +1,8 @@
 NDbfReader
 ============
 
+# ==== This project is no longer maintained ====
+
 A *fully managed* .NET library for reading dBASE (.dbf) files.
 
 - Fast and lightweight
